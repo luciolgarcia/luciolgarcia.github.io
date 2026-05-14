@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucio L. Garcia | Data Scientist</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Variables - Light Mode (White bg, Light gray blocks) - DEFAULT */
+        :root {
+            --bg-color: #ffffff;         
+            --sidebar-bg: #f4f4f4;       
+            --card-bg: #ffffff;          
+            
+            --text-color: #333333;       
+            --heading-color: #111111;
+            --link-color: #0056b3;
+            --link-hover: #003d82;
+            
+            --border-color: #e0e0e0;     
+            --tag-bg: #e9ecef;
+            --tag-text: #333333;
+        }
+
+        /* CSS Variables - Dark Mode (Dark gray bg, Petrol blue blocks) */
+        [data-theme="dark"] {
+            --bg-color: #121212;         
+            
+            --sidebar-bg: #0c2233;       
+            --card-bg: #121212;
+            --border-color: #153b59;
+            --tag-bg: #153b59;
+            
+            --text-color: #f0f4f8;       
+            --heading-color: #ffffff;
+            --link-color: #64ffda;
+            --link-hover: #b8d4e3;
+            --tag-text: #ffffff;
+        }
+
+        /* Language Toggle Logic */
+        body[data-language="en"] [data-lang="es"] { display: none !important; }
+        body[data-language="es"] [data-lang="en"] { display: none !important; }
+
+        /* Reset and Base Styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            line-height: 1.6; 
+            color: var(--text-color); 
+            background-color: var(--bg-color);
+            display: flex; 
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        a { text-decoration: none; color: var(--link-color); transition: color 0.2s; font-weight: 500; }
+        a:hover { color: var(--link-hover); text-decoration: underline; }
+
+        /* Top Navigation Bar */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 1000;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .topbar-brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--heading-color);
+            letter-spacing: -0.5px;
+        }
+        .topbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .topbar-nav span.nav-tab {
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 18px 0;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s, border-bottom-color 0.2s;
+        }
+        .topbar-nav span.nav-tab:hover { color: var(--heading-color); }
+        .topbar-nav span.nav-tab.active {
+            color: var(--heading-color);
+            border-bottom: 3px solid var(--heading-color);
+        }
+
+        /* Buttons logic for Theme and Lang */
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 10px;
+            border-left: 1px solid var(--border-color);
+            padding-left: 15px;
+        }
+        .top-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .top-btn:hover { color: var(--heading-color); }
+
+        /* Layout Wrapper */
+        .layout-wrapper {
+            display: flex;
+            margin-top: 60px; 
+            flex: 1;
+        }
+        
+        /* Sidebar */
+        .sidebar { 
+            width: 320px; 
+            height: calc(100vh - 60px); 
+            position: fixed; 
+            left: 0;
+            top: 60px;
+            background: var(--sidebar-bg); 
+            padding: 20px 15px;
+            border-right: 1px solid var(--border-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            text-align: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        .sidebar img { 
+            width: 230px; 
+            height: 230px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            margin-bottom: 15px; 
+            border: 3px solid var(--border-color); 
+        }
+        .sidebar h1 { font-size: 1.5rem; margin-bottom: 0px; color: var(--heading-color); letter-spacing: -0.5px; }
+        .sidebar .pronouns { font-size: 0.85rem; color: var(--text-color); margin-bottom: 2px; opacity: 0.8; }
+        .sidebar h2 { font-size: 0.95rem; color: var(--text-color); font-weight: 400; margin-bottom: 15px; }
+        
+        .contact-details { width: 100%; text-align: left; padding: 0 10px; }
+        .contact-details p { font-size: 0.85rem; margin-bottom: 6px; display: flex; align-items: center; color: var(--text-color); }
+        .contact-details i { width: 22px; font-size: 1rem; color: var(--heading-color); }
+        .cv-links a { margin-left: 6px; font-weight: 600; }
+
+        /* Main Content */
+        .main-content { 
+            margin-left: 320px; 
+            padding: 50px 80px 20px; 
+            max-width: 1000px; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* Section Transition */
+        section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        section h3 { 
+            font-size: 1.8rem; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 10px; 
+            color: var(--heading-color); 
+            letter-spacing: -0.5px; 
+        }
+        
+        .sub-heading {
+            font-size: 1.4rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+
+        .item { margin-bottom: 35px; }
+        .item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+        .item-title { font-weight: 600; font-size: 1.2rem; color: var(--heading-color); }
+        .item-date { font-size: 0.95rem; font-weight: 500; }
+        .item-subtitle { font-style: italic; margin-bottom: 12px; font-size: 1rem; opacity: 0.9; }
+        .item ul { margin-left: 20px; margin-top: 10px; }
+        .item li { margin-bottom: 8px; }
+        
+        .paper-authors { font-size: 0.95rem; margin-bottom: 5px; }
+        .paper-journal { font-style: italic; font-size: 0.95rem; opacity: 0.9; display: inline-block;}
+        .paper-status { display: inline-block; background: var(--tag-bg); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-left: 10px; font-weight: 600; border: 1px solid var(--border-color); color: var(--heading-color); }
+        .paper-link { font-size: 0.85rem; margin-left: 10px; font-weight: 600; }
+
+        .skills-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill-tag { 
+            background: var(--tag-bg); 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            font-size: 0.9rem; 
+            color: var(--tag-text); 
+            font-weight: 600; 
+            border: 1px solid var(--border-color); 
+        }
+
+        .site-footer {
+            margin-top: auto;
+            padding-top: 60px;
+            padding-bottom: 20px;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 850px) {
+            .topbar { padding: 0 20px; }
+            .topbar-nav { gap: 15px; }
+            .topbar-nav span.nav-tab { font-size: 0.85rem; }
+            .layout-wrapper { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid var(--border-color); padding: 30px 20px; }
+            .main-content { margin-left: 0; padding: 30px 20px; }
+        }
+    </style>
+</head>
+<!-- Initializing language as "en" -->
+<body data-theme="light" data-language="en">
+
+    <nav class="topbar">
+        <div class="topbar-brand">Lucio L. Garcia</div>
+        <div class="topbar-nav">
+            <span class="nav-tab active" data-target="about">
+                <span data-lang="en">About</span><span data-lang="es">Sobre mí</span>
+            </span>
+            <span class="nav-tab" data-target="experience">
+                <span data-lang="en">Experience</span><span data-lang="es">Experiencia</span>
+            </span>
+            <span class="nav-tab" data-target="publications">
+                <span data-lang="en">Publications</span><span data-lang="es">Publicaciones</span>
+            </span>
+            <span class="nav-tab" data-target="contact">
+                <span data-lang="en">Contact Me</span><span data-lang="es">Contacto</span>
+            </span>
+            
+            <div class="action-buttons">
+                <button class="top-btn" id="theme-btn" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+                <button class="top-btn" id="lang-btn" aria-label="Toggle Language" style="font-size: 0.95rem;">
+                    ES
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-wrapper">
+        <aside class="sidebar">
+            <img src="images/portada.jpeg" alt="Lucio L. Garcia">
+            <h1>Lucio L. Garcia</h1>
+            <div class="pronouns" data-lang="en">(he/him)</div>
+            <div class="pronouns" data-lang="es">(él)</div>
+            
+            <h2 data-lang="en">Data Scientist | PhD in Physics</h2>
+            <h2 data-lang="es">Data Scientist | Doctor en Física</h2>
+            
+            <div class="contact-details">
+                <p><i class="fas fa-map-marker-alt"></i> Buenos Aires, Argentina</p>
+                <p><i class="fas fa-university"></i> Universidad de Buenos Aires</p>
+                <p><i class="fas fa-envelope"></i> <a href="mailto:luciolgarcia@gmail.com">Email</a></p>
+                <p><i class="fas fa-graduation-cap"></i> <a href="https://scholar.google.com.ar/citations?user=R8OeXTsAAAAJ&hl=en&oi=ao" target="_blank">Google Scholar</a></p>
+                <p><i class="fab fa-linkedin"></i> <a href="https://linkedin.com/in/luciolgarcia" target="_blank">LinkedIn</a></p>
+                <p><i class="fab fa-github"></i> <a href="https://github.com/luciolgarcia" target="_blank">GitHub</a></p>
+                <p class="cv-links"><i class="fas fa-file-pdf"></i> 
+                    <span data-lang="en">Curriculum Vitae:</span>
+                    <span data-lang="es">Curriculum Vitae:</span> 
+                    <a href="cvs/CV_Lucio_ind_en.pdf" target="_blank">[EN]</a> 
+                    <a href="cvs/CV_Lucio_ind_sp.pdf" target="_blank">[ES]</a>
+                </p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <!-- ABOUT SECTION -->
+            <section id="about" class="active">
+                <h3 data-lang="en">About Me</h3>
+                <h3 data-lang="es">Sobre mí</h3>
+                
+                <p data-lang="en">I hold a PhD in Physics from Universidad de Buenos Aires, conducting my research at the <a href="https://sophylab-df.github.io/" target="_blank">SophyLab</a>. My research lies at the interface between physics and social systems, with a focus on complex networks, information diffusion, and media dynamics. I have a strong background in mathematical modeling, non-linear dynamics, and massive unstructured data processing, along with experience integrating statistical physics approaches with Natural Language Processing (NLP) and machine learning. I am interested in understanding collective behavior and public opinion in digital ecosystems, as well as applying physics-based methodologies to extract strategic insights from complex data.</p>
+                
+                <p data-lang="es">Soy Doctor en Física por la Universidad de Buenos Aires, y realizo mi investigación en el <a href="https://sophylab-df.github.io/" target="_blank">SophyLab</a>. Mi investigación se sitúa en la interfaz entre la física y los sistemas sociales, con un enfoque en redes complejas, difusión de la información y dinámica de medios. Tengo una sólida formación en modelado matemático, dinámica no lineal y procesamiento masivo de datos no estructurados, junto con experiencia integrando enfoques de la física estadística con Procesamiento de Lenguaje Natural (NLP) y machine learning. Me interesa comprender el comportamiento colectivo y la opinión pública en los ecosistemas digitales, así como aplicar metodologías basadas en la física para extraer insights estratégicos a partir de datos complejos.</p>
+                
+                <h3 style="margin-top: 15px;" data-lang="en">Research Interests</h3>
+                <h3 style="margin-top: 15px;" data-lang="es">Intereses de Investigación</h3>
+                
+                <div class="skills-container" style="padding-top: 10px; padding-bottom: 20px;">
+                    <span class="skill-tag">
+                        <span data-lang="en">Complex Systems</span><span data-lang="es">Sistemas Complejos</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Complex Networks</span><span data-lang="es">Redes Complejas</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Non-linear Dynamics</span><span data-lang="es">Dinámica No Lineal</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Information Diffusion</span><span data-lang="es">Difusión de Información</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Computational Social Science</span><span data-lang="es">Ciencias Sociales Computacionales</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Statistical Physics</span><span data-lang="es">Física Estadística</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Time series analysis</span><span data-lang="es">Análisis de series temporales</span>
+                    </span>
+                </div>
+
+                <h3 style="margin-top: 15px;" data-lang="en">Technical Skills</h3>
+                <h3 style="margin-top: 15px;" data-lang="es">Habilidades Técnicas</h3>
+                
+                <div class="skills-container" style="padding-top: 10px; padding-bottom: 20px;">
+                    <!-- Nombres de tecnologías suelen quedar igual en español -->
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">SQL</span>
+                    <span class="skill-tag">pandas</span>
+                    <span class="skill-tag">NumPy</span>
+                    <span class="skill-tag">Scikit-learn</span>
+                    <span class="skill-tag">NetworkX</span>
+                    <span class="skill-tag">igraph</span>
+                    <span class="skill-tag">Machine Learning</span>
+                    <span class="skill-tag">NLP Pipelines</span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Statistical Modeling</span><span data-lang="es">Modelado Estadístico</span>
+                    </span>
+                    <span class="skill-tag">
+                        <span data-lang="en">Agent Based Models</span><span data-lang="es">Modelos Basados en Agentes</span>
+                    </span>
+                    <span class="skill-tag">Git</span>
+                    <span class="skill-tag">Docker</span>
+                </div>
+            </section>
+
+            <!-- EXPERIENCE SECTION -->
+            <section id="experience">
+                <h3 data-lang="en">Professional Experience</h3>
+                <h3 data-lang="es">Experiencia Profesional</h3>
+                
+                <div class="item">
+                    <div class="item-header">
+                        <span class="item-title" data-lang="en">Data Scientist / Doctoral Researcher</span>
+                        <span class="item-title" data-lang="es">Data Scientist / Investigador Doctoral</span>
+                        <span class="item-date">2021 – 2026</span>
+                    </div>
+                    <div class="item-subtitle">CONICET & Universidad de Buenos Aires</div>
+                    
+                    <ul data-lang="en">
+                        <li><strong>Massive Data Processing:</strong> Manipulated millions of timestamped interaction records applying advanced statistical modeling using Python (pandas, NumPy, SciPy).</li>
+                        <li><strong>Network Modeling & Algorithms:</strong> Designed large-scale graph models with NetworkX and igraph to analyze information flows and extract patterns of collective behavior.</li>
+                        <li><strong>Machine Learning & NLP:</strong> Implemented Natural Language Processing pipelines on unstructured data to identify trends, ideological clusters, and media influence.</li>
+                        <li><strong>Metrics Development:</strong> Created anomaly detection algorithms based on network topology for real-time public opinion monitoring.</li>
+                    </ul>
+                    <ul data-lang="es">
+                        <li><strong>Procesamiento Masivo de Datos:</strong> Manipulación de millones de registros de interacción temporal aplicando modelado estadístico avanzado con Python (pandas, NumPy, SciPy).</li>
+                        <li><strong>Modelado de Redes y Algoritmos:</strong> Diseño de modelos de grafos a gran escala con NetworkX e igraph para analizar flujos de información y extraer patrones de comportamiento colectivo.</li>
+                        <li><strong>Machine Learning y NLP:</strong> Implementación de pipelines de Procesamiento de Lenguaje Natural en datos no estructurados para identificar tendencias, clusters ideológicos e influencia mediática.</li>
+                        <li><strong>Desarrollo de Métricas:</strong> Creación de algoritmos de detección de anomalías basados en la topología de la red para el monitoreo de la opinión pública en tiempo real.</li>
+                    </ul>
+                </div>
+
+                <div class="item">
+                    <div class="item-header">
+                        <span class="item-title" data-lang="en">Visiting Researcher (CAPES-MOVE Fellow)</span>
+                        <span class="item-title" data-lang="es">Investigador Visitante (Becario CAPES-MOVE)</span>
+                        <span class="item-date">2025</span>
+                    </div>
+                    <div class="item-subtitle">Universidade Federal de Viçosa (UFV), Brazil</div>
+                    <ul data-lang="en">
+                        <li>International collaboration developing models of information diffusion in complex social networks.</li>
+                        <li>Implemented network science techniques to compare media dynamics in regional markets (Argentina vs. Brazil).</li>
+                    </ul>
+                    <ul data-lang="es">
+                        <li>Colaboración internacional desarrollando modelos de difusión de información en redes sociales complejas.</li>
+                        <li>Implementación de técnicas de ciencia de redes para comparar dinámicas mediáticas en mercados regionales (Argentina vs. Brasil).</li>
+                    </ul>
+                </div>
+
+                <h4 class="sub-heading" data-lang="en">Selected Projects</h4>
+                <h4 class="sub-heading" data-lang="es">Proyectos Destacados</h4>
+                
+                <div class="item">
+                    <div class="item-title" data-lang="en">News Traffic Dynamics and Geographic Diffusion</div>
+                    <div class="item-title" data-lang="es">Dinámica del Tráfico de Noticias y Difusión Geográfica</div>
+                    
+                    <p data-lang="en">Developed statistical models of point processes to quantify the spatial propagation of news. Comparative analysis of complex networks regarding information diffusion and media agendas.</p>
+                    <p data-lang="es">Desarrollo de modelos estadísticos de procesos puntuales para cuantificar la propagación espacial de noticias. Análisis comparativo de redes complejas sobre la difusión de información y las agendas mediáticas.</p>
+                </div>
+
+                <div class="item">
+                    <div class="item-title" data-lang="en">Ideological Alignment in Elections</div>
+                    <div class="item-title" data-lang="es">Alineación Ideológica en Elecciones</div>
+                    
+                    <p data-lang="en">Identified ideological clusters by combining network analysis and user behavior modeling in large-scale media ecosystems.</p>
+                    <p data-lang="es">Identificación de clusters ideológicos combinando análisis de redes y modelado del comportamiento de los usuarios en ecosistemas mediáticos a gran escala.</p>
+                </div>
+            </section>
+
+            <!-- PUBLICATIONS SECTION -->
+            <section id="publications">
+                <h3 data-lang="en">Publications</h3>
+                <h3 data-lang="es">Publicaciones</h3>
+                
+                <p style="margin-bottom: 20px; font-size: 0.95rem;" data-lang="en">You can also find my articles on <a href="https://scholar.google.com.ar/citations?user=R8OeXTsAAAAJ&hl=en&oi=ao" target="_blank">my Google Scholar profile</a>.</p>
+                <p style="margin-bottom: 20px; font-size: 0.95rem;" data-lang="es">También podés encontrar mis artículos en mi perfil de <a href="https://scholar.google.com.ar/citations?user=R8OeXTsAAAAJ&hl=en&oi=ao" target="_blank">Google Scholar</a>.</p>
+                
+                <div class="item">
+                    <div class="item-title">Watts Model with multiple correlated rumors 
+                        <span class="paper-status" data-lang="en">Under Review</span>
+                        <span class="paper-status" data-lang="es">En Revisión</span>
+                    </div>
+                    <p class="paper-authors">F. Di Ciocco, <strong>Lucio L. Garcia</strong>, S. C. Ferreira, P. Balenzuela</p>
+                </div>
+
+                <div class="item">
+                    <div class="item-title">The media network, information gaps and agendas comparison in Brazil and Argentina's Political discussion 
+                        <span class="paper-status" data-lang="en">Under Review</span>
+                        <span class="paper-status" data-lang="es">En Revisión</span>
+                    </div>
+                    <p class="paper-authors"><strong>Lucio L. Garcia</strong>, H. P. Maia, W. Cota, M. Serafino, H. A. Makse, S. C. Ferreira, P. Balenzuela</p>
+                </div>
+
+                <div class="item">
+                    <div class="item-title">Point process analysis of geographical diffusion of news in Argentina</div>
+                    <p class="paper-authors"><strong>Lucio L. Garcia</strong>, G Tirabassi, C Masoller, P Balenzuela</p>
+                    <p><span class="paper-journal">Chaos: An Interdisciplinary Journal of Nonlinear Science 35 (1) — 2025</span> 
+                        <a href="https://pubs.aip.org/aip/cha/article-abstract/35/1/013135/3331491/Point-process-analysis-of-geographical-diffusion?redirectedFrom=fulltext" class="paper-link" target="_blank">
+                            <span data-lang="en">[View Paper]</span><span data-lang="es">[Ver Artículo]</span>
+                        </a>
+                    </p>
+                </div>
+
+                <div class="item">
+                    <div class="item-title">Analyzing user ideologies and shared news during the 2019 argentinian elections</div>
+                    <p class="paper-authors">SM del Pozo, S Pinto, M Serafino, <strong>Lucio L. Garcia</strong>, HA Makse, P Balenzuela</p>
+                    <p><span class="paper-journal">EPJ Data Science 13 (1), 54 — 2024</span> 
+                        <a href="https://link.springer.com/content/pdf/10.1140/epjds/s13688-024-00493-y.pdf" class="paper-link" target="_blank">
+                            <span data-lang="en">[View Paper]</span><span data-lang="es">[Ver Artículo]</span>
+                        </a>
+                    </p>
+                </div>
+            </section>
+
+            <!-- CONTACT SECTION -->
+            <section id="contact">
+                <h3 data-lang="en">Contact Me</h3>
+                <h3 data-lang="es">Contacto</h3>
+                
+                <p data-lang="en">If you would like to discuss ideas, projects, or job offers, please don't hesitate to reach out! I am always open to new collaborations and challenges in the data science and physics space.</p>
+                <p data-lang="es">Si querés charlar sobre ideas, proyectos o propuestas laborales, ¡no dudes en escribirme! Siempre estoy abierto a nuevas colaboraciones y desafíos en el ámbito de la ciencia de datos y la física.</p>
+                
+                <p style="margin-top: 20px;" data-lang="en">
+                    The best way to contact me is via email at <a href="mailto:luciolgarcia@gmail.com">luciolgarcia@gmail.com</a> or by connecting with me on <a href="https://linkedin.com/in/luciolgarcia" target="_blank">LinkedIn</a>.
+                </p>
+                <p style="margin-top: 20px;" data-lang="es">
+                    La mejor manera de contactarme es enviándome un correo a <a href="mailto:luciolgarcia@gmail.com">luciolgarcia@gmail.com</a> o conectando conmigo en <a href="https://linkedin.com/in/luciolgarcia" target="_blank">LinkedIn</a>.
+                </p>
+            </section>
+
+            <footer class="site-footer">
+                <p data-lang="en">© 2026 Lucio L. Garcia. All rights reserved.</p>
+                <p data-lang="es">© 2026 Lucio L. Garcia. Todos los derechos reservados.</p>
+                
+                <p data-lang="en">Site last updated: 2026-05-13</p>
+                <p data-lang="es">Sitio actualizado por última vez: 2026-05-13</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        const body = document.body;
+        
+        // Theme Toggle Logic
+        const themeBtn = document.getElementById('theme-btn');
+        const themeIcon = document.getElementById('theme-icon');
+
+        themeBtn.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            }
+        });
+
+        // Language Toggle Logic
+        const langBtn = document.getElementById('lang-btn');
+        
+        langBtn.addEventListener('click', () => {
+            if (body.getAttribute('data-language') === 'en') {
+                body.setAttribute('data-language', 'es');
+                langBtn.textContent = 'EN'; // The button shows the language you can switch TO
+            } else {
+                body.setAttribute('data-language', 'en');
+                langBtn.textContent = 'ES';
+            }
+        });
+
+        // Navigation Tabs Logic
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const sections = document.querySelectorAll('main section');
+
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                navTabs.forEach(t => t.classList.remove('active'));
+                sections.forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                const targetId = tab.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
