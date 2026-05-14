@@ -173,12 +173,29 @@
         }
 
         /* Section Transition */
-        section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        section { display: none; }
         section.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Aplica la animación a todos los hijos directos de la sección activa */
+        section.active > * {
+            opacity: 0;
+            animation: slideUpFade 0.5s ease-out forwards;
+        }
+
+        /* Retraso escalonado (stagger) para que aparezcan uno tras otro */
+        section.active > *:nth-child(1) { animation-delay: 0.1s; }
+        section.active > *:nth-child(2) { animation-delay: 0.2s; }
+        section.active > *:nth-child(3) { animation-delay: 0.3s; }
+        section.active > *:nth-child(4) { animation-delay: 0.4s; }
+        section.active > *:nth-child(5) { animation-delay: 0.5s; }
+        section.active > *:nth-child(6) { animation-delay: 0.6s; }
+        section.active > *:nth-child(7) { animation-delay: 0.7s; }
+        section.active > *:nth-child(n+8) { animation-delay: 0.8s; }
 
         section h3 { 
             font-size: 1.8rem; 
@@ -233,12 +250,19 @@
 
         /* Responsive Layout */
         @media (max-width: 850px) {
-            .topbar { padding: 0 20px; }
-            .topbar-nav { gap: 15px; }
-            .topbar-nav span.nav-tab { font-size: 0.85rem; }
+            .topbar { padding: 0 15px; }
+            .topbar-brand { display: none; } /* Oculta el nombre en móvil para dar espacio a los botones */
+            .topbar-nav { width: 100%; justify-content: space-between; gap: 5px; }
+            .topbar-nav span.nav-tab { font-size: 0.85rem; padding: 18px 5px; }
+            .action-buttons { padding-left: 10px; margin-left: 5px; }
+            
             .layout-wrapper { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid var(--border-color); padding: 30px 20px; }
             .main-content { margin-left: 0; padding: 30px 20px; }
+
+            /* Evita que el título y la fecha colisionen en pantallas chicas */
+            .item-header { flex-direction: column; align-items: flex-start; }
+            .item-date { margin-top: 4px; font-size: 0.9rem; color: var(--link-color); }
         }
     </style>
 </head>
