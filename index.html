@@ -264,7 +264,113 @@
             .item-header { flex-direction: column; align-items: flex-start; }
             .item-date { margin-top: 4px; font-size: 0.9rem; color: var(--link-color); }
         }
+
+/* --- ESTILOS PARA LA TABLA DE PROYECTOS --- */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto; /* Permite scroll horizontal en celulares si la tabla es muy ancha */
+            margin-top: 15px;
+        }
+        
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+        
+        .projects-table th {
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--heading-color);
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+        
+        .projects-table td {
+            padding: 16px 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        /* Efecto hover en la fila entera para indicar interactividad */
+        .projects-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .projects-table tbody tr:hover {
+            background-color: var(--sidebar-bg);
+        }
+        
+        .project-title-link {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--link-color);
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .project-title-link:hover {
+            color: var(--link-hover);
+        }
+
+/* --- MENU DESPLEGABLE (HOVER) EN LA BARRA SUPERIOR --- */
+        .dropdown {
+            position: relative;
+            display: flex; /* Para que se alinee perfecto en el flexbox del nav */
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Contenedor de los links, oculto por defecto */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 60px; /* La altura exacta de tu topbar */
+            left: 0;
+            background-color: var(--card-bg);
+            min-width: 220px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            z-index: 1001;
+            padding: 5px 0;
+        }
+
+        /* Mostrar el menú al hacer hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+            animation: fadeInMenu 0.2s ease-in-out;
+        }
+
+        @keyframes fadeInMenu {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo de cada proyecto dentro del menú */
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s, color 0.2s, padding-left 0.2s;
+        }
+        
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--sidebar-bg);
+            color: var(--heading-color);
+            padding-left: 25px; /* Animación de desplazamiento hacia la derecha */
+        }
+
     </style>
+
 </head>
 <!-- Initializing language as "en" -->
 <body data-theme="light" data-language="en">
@@ -281,6 +387,20 @@
             <span class="nav-tab" data-target="publications">
                 <span data-lang="en">Publications</span><span data-lang="es">Publicaciones</span>
             </span>
+            <!-- MENU DESPLEGABLE: INTERESES -->
+            <div class="dropdown">
+                <!-- La pestaña que se ve en la barra -->
+                <span class="nav-tab" style="cursor: default; display: inline-flex; align-items: center; gap: 5px;">
+                    <span data-lang="en">Projects <i class="fas fa-chevron-down" style="font-size: 0.75em;"></i></span>
+                    <span data-lang="es">Proyectos <i class="fas fa-chevron-down" style="font-size: 0.75em;"></i></span>
+                </span>
+                
+                <!-- Lo que aparece al hacer hover -->
+                <div class="dropdown-content">
+                    <a href="proyecto-borges.html">Jorge Luis Borges</a>
+                    <a href="proyecto-charly.html">Charly García</a>
+                </div>
+            </div>
             <span class="nav-tab" data-target="contact">
                 <span data-lang="en">Contact Me</span><span data-lang="es">Contacto</span>
             </span>
@@ -493,6 +613,7 @@
                     </p>
                 </div>
             </section>
+
 
             <!-- CONTACT SECTION -->
             <section id="contact">

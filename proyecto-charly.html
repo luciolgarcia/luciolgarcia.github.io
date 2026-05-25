@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charly García - Análisis de Datos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Variables - Light Mode (Tierra / Ladrillo) - DEFAULT */
+        :root {
+            --bg-color: #fbf8f5;
+            --sidebar-bg: #f2ebe3;
+            --card-bg: #ffffff;
+            
+            --text-color: #4a3f38;
+            --heading-color: #8c362d;
+            --link-color: #b54a3e;
+            --link-hover: #7a2821;
+            
+            --border-color: #e2d9cc;
+            --tag-bg: #eadad1;
+            --tag-text: #5e3b31;
+        }
+
+        /* CSS Variables - Dark Mode (Tierra Nocturna) */
+        [data-theme="dark"] {
+            --bg-color: #1e1a18;
+            --sidebar-bg: #2b2421;
+            --card-bg: #221c1a;
+            
+            --text-color: #e8ded8;
+            --heading-color: #e88d82;
+            --link-color: #ff9d85;
+            --link-hover: #ffc2b3;
+            
+            --border-color: #453630;
+            --tag-bg: #5c3029;
+            --tag-text: #fdfaf7;
+        }
+
+        /* Language Toggle Logic */
+        body[data-language="en"] [data-lang="es"] { display: none !important; }
+        body[data-language="es"] [data-lang="en"] { display: none !important; }
+
+        /* Reset and Base Styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            line-height: 1.6; 
+            color: var(--text-color); 
+            background-color: var(--bg-color);
+            display: flex; 
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        a { text-decoration: none; color: var(--link-color); transition: color 0.2s; font-weight: 500; }
+        a:hover { color: var(--link-hover); text-decoration: underline; }
+
+        /* Barra de navegación superior unificada */
+        .topbar-simple {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 60px; /* Altura fija para garantizar equivalencia total */
+            padding: 0 30px; /* Padding horizontal idéntico */
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        /* Botón de regreso */
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 100%; /* Se alinea al alto de la barra */
+            color: var(--link-color);
+            font-weight: 500;
+        }
+
+        /* Contenedor de botones de acción */
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Espaciado interno entre Luna y ES */
+            height: 100%;
+            border-left: 1px solid var(--border-color);
+            padding-left: 20px;
+        }
+
+        /* Botones individuales (Tema e Idioma) */
+        .top-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            width: 35px;  /* Ancho fijo para que midan exactamente lo mismo */
+            height: 35px; /* Alto fijo para centrar el área de click */
+            transition: color 0.2s;
+        }
+        .top-btn:hover { 
+            color: var(--heading-color); 
+        }
+
+        /* Construction Page Specific Styles */
+        .construction-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px;
+        }
+        
+        .charly-img {
+            max-width: 450px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 20px rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body data-language="en">
+
+    <nav class="topbar-simple">
+        
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> 
+            <span data-lang="es">Volver al CV</span>
+            <span data-lang="en">Back to CV</span>
+        </a>
+        
+        <div style="font-weight: 600; color: var(--heading-color); flex: 1; text-align: center; padding: 0 20px;">
+            Lucio L. Garcia
+        </div>
+
+        <div class="action-buttons">
+            <button id="theme-toggle" class="top-btn" title="Cambiar Tema">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button id="lang-toggle" class="top-btn" title="Cambiar Idioma">
+                ES
+            </button>
+        </div>
+
+    </nav>
+
+    <main class="construction-container">
+        
+        <div data-lang="es">
+            <h1 style="font-size: 3rem; color: var(--heading-color); margin-bottom: 10px;">
+                <i class="fas fa-tools" style="margin-right: 15px;"></i>En Construcción
+            </h1>
+            <p style="font-size: 1.2rem; color: var(--text-color); max-width: 600px; margin: 0 auto;">
+                Estamos afinando los instrumentos y procesando los datos líricos de este proyecto. Estará disponible muy pronto.
+            </p>
+        </div>
+        
+        <div data-lang="en">
+            <h1 style="font-size: 3rem; color: var(--heading-color); margin-bottom: 10px;">
+                <i class="fas fa-tools" style="margin-right: 15px;"></i>Work in Progress
+            </h1>
+            <p style="font-size: 1.2rem; color: var(--text-color); max-width: 600px; margin: 0 auto;">
+                We are tuning the instruments and processing the lyrical data for this project. It will be available very soon.
+            </p>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <img src="images/foto_diego.jpg" alt="En construcción" style="max-width: 600px; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 1px solid var(--border-color);">
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica Modo Oscuro
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = themeToggleBtn.querySelector('i');
+            
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                }
+            });
+
+            // Lógica Idioma (ES/EN)
+            const langToggleBtn = document.getElementById('lang-toggle');
+            
+            const currentLang = localStorage.getItem('language') || 'es';
+            document.body.setAttribute('data-language', currentLang);
+            langToggleBtn.textContent = currentLang.toUpperCase();
+
+            langToggleBtn.addEventListener('click', () => {
+                const isEs = document.body.getAttribute('data-language') === 'es';
+                const newLang = isEs ? 'en' : 'es';
+                
+                document.body.setAttribute('data-language', newLang);
+                localStorage.setItem('language', newLang);
+                langToggleBtn.textContent = newLang.toUpperCase();
+            });
+        });
+    </script>
+</body>
+</html>

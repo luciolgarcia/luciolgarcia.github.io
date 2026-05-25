@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jorge Luis Borges: Data Project | Lucio L. Garcia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Variables - Fondo oscuro tipo pergamino */
+        /* CSS Variables - Light Mode (Tierra / Ladrillo) - DEFAULT */
+        :root {
+            --bg-color: #fbf8f5;         /* Tono pergamino muy claro */
+            --sidebar-bg: #f2ebe3;       /* Arena claro para bloques y sidebar */
+            --card-bg: #ffffff;          /* Blanco cálido para tarjetas */
+            
+            --text-color: #4a3f38;       /* Gris tierra oscuro para lectura cómoda */
+            --heading-color: #8c362d;    /* Rojo ladrillo/bordó para títulos */
+            --link-color: #b54a3e;       /* Terracota para enlaces */
+            --link-hover: #7a2821;       /* Ladrillo oscuro al pasar el mouse */
+            
+            --border-color: #e2d9cc;     /* Borde tiza/arena */
+            --tag-bg: #eadad1;           /* Fondo beige cálido para etiquetas */
+            --tag-text: #5e3b31;         /* Texto marrón oscuro para etiquetas */
+        }
+
+        /* CSS Variables - Dark Mode (Tierra Nocturna) */
+        [data-theme="dark"] {
+            --bg-color: #1e1a18;         /* Fondo marrón/gris muy oscuro */
+            
+            --sidebar-bg: #2b2421;       /* Bloques en un tono tierra apenas más claro */
+            --card-bg: #221c1a;          /* Fondo de tarjetas oscuro cálido */
+            --border-color: #453630;     /* Bordes arcilla oscura */
+            --tag-bg: #5c3029;           /* Etiquetas en rojo ladrillo apagado */
+            
+            --text-color: #e8ded8;       /* Texto ceniza claro (muy legible) */
+            --heading-color: #e88d82;    /* Ladrillo pastel brillante para resaltar */
+            --link-color: #ff9d85;       /* Ocre/Ladrillo claro para enlaces */
+            --link-hover: #ffc2b3;       /* Tono más claro al pasar el mouse */
+            --tag-text: #fdfaf7;         /* Texto claro sobre etiquetas oscuras */
+        }
+
+        /* Language Toggle Logic */
+        body[data-language="en"] [data-lang="es"] { display: none !important; }
+        body[data-language="es"] [data-lang="en"] { display: none !important; }
+
+        /* Reset and Base Styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            line-height: 1.6; 
+            color: var(--text-color); 
+            background-color: var(--bg-color);
+            display: flex; 
+            flex-direction: column;
+            min-height: 100vh;
+            /* La transición asegura que el cambio día/noche sea suave */
+            transition: background-color 0.3s, color 0.3s;
+        }
+        a { text-decoration: none; color: var(--link-color); transition: color 0.2s; font-weight: 500; }
+        a:hover { color: var(--link-hover); text-decoration: underline; }
+
+        /* Barra de navegación superior unificada */
+        .topbar-simple {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 60px; /* Altura fija para garantizar equivalencia total */
+            padding: 0 30px; /* Padding horizontal idéntico */
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        /* Botón de regreso */
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 100%; /* Se alinea al alto de la barra */
+            color: var(--link-color);
+            font-weight: 500;
+        }
+
+        /* Contenedor de botones de acción */
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Espaciado interno entre Luna y ES */
+            height: 100%;
+            border-left: 1px solid var(--border-color);
+            padding-left: 20px;
+        }
+
+        /* Botones individuales (Tema e Idioma) */
+        .top-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            width: 35px;  /* Ancho fijo para que midan exactamente lo mismo */
+            height: 35px; /* Alto fijo para centrar el área de click */
+            transition: color 0.2s;
+        }
+        .top-btn:hover { 
+            color: var(--heading-color); 
+        }
+
+
+        .back-btn {
+            font-weight: 600;
+            color: var(--heading-color);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .article-container {
+            max-width: 1100px; /* Ampliamos el ancho para que el texto ocupe más espacio */
+            width: 100%;       /* Crucial para celulares: obliga a adaptarse al tamaño de pantalla */
+            margin: 100px auto 80px; 
+            padding: 0 25px;   /* Un poquito más de margen interno para que no sature en móviles */
+        }
+
+        .project-header {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .project-title {
+            font-size: 2.8rem;
+            color: var(--heading-color);
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .project-meta {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        /* --- IMAGEN EDITORIAL DESTACADA --- */
+        .hero-image {
+            float: left;
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            border-radius: 4px;
+            margin: 15px 40px 20px -100px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            position: relative; 
+            z-index: 10;        
+        }
+
+        .project-content h2 {
+            color: var(--heading-color);
+            font-size: 1.8rem;
+            margin-top: 50px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .project-content h3 {
+            color: var(--heading-color);
+            font-size: 1.3rem;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .project-content p {
+            margin-bottom: 18px;
+            font-size: 1.05rem;
+            text-align: justify; 
+        }
+
+        /* --- CONTENEDORES DE VISUALIZACIÓN MULTIMEDIA --- */
+        .interactive-section {
+            margin: 35px 0;
+            width: 100%;
+        }
+
+        .map-frame-container {
+            width: 100%;
+            height: 550px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            background: var(--sidebar-bg);
+        }
+
+        .map-frame-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .visual-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .visual-card-title {
+            font-size: 1.15rem;
+            color: var(--heading-color);
+            margin-bottom: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--sidebar-bg);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        /* --- CLASES PARA LA ANIMACIÓN AL SCROLLEAR --- */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(40px); 
+            transition: opacity 0.8s cubic-bezier(0.5, 0, 0, 1), transform 0.8s cubic-bezier(0.5, 0, 0, 1);
+            will-change: opacity, transform;
+        }
+        
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsividad: Ajustes específicos para celulares y tablets */
+        @media (max-width: 950px) {
+            .article-container {
+                margin-top: 80px; /* Reducimos el espacio superior en pantallas chicas */
+            }
+            
+            .hero-image {
+                float: none;
+                max-width: 100%;
+                margin: 30px 0; /* Anula el margen negativo exterior en celulares */
+            }
+            
+            .project-content p { 
+                text-align: left; /* La alineación justificada se lee mal en pantallas angostas */
+            }
+            
+            .visual-grid { 
+                grid-template-columns: 1fr; /* Los gráficos se apilan uno abajo del otro en vertical */
+            }
+
+            /* 📱 AJUSTE PARA EL MAPA EN CELULARES */
+            .full-width-map {
+                width: 100vw;   /* En celular toma el 100% real de la pantalla de borde a borde */
+                height: 450px;  /* Bajamos la altura para que el usuario pueda scrollear la página sin quedar atrapado dentro del mapa */
+                margin-top: 30px;
+                margin-bottom: 30px;
+                border-radius: 0; /* Sin bordes redondeados para simular una app nativa en el teléfono */
+                border-left: none;
+                border-right: none;
+            }
+        }
+
+        /* --- CLASE PARA EXPANDIR EL MAPA FUERA DEL TEXTO --- */
+        .full-width-map {
+            width: 90vw; /* 90% del ancho total de la pantalla */
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%); /* Centra el elemento perfectamente */
+            height: 650px; /* Un poco más alto para acompañar el nuevo ancho */
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+
+    </style>
+</head>
+<body data-theme="light" data-language="en">
+
+    <nav class="topbar-simple">
+            
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> 
+                <span data-lang="es">Volver al CV</span>
+                <span data-lang="en">Back to CV</span>
+            </a>
+            
+            <div style="font-weight: 600; color: var(--heading-color); flex: 1; text-align: center; padding: 0 20px;">
+                Lucio L. Garcia
+            </div>
+
+            <div class="action-buttons">
+                <button id="theme-toggle" class="top-btn" title="Cambiar Tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="lang-toggle" class="top-btn" title="Cambiar Idioma">
+                    ES
+                </button>
+            </div>
+
+        </nav>
+
+    <main class="article-container">
+        
+        <header class="project-header reveal-on-scroll">
+            <div data-lang="es">
+                <h1 class="project-title">Jorge Luis Borges: El Aleph en Datos</h1>
+                <div class="project-meta">
+                    <span><i class="fas fa-tag"></i> Procesamiento de Lenguaje Natural & Análisis de Redes</span>
+                </div>
+            </div>
+            <div data-lang="en">
+                <h1 class="project-title">Jorge Luis Borges: The Aleph in Data</h1>
+                <div class="project-meta">
+                    <span><i class="fas fa-tag"></i> Natural Language Processing & Network Analysis</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="epigraph-container reveal-on-scroll" style="max-width: 850px; margin: 50px auto 40px auto; padding: 0 30px;">
+            
+            <div data-lang="es">
+                <blockquote style="font-style: italic; font-size: 1.15rem; color: var(--text-color); line-height: 1.7; margin: 0; padding-left: 20px; border-left: 3px solid var(--border-color);">
+                    "Lo evoco —dijo con una animación algo inexplicable— en su gabinete de estudio, como si dijéramos en la torre albarrana de una ciudad, provisto de teléfonos, de telégrafos, de fonógrafos, de aparatos de radiotelefonía, de cinematógrafos, de linternas mágicas, de glosarios, de horarios, de prontuarios, de boletines... Observó que para un hombre así facultado el acto de viajar era inútil; nuestro siglo XX había transformado la fábula de Mahoma y de la montaña; las montañas, ahora, convergían sobre el moderno Mahoma."
+                </blockquote>
+                <p style="text-align: right; margin-top: 15px; font-size: 0.95rem; color: var(--heading-color);">
+                    — Jorge Luis Borges, <em>El Aleph</em>, <em>Sur</em>, n.º 131, 1945
+                </p>
+            </div>
+
+            <div data-lang="en">
+                <blockquote style="font-style: italic; font-size: 1.15rem; color: var(--text-color); line-height: 1.7; margin: 0; padding-left: 20px; border-left: 3px solid var(--border-color);">
+                    "I evoke him —he said with a somewhat inexplicable animation— in his study, as if we were to say in the watchtower of a city, provided with telephones, telegraphs, phonographs, wireless telephony apparatus, cinematographs, magic lanterns, glossaries, timetables, compendiums, bulletins... He observed that for a man so equipped the act of traveling was useless; our 20th century had transformed the fable of Muhammad and the mountain; the mountains, now, converged upon the modern Muhammad."
+                </blockquote>
+                <p style="text-align: right; margin-top: 15px; font-size: 0.95rem; color: var(--heading-color);">
+                    — Jorge Luis Borges, <em>The Aleph</em>, <em>Sur</em>, No. 131, 1945
+                </p>
+            </div>
+            
+        </div>
+
+        <article class="project-content clearfix">
+            
+            <div class="reveal-on-scroll">
+                <div data-lang="es">
+                    <h2>Introducción</h2>
+                    <p>Leer a Jorge Luis Borges es adentrarse en un laberinto donde espejos, tigres, el tiempo y el infinito se cruzan constantemente. Este proyecto nace de una curiosidad analítica: ¿es posible mapear matemáticamente la estructura de ese universo literario? Para lograrlo, apliqué técnicas de Procesamiento de <strong>Lenguaje Natural (NLP)</strong> y <strong>Machine Learning (ML)</strong> sobre su obra completa.</p>
+                    <p>La propuesta es dejar de leer cada cuento como una isla. En su lugar, este análisis modela la literatura borgeana como un <strong>sistema complejo</strong>. Los relatos actúan como nodos que se comunican entre sí a través de conceptos y vocabularios compartidos, permitiéndonos revelar la red oculta de significados que sostiene su prosa.</p>
+                </div>
+                <div data-lang="en">
+                    <h2>Introduction</h2>
+                    <p>Reading Jorge Luis Borges is stepping into a labyrinth where mirrors, tigers, time, and infinity constantly intersect. This project was born from an analytical curiosity: is it possible to mathematically map the structure of that literary universe? To achieve this, I applied <strong>Natural Language Processing (NLP)</strong> and <strong>Machine Learning (ML)</strong> techniques to his complete works.</p>
+                    <p>The proposal is to stop reading each story as an isolated island. Instead, this analysis models Borges's literature as a <strong>complex system</strong>. The stories act as nodes communicating with each other through shared concepts and vocabulary, allowing us to reveal the hidden network of meanings that sustains his prose.</p>
+                </div>
+            </div>
+            
+            <img src="images/borges_portrait.jpg" alt="Jorge Luis Borges" class="hero-image reveal-on-scroll">
+
+            <div class="reveal-on-scroll" style="margin-top: 60px;">
+                <div data-lang="es">
+                    <h2>Metodología: El Pipeline Analítico</h2>
+                    <p>El flujo de trabajo reemplaza la lectura tradicional por el paradigma de <em>distant reading</em> (analizar los textos a través de algoritmos). En lugar de leer relatos aislados, procesamos el corpus completo de <em>Artificios</em> y <em>El Aleph</em> para descubrir patrones invisibles al ojo humano.</p>
+                    <p>Para decodificar este sistema complejo, el proyecto aborda la obra desde tres dimensiones analíticas:</p>
+                    <ul style="margin-top: 15px; margin-bottom: 25px; line-height: 1.6;">
+                        <li><strong>Cartografía Espacial:</strong> Extracción de entidades nombradas (NER) para geolocalizar y visualizar el peso de los escenarios reales e imaginarios en su literatura.</li>
+                        <li><strong>Evolución Léxica y Simbolismo:</strong> Análisis de densidad algorítmica (TF-IDF) para rastrear cómo mutan y maduran sus obsesiones descriptivas a lo largo de las décadas.</li>
+                        <li><strong>Intertextualidad Semántica:</strong> Implementación de modelos de <em>Deep Learning</em> (Sentence Embeddings) para descubrir la red oculta de ecos y autocitas que conecta sus cuentos.</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <h3>Preparación del Corpus y NLP</h3>
+                        <p>Para que los algoritmos pudieran interpretar la prosa borgeana, transformamos el texto crudo en datos estructurados. Utilizando la librería <strong>spaCy</strong>, el modelo separó las oraciones y clasificó cada palabra (sustantivos, adjetivos, verbos), limpiando el texto de errores de escaneo y descartando elementos irrelevantes para quedarnos únicamente con la información útil.</p>
+                        <p>Una vez limpio el texto, el algoritmo extrae las locaciones geográficas mencionadas en la obra y analiza qué palabras las rodean (sus ventanas de contexto). De esta manera, en lugar de una lectura tradicional, el código captura matemáticamente la "huella" o el estilo que el autor imprime sobre cada punto del mapa.</p>
+                    </div>
+                </div>
+
+                <div data-lang="en">
+                    <h2>Methodology: The Analytical Pipeline</h2>
+                    <p>The workflow replaces traditional reading with the <em>distant reading</em> paradigm (analyzing texts through algorithms). Instead of reading isolated stories, we processed the entire corpus of <em>Artificios</em> and <em>El Aleph</em> to discover patterns invisible to the human eye.</p>
+                    <p>To decode this complex system, the project approaches the work from three analytical dimensions:</p>
+                    <ul style="margin-top: 15px; margin-bottom: 25px; line-height: 1.6;">
+                        <li><strong>Spatial Cartography:</strong> Named Entity Recognition (NER) extraction to geolocate and visualize the weight of real and imaginary settings in his literature.</li>
+                        <li><strong>Lexical Evolution and Symbolism:</strong> Algorithmic density analysis (TF-IDF) to track how his descriptive obsessions mutate and mature over the decades.</li>
+                        <li><strong>Semantic Intertextuality:</strong> Implementation of <em>Deep Learning</em> models (Sentence Embeddings) to discover the hidden network of echoes and self-citations connecting his stories.</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <h3>Corpus Preparation and NLP</h3>
+                        <p>For the algorithms to interpret Borges's prose, we transformed the raw text into structured data. Using the <strong>spaCy</strong> library, the model separated sentences and classified each word (nouns, adjectives, verbs), cleaning the text of scanning errors and discarding irrelevant elements to keep only the useful information.</p>
+                        <p>Once the text was clean, the algorithm extracted the geographic locations mentioned in the work and analyzed the words surrounding them (their context windows). This way, instead of a traditional reading, the code mathematically captures the "footprint" or style the author imprints on each point of the map.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll" style="clear: both; margin-top: 60px;">
+                <div data-lang="es">
+                    <h2>Cartografía Borgeana: El falso dilema cosmopolita</h2>
+                    <p>Durante décadas, a Borges se le reprochó desde ciertos sectores un supuesto exceso de cosmopolitismo, acusándolo de ser un autor "europeizante" más interesado en los desiertos de Babilonia o las calles de Londres que en la tradición nacional. Sin embargo, los datos cuentan una historia más compleja.</p>
+                    <p>El siguiente mapa interactivo despliega todas las coordenadas extraídas de su obra. Como puede observarse en los núcleos rojos (el Top 20 absoluto de menciones), la geografía borgeana es innegablemente global, pero orbita con una fuerza gravitacional abrumadora en torno a Buenos Aires y el Sur. Al explorar cada marcador, la densidad de la locación se revela a través de una nube de palabras interactiva, demostrando que su literatura no ignoraba lo local, sino que lo elevaba a una categoría universal.</p>
+                </div>
+                
+                <div data-lang="en">
+                    <h2>Borgesian Cartography: The False Cosmopolitan Dilemma</h2>
+                    <p>For decades, Borges was criticized by certain sectors for an alleged excess of cosmopolitanism, accusing him of being a "Europeanizing" author more interested in the deserts of Babylon or the streets of London than in national tradition. However, the data tells a more complex story.</p>
+                    <p>The following interactive map displays all the coordinates extracted from his work. As can be seen in the red hubs (the absolute Top 20 mentions), Borgesian geography is undeniably global, but it orbits with an overwhelming gravitational force around Buenos Aires and the South. By exploring each marker, the density of the location is revealed through an interactive word cloud, demonstrating that his literature did not ignore the local, but rather elevated it to a universal category.</p>
+                </div>
+                
+                <div class="interactive-section map-frame-container full-width-map" style="margin-top: 30px;">
+                    <iframe src="htmls_borges/mapa_interactivo_borges.html" style="width: 100%; height: 600px; border: none; display: block;" title="Mapa Interactivo - Universo de Locaciones de Borges"></iframe>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll" style="margin-top: 60px;">
+                <div data-lang="es">
+                    <h2>Evolución Léxica: Densidad y Símbolos</h2>
+                    <p>Para entender cómo muta la prosa de Borges a lo largo de casi cuarenta años (desde <em>Fervor de Buenos Aires</em> en 1923 hasta <em>El hacedor</em> en 1960), el análisis no podía limitarse a contar palabras. Era necesario evaluar el peso específico de su vocabulario.</p>
+                    <p>Para ello, se implementó <strong>TF-IDF</strong> (<em>Term Frequency - Inverse Document Frequency</em>). Si nos limitáramos a contar la simple frecuencia de aparición de cada palabra, los resultados estarían dominados por términos genéricos y transversales a toda su bibliografía. TF-IDF resuelve este problema aplicando un filtro matemático inteligente: premia a las palabras que se repiten mucho dentro de un libro específico, pero las penaliza drásticamente si también son demasiado comunes en el resto de la obra completa. De esta forma, el algoritmo logra aislar la verdadera "huella digital" de cada época, revelando únicamente los conceptos que la hacen única y distintiva.</p>
+                    <p>El resultado es un filtro matemático que nos permite observar la huella léxica de cada época cronológica. En la visualización inferior, <strong>el eje vertical cuantifica la cantidad total de sustantivos</strong> utilizados en cada obra, mientras que al explorar los nodos interactivos se revela el Top 5 de conceptos más distintivos (mayor puntaje TF-IDF) de ese momento literario.</p>
+                </div>
+                
+                <div data-lang="en">
+                    <h2>Lexical Evolution: Density and Symbols</h2>
+                    <p>To understand how Borges's prose mutates over almost forty years (from <em>Fervor de Buenos Aires</em> in 1923 to <em>El hacedor</em> in 1960), the analysis could not be limited to simply counting words. It was necessary to evaluate the specific weight of his vocabulary.</p>
+                    <p>To do so, <strong>TF-IDF</strong> (<em>Term Frequency - Inverse Document Frequency</em>) was implemented. If we merely counted the simple frequency of each word's appearance, the results would be dominated by generic terms transversal to his entire bibliography. TF-IDF solves this problem by applying a smart mathematical filter: it rewards words that are repeated frequently within a specific book, but drastically penalizes them if they are also too common across the rest of the complete works. In this way, the algorithm isolates the true "digital footprint" of each era, revealing only the concepts that make it unique and distinctive.</p>
+                    <p>The result is a mathematical filter that allows us to observe the lexical footprint of each chronological era. In the visualization below, <strong>the vertical axis quantifies the total amount of nouns</strong> used in each work, while exploring the interactive nodes reveals the Top 5 most distinctive concepts (highest TF-IDF score) of that literary moment.</p>
+                </div>
+                
+                <div class="visual-card" style="margin-top: 15px; padding: 0; overflow: hidden; width: 90vw; position: relative; left: 50%; transform: translateX(-50%);">
+                    <div class="visual-card-title" style="padding: 5px 20px 5px 20px; margin-bottom: 0; border-bottom: none;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <iframe src="htmls_borges/linea_tiempo_tfidf.html" style="width: 100%; height: 650px; border: none; display: block;" scrolling="no" title="Gráfico Interactivo - Densidad Léxica TF-IDF"></iframe>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll" style="margin-top: 50px;">
+                <div data-lang="es">
+                    <h2>La Anatomía Descriptiva: Cómo habla de sus obsesiones</h2>
+                    <p>Más allá del volumen de palabras, la estilística de un autor reside en la adjetivación. Para este análisis, se aislaron mediante spaCy los adjetivos que orbitan específicamente alrededor de la simbología usual borgeana: <strong>el espejo, el hombre, el cuchillo, el laberinto, la biblioteca y el tango</strong>.</p>
+                    <p>El siguiente gráfico rastrea el volumen descriptivo que reciben estos conceptos con el paso de las décadas, <strong>midiendo en su eje vertical la cantidad exacta de adjetivos vinculados a cada símbolo</strong>. Resulta revelador observar la prominencia topológica del "tango" en su etapa temprana (marcada por <em>Cuaderno San Martín</em> en 1929), en contraste con el monopolio absoluto que adquiere el concepto del "hombre" como eje descriptivo transversal, o cómo el "laberinto" y el "espejo" mantienen una tensión constante en su etapa de madurez narrativa.</p>
+                </div>
+                
+                <div data-lang="en">
+                    <h2>Descriptive Anatomy: How He Speaks of His Obsessions</h2>
+                    <p>Beyond the volume of words, an author's stylistics resides in adjectivation. For this analysis, adjectives specifically orbiting around the usual Borgesian symbology were isolated using spaCy: <strong>the mirror, the man, the knife, the labyrinth, the library, and the tango</strong>.</p>
+                    <p>The following chart tracks the descriptive volume these concepts receive over the decades, <strong>measuring on its vertical axis the exact amount of adjectives linked to each symbol</strong>. It is revealing to observe the topological prominence of the "tango" in his early stage (marked by <em>Cuaderno San Martín</em> in 1929), in contrast to the absolute monopoly acquired by the concept of "the man" as a transversal descriptive axis, or how the "labyrinth" and the "mirror" maintain a constant tension in his narrative maturity.</p>
+                </div>
+
+                <div class="visual-card" style="margin-top: 15px; padding: 0; overflow: hidden; width: 90vw; position: relative; left: 50%; transform: translateX(-50%);">
+                    <div class="visual-card-title" style="padding: 5px 20px; margin-bottom: 0; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
+                        <i class="fas fa-project-diagram" style="margin-right: 0;"></i>
+                    </div>
+                    <iframe src="htmls_borges/borges_adjetivos.html" style="width: 100%; height: 800px; border: none; display: block;" scrolling="no" title="Gráfico Interactivo - Evolución de adjetivos por símbolo"></iframe>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll" style="margin-top: 60px; margin-bottom: 60px; max-width: 1200px; margin-left: auto; margin-right: auto;">
+                
+                <div data-lang="es">
+                    <h2 style="color: #7b241c; margin-bottom: 25px;">Los Ecos de Borges: la intertextualidad y el Machine Learning</h2>
+                    <img src="images/borges_foto2.jpg" alt="Jorge Luis Borges" style="float: right; width: 350px; margin: 0 0 20px 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 20px rgba(255,255,255,0.6); border: 1px solid #e2d9c8;">
+                    <p>Borges concebía la literatura como un infinito juego de variaciones. Temas, metáforas e incluso frases enteras reaparecen a lo largo de las décadas, reescritas o recontextualizadas. Para rastrear estos ecos de forma automatizada, abandonamos el análisis léxico tradicional y pasamos al análisis semántico.</p>
+                    <p>Utilizando <strong>spaCy</strong> se segmentó la obra completa en oraciones individuales. Luego, mediante el modelo <strong>SentenceTransformer</strong> (<em>paraphrase-multilingual-MiniLM-L12-v2</em>), cada oración fue transformada en un vector de alta dimensionalidad (<em>embedding</em>). Al calcular la similitud del coseno entre estos vectores, el algoritmo logró detectar pares de oraciones que comparten el mismo significado profundo, revelando la red de intertextualidad oculta en su obra.</p>
+                    <p>A continuación, se expone una selección de estos hallazgos. <strong>El valor porcentual cuantifica la similitud semántica</strong> entre ambas citas (derivado de la distancia del coseno entre sus vectores). Los pares se alternan de manera automática para mostrar la riqueza de estas apariciones:</p>
+                </div>
+                
+                <div data-lang="en">
+                    <h2 style="color: #7b241c; margin-bottom: 25px;">The Echoes of Borges: Intertextuality and Machine Learning</h2>
+                    <img src="images/borges_foto2.jpg" alt="Jorge Luis Borges" style="float: right; width: 350px; margin: 0 0 20px 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 20px rgba(255,255,255,0.6); border: 1px solid #e2d9c8;">
+                    <p>Borges conceived literature as an infinite game of variations. Themes, metaphors, and even entire sentences reappear over the decades, rewritten or recontextualized. To track these echoes automatically, we abandoned traditional lexical analysis and moved to semantic analysis.</p>
+                    <p>Using <strong>spaCy</strong>, the complete work was segmented into individual sentences. Then, through the <strong>SentenceTransformer</strong> model (<em>paraphrase-multilingual-MiniLM-L12-v2</em>), each sentence was transformed into a high-dimensional vector (<em>embedding</em>). By calculating the cosine similarity between these vectors, the algorithm managed to detect pairs of sentences sharing the same deep meaning, revealing the hidden network of intertextuality in his work.</p>
+                    <p>Below is a selection of these findings. <strong>The percentage value quantifies the semantic similarity</strong> between both quotes (derived from the cosine distance between their vectors). The pairs alternate automatically to show the richness of these occurrences:</p>
+                </div>
+
+                <div style="clear: both;"></div>
+
+                <div id="intertext-showcase" style="margin-top: 40px; min-height: 250px; max-width: 1000px; margin-left: auto; margin-right: auto;">
+                </div>
+            </div>
+
+            <style>
+                .intertext-card {
+                    background: #ffffff;
+                    border: 1px solid #e2d9c8;
+                    border-radius: 12px;
+                    /* Redujimos el padding arriba y lo compensamos un poco abajo */
+                    padding: 30px 30px 30px 30px; 
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                    position: relative;
+                    opacity: 0;
+                    transform: translateY(10px);
+                    animation: fadeInCard 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                
+                @keyframes fadeInCard {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                .sim-badge {
+                    position: absolute;
+                    /* 🛠️ Lo anclamos abajo a la derecha */
+                    bottom: -15px;
+                    right: 30px;
+                    background: linear-gradient(135deg, #b5367a, #8c2981); /* Magma / Bordó */
+                    color: white;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    font-weight: bold;
+                    letter-spacing: 0.5px;
+                    box-shadow: 0 4px 10px rgba(181, 54, 122, 0.4);
+                }
+                .pair-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 30px; /* Más espacio entre cajas ya que no hay flechas */
+                }
+                .quote-box {
+                    padding: 20px 25px;
+                    background: #fdfaf6;
+                    border-left: 5px solid #34495e;
+                    border-radius: 6px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between; 
+                }
+                .quote-text {
+                    font-style: italic;
+                    color: #2c3e50;
+                    margin-bottom: 20px;
+                    font-size: 16px; 
+                    line-height: 1.6;
+                }
+                .quote-meta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-top: 1px dashed #dcd3c6;
+                    padding-top: 12px;
+                }
+                
+                /* 🛠️ Estilos tipográficos limpios para la metadata */
+                .meta-libro {
+                    color: #b5367a; /* Bordó */
+                    font-weight: bold;
+                    font-size: 13.5px;
+                }
+                .meta-cuento {
+                    color: #7f8c8d; /* Gris */
+                    font-size: 13.5px;
+                }
+                
+                @media (min-width: 800px) {
+                    .pair-container {
+                        flex-direction: row;
+                        align-items: stretch;
+                    }
+                    .quote-box {
+                        flex: 1;
+                        /* Al sacar el divisor, las cajas pueden ocupar todo el 50% */
+                        width: 50%;
+                    }
+                }
+            </style>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    // 1. Pega acá el contenido completo de tu archivo "coincidencias_borges_sel.json"
+                    const datosIntertextuales = [
+                    {
+                            "similitud": 1.0,
+                            "oracion_A": {
+                                "texto": "Los muchos años lo habían reducido y pulido como las aguas a una piedra o las generaciones de los hombres a una sentencia.",
+                                "libro": "El Aleph",
+                                "cuento": "El Hombre En El Umbral",
+                                "año": 1949,
+                                "num_oracion": 35
+                            },
+                            "oracion_B": {
+                                "texto": "Los muchos años lo habían reducido y pulido como las aguas a una piedra o las generaciones de los hombres a una sentencia.",
+                                "libro": "Artificios",
+                                "cuento": "El Sur",
+                                "año": 1944,
+                                "num_oracion": 73
+                            }
+                        },
+                        {
+                            "similitud": 1.0,
+                            "oracion_A": {
+                                "texto": "El sol es todas las estrellas, y cada estrella es todas las estrellas y el sol.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "El Acercamiento A Almotasim",
+                                "año": 1941,
+                                "num_oracion": 89
+                            },
+                            "oracion_B": {
+                                "texto": "El sol es todas las estrellas, y cada estrella es todas las estrellas y el sol.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "Historia De La Eternidad",
+                                "año": 1936,
+                                "num_oracion": 39
+                            }
+                        },
+                        {
+                            "similitud": 0.9912,
+                            "oracion_A": {
+                                "texto": "Aseveran los teólogos que si la atención del Señor se desviara un solo segundo de mi derecha mano que escribe, ésta recaería en la nada, como si la fulminara un fuego sin luz.",
+                                "libro": "El Aleph",
+                                "cuento": "Deutsches Requiem",
+                                "año": 1949,
+                                "num_oracion": 28
+                            },
+                            "oracion_B": {
+                                "texto": "Los teólogos no ignoran que si la atención del Señor se desviara un solo segundo de mi derecha mano que escribe, ésta recaería en la nada, como si la fulminara un fuego sin luz.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "Historia De La Eternidad",
+                                "año": 1936,
+                                "num_oracion": 175
+                            }
+                        },
+                        {
+                            "similitud": 0.97,
+                            "oracion_A": {
+                                "texto": "(Del Libro de las 1001 Noches, noche 351)",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "Historia De Los Dos Que Soñaron",
+                                "año": 1935,
+                                "num_oracion": 23
+                            },
+                            "oracion_B": {
+                                "texto": "(Del Libro de las 1001 Noches, noche 272)",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "La Cámara De Las Estatuas",
+                                "año": 1935,
+                                "num_oracion": 23
+                            }
+                        },
+                        {
+                            "similitud": 0.9644,
+                            "oracion_A": {
+                                "texto": "Al encenderlo, vio que le temblaban las manos.",
+                                "libro": "Artificios",
+                                "cuento": "El Milagro Secreto",
+                                "año": 1944,
+                                "num_oracion": 87
+                            },
+                            "oracion_B": {
+                                "texto": "Noté que le temblaban las manos.",
+                                "libro": "Artificios",
+                                "cuento": "La Forma De La Espada",
+                                "año": 1944,
+                                "num_oracion": 97
+                            }
+                        },
+                        {
+                            "similitud": 0.9107,
+                            "oracion_A": {
+                                "texto": "Que el cielo exista, aunque nuestro lugar sea el infierno.",
+                                "libro": "El Aleph",
+                                "cuento": "Deutsches Requiem",
+                                "año": 1949,
+                                "num_oracion": 97
+                            },
+                            "oracion_B": {
+                                "texto": "Que el cielo exista, aunque mi lugar sea el infierno.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "La Biblioteca De Babel",
+                                "año": 1941,
+                                "num_oracion": 93
+                            }
+                        },
+                        {
+                            "similitud": 0.9051,
+                            "oracion_A": {
+                                "texto": "Cualquier cosa es todas las cosas.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "El Acercamiento A Almotasim",
+                                "año": 1941,
+                                "num_oracion": 88
+                            },
+                            "oracion_B": {
+                                "texto": "Cada cosa es todas las cosas.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "Historia De La Eternidad",
+                                "año": 1936,
+                                "num_oracion": 38
+                            }
+                        },
+                        {
+                            "similitud": 0.8504,
+                            "oracion_A": {
+                                "texto": "Le temblaba la voz; el temblor convenía a una delatora.",
+                                "libro": "El Aleph",
+                                "cuento": "Emma Zunz",
+                                "año": 1949,
+                                "num_oracion": 32
+                            },
+                            "oracion_B": {
+                                "texto": "La voz era aguda, burlona.",
+                                "libro": "Artificios",
+                                "cuento": "Funes El Memorioso",
+                                "año": 1944,
+                                "num_oracion": 22
+                            }
+                        },
+                        {
+                            "similitud": 0.8458,
+                            "oracion_A": {
+                                "texto": "Apretó el gatillo dos veces.",
+                                "libro": "El Aleph",
+                                "cuento": "Emma Zunz",
+                                "año": 1949,
+                                "num_oracion": 88
+                            },
+                            "oracion_B": {
+                                "texto": "Dos veces tropezó; dos veces lo sujetaron los arlequines.",
+                                "libro": "Artificios",
+                                "cuento": "La Muerte Y La Brujula",
+                                "año": 1944,
+                                "num_oracion": 77
+                            }
+                        },
+                        {
+                            "similitud": 0.8443,
+                            "oracion_A": {
+                                "texto": "«... y colgué el tubo.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "El Jardin De Senderos Que Se Bifurcan",
+                                "año": 1941,
+                                "num_oracion": 5
+                            },
+                            "oracion_B": {
+                                "texto": "-Lönnrot colgó el tubo.",
+                                "libro": "Artificios",
+                                "cuento": "La Muerte Y La Brujula",
+                                "año": 1944,
+                                "num_oracion": 110
+                            }
+                        },
+                        {
+                            "similitud": 0.8388,
+                            "oracion_A": {
+                                "texto": "Entonces imploró socorro divino y dio con la puerta.",
+                                "libro": "El Aleph",
+                                "cuento": "Los Dos Reyes Y Los Dos Laberintos",
+                                "año": 1949,
+                                "num_oracion": 4
+                            },
+                            "oracion_B": {
+                                "texto": "Imploró el socorro divino.",
+                                "libro": "El Aleph",
+                                "cuento": "Los Teologos",
+                                "año": 1949,
+                                "num_oracion": 90
+                            }
+                        },
+                        {
+                            "similitud": 0.8384,
+                            "oracion_A": {
+                                "texto": "Me pareció muy alto; era un hombre de piel cetrina, de entrecerrados ojos negros, de insolente nariz, de carnosos labios, de barba azafranada, de pecho fuerte, de andar seguro y silencioso.",
+                                "libro": "El Aleph",
+                                "cuento": "AbenjacáN El Bojarí Muerto En Su Laberinto",
+                                "año": 1949,
+                                "num_oracion": 35
+                            },
+                            "oracion_B": {
+                                "texto": "Era (ya lo dije) muy alto, de rasgos afilados, de ojos grises y barba gris.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "El Jardin De Senderos Que Se Bifurcan",
+                                "año": 1941,
+                                "num_oracion": 109
+                            }
+                        },
+                        {
+                            "similitud": 0.8297,
+                            "oracion_A": {
+                                "texto": "Quizá no huelgue resumir el poema.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "El Acercamiento A Almotasim",
+                                "año": 1941,
+                                "num_oracion": 80
+                            },
+                            "oracion_B": {
+                                "texto": "Padeces cautiverio, pero habrás dado una palabra al poema.",
+                                "libro": "El hacedor",
+                                "cuento": "Infierno I 32",
+                                "año": 1960,
+                                "num_oracion": 3
+                            }
+                        },
+                        {
+                            "similitud": 0.8295,
+                            "oracion_A": {
+                                "texto": "Hacia la medianoche lo despertó el grito inconsolable de un pájaro.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "Las Reuinas Circulares",
+                                "año": 1941,
+                                "num_oracion": 8
+                            },
+                            "oracion_B": {
+                                "texto": "Ya era de noche; desde el polvoriento jardín subió el grito inútil de un pájaro.",
+                                "libro": "Artificios",
+                                "cuento": "La Muerte Y La Brujula",
+                                "año": 1944,
+                                "num_oracion": 201
+                            }
+                        },
+                        {
+                            "similitud": 0.8287,
+                            "oracion_A": {
+                                "texto": "Le temblaba la voz; el temblor convenía a una delatora.",
+                                "libro": "El Aleph",
+                                "cuento": "Emma Zunz",
+                                "año": 1949,
+                                "num_oracion": 32
+                            },
+                            "oracion_B": {
+                                "texto": "Inició un grito enloquecido, movió la cara, la cuádruple descarga lo derribó.",
+                                "libro": "Artificios",
+                                "cuento": "El Milagro Secreto",
+                                "año": 1944,
+                                "num_oracion": 127
+                            }
+                        },
+                        {
+                            "similitud": 0.8283,
+                            "oracion_A": {
+                                "texto": "Esos auxilios lo ensuciaron de sangre.",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "El Hombre De La Esquina Rosada",
+                                "año": 1935,
+                                "num_oracion": 113
+                            },
+                            "oracion_B": {
+                                "texto": "Su sangre lo sintió como un acicate.",
+                                "libro": "Artificios",
+                                "cuento": "El Fin",
+                                "año": 1944,
+                                "num_oracion": 53
+                            }
+                        },
+                        {
+                            "similitud": 0.8272,
+                            "oracion_A": {
+                                "texto": "Pitaba con apuro su cigarrillo, como si ya entendiera lo que vimos claro después.",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "El Hombre De La Esquina Rosada",
+                                "año": 1935,
+                                "num_oracion": 42
+                            },
+                            "oracion_B": {
+                                "texto": "Estaba en el catre, fumando.",
+                                "libro": "Artificios",
+                                "cuento": "Funes El Memorioso",
+                                "año": 1944,
+                                "num_oracion": 58
+                            }
+                        },
+                        {
+                            "similitud": 0.8268,
+                            "oracion_A": {
+                                "texto": "Cerró cautelosamente la trampa; la oscuridad, pese a una hendija que después distinguí, pudo parecerme total.",
+                                "libro": "El Aleph",
+                                "cuento": "El Aleph",
+                                "año": 1949,
+                                "num_oracion": 135
+                            },
+                            "oracion_B": {
+                                "texto": "Había una parra; la oscuridad pudo parecerme total.",
+                                "libro": "Artificios",
+                                "cuento": "Funes El Memorioso",
+                                "año": 1944,
+                                "num_oracion": 52
+                            }
+                        },
+                        {
+                            "similitud": 0.825,
+                            "oracion_A": {
+                                "texto": "Me pidió que trajeran al condenado.",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "El Espejo De Tinta",
+                                "año": 1935,
+                                "num_oracion": 35
+                            },
+                            "oracion_B": {
+                                "texto": "“Le pregunté por el destino de los conjurados.",
+                                "libro": "El Aleph",
+                                "cuento": "El Hombre En El Umbral",
+                                "año": 1949,
+                                "num_oracion": 86
+                            }
+                        },
+                        {
+                            "similitud": 0.8244,
+                            "oracion_A": {
+                                "texto": "De puro atolondrado me le juí encima y le encajé la zurda en la facha, mientras con la derecha sacaba el cuchillo filoso que cargaba en la sisa del chaleco, junto al sobaco izquierdo.",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "El Hombre De La Esquina Rosada",
+                                "año": 1935,
+                                "num_oracion": 29
+                            },
+                            "oracion_B": {
+                                "texto": "En mi cinto estaba la daga con empuñadura de plata; la desnudé y le atravesé la garganta.",
+                                "libro": "El Aleph",
+                                "cuento": "AbenjacáN El Bojarí Muerto En Su Laberinto",
+                                "año": 1949,
+                                "num_oracion": 55
+                            }
+                        },
+                        {
+                            "similitud": 0.8229,
+                            "oracion_A": {
+                                "texto": "En los amaneceres soñaba un sueño de fondo igual y de circunstancias variables.",
+                                "libro": "El Aleph",
+                                "cuento": "La Espera",
+                                "año": 1949,
+                                "num_oracion": 53
+                            },
+                            "oracion_B": {
+                                "texto": "En el sueño del hombre que soñaba, el soñado se despertó.",
+                                "libro": "El jardín de los senderos que se bifurcan",
+                                "cuento": "Las Reuinas Circulares",
+                                "año": 1941,
+                                "num_oracion": 60
+                            }
+                        },
+                        {
+                            "similitud": 0.8225,
+                            "oracion_A": {
+                                "texto": "Oscura sangre le manaba del pecho.",
+                                "libro": "El Aleph",
+                                "cuento": "El Inmortal",
+                                "año": 1949,
+                                "num_oracion": 23
+                            },
+                            "oracion_B": {
+                                "texto": "El duro rostro estaba como enmascarado de sangre; una puñalada profunda le había rajado el pecho.",
+                                "libro": "Artificios",
+                                "cuento": "La Muerte Y La Brujula",
+                                "año": 1944,
+                                "num_oracion": 48
+                            }
+                        },
+                        {
+                            "similitud": 0.8214,
+                            "oracion_A": {
+                                "texto": "En lugar de quinientos, decía «nueve».",
+                                "libro": "Artificios",
+                                "cuento": "Funes El Memorioso",
+                                "año": 1944,
+                                "num_oracion": 96
+                            },
+                            "oracion_B": {
+                                "texto": "Vi un número entre diez y uno, que no es nueve, ocho, siete, seis, cinco, etcétera.",
+                                "libro": "El hacedor",
+                                "cuento": "Argumentum Ornithologicum",
+                                "año": 1960,
+                                "num_oracion": 8
+                            }
+                        },
+                        {
+                            "similitud": 0.8201,
+                            "oracion_A": {
+                                "texto": "El segundo está vinculado a la gloria de Nietzsche, su más patético inventor o divulgador.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "El Tiempo Circular",
+                                "año": 1936,
+                                "num_oracion": 12
+                            },
+                            "oracion_B": {
+                                "texto": "Es común atribuirlo a Nietzsche.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "La Docrtina De Los Ciclos Limpios",
+                                "año": 1936,
+                                "num_oracion": 5
+                            }
+                        },
+                        {
+                            "similitud": 0.7258,
+                            "oracion_A": {
+                                "texto": "Cerré los ojos, los abrí.",
+                                "libro": "El Aleph",
+                                "cuento": "El Aleph",
+                                "año": 1949,
+                                "num_oracion": 139
+                            },
+                            "oracion_B": {
+                                "texto": "Cerré los ojos y aguardé (sin dormir) que relumbrara el día.",
+                                "libro": "El Aleph",
+                                "cuento": "El Inmortal",
+                                "año": 1949,
+                                "num_oracion": 80
+                            }
+                        },
+                        {
+                            "similitud": 0.7261,
+                            "oracion_A": {
+                                "texto": "Esta metáfora me sirve para recordar al lector que estas biografías infames aparecieron en el suplemento sabático de un diario de la tarde.",
+                                "libro": "Historia universal de la infamia",
+                                "cuento": "El Impostor Inverosímil Tom Castro",
+                                "año": 1935,
+                                "num_oracion": 88
+                            },
+                            "oracion_B": {
+                                "texto": "La metáfora no habría sido pues lo fundamental sino, como la comparación ulterior, un descubrimiento tardío de las literaturas.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "Las Kennigar",
+                                "año": 1936,
+                                "num_oracion": 154
+                            }
+                        },
+                        {
+                            "similitud": 0.7282,
+                            "oracion_A": {
+                                "texto": "Aún, siquiera parcialmente, soy Borges.",
+                                "libro": "El Aleph",
+                                "cuento": "El Zahir",
+                                "año": 1949,
+                                "num_oracion": 4
+                            },
+                            "oracion_B": {
+                                "texto": "Yo he de quedar en Borges, no en mí (si es que alguien soy), pero me reconozco menos en sus libros que en muchos otros o que en el laborioso rasgueo de una guitarra.",
+                                "libro": "El hacedor",
+                                "cuento": "Borges Y Yo",
+                                "año": 1960,
+                                "num_oracion": 9
+                            }
+                        },
+                        {
+                            "similitud": 0.7286,
+                            "oracion_A": {
+                                "texto": "El universo requiere la eternidad.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "Historia De La Eternidad",
+                                "año": 1936,
+                                "num_oracion": 174
+                            },
+                            "oracion_B": {
+                                "texto": "En un tiempo infinito, el número de las permutaciones posibles debe ser alcanzado, y el universo tiene que repetirse.",
+                                "libro": "Historia de la eternidad",
+                                "cuento": "La Docrtina De Los Ciclos",
+                                "año": 1936,
+                                "num_oracion": 2
+                            }
+                        },
+                        {
+                            "similitud": 0.7449,
+                            "oracion_A": {
+                                "texto": "Arribo, ahora, al inefable centro de mi relato; empieza, aquí, mi desesperación de escritor.",
+                                "libro": "El Aleph",
+                                "cuento": "El Aleph",
+                                "año": 1949,
+                                "num_oracion": 141
+                            },
+                            "oracion_B": {
+                                "texto": "Arribo, ahora, al más difícil punto de mi relato.",
+                                "libro": "Artificios",
+                                "cuento": "Funes El Memorioso",
+                                "año": 1944,
+                                "num_oracion": 62
+                            }
+                        },
+                ];
+                
+                const showcase = document.getElementById('intertext-showcase');
+                    let ultimoIndice = -1;
+
+                    function mostrarCasoAleatorio() {
+                        let nuevoIndice;
+                        if (datosIntertextuales.length > 1) {
+                            do {
+                                nuevoIndice = Math.floor(Math.random() * datosIntertextuales.length);
+                            } while (nuevoIndice === ultimoIndice);
+                        } else {
+                            nuevoIndice = 0;
+                        }
+                        ultimoIndice = nuevoIndice;
+
+                        const item = datosIntertextuales[nuevoIndice];
+                        const simPorcentaje = (item.similitud * 100).toFixed(1);
+
+                        // 🛠️ Plantilla HTML con el num_oracion agregado a la metadata
+                        showcase.innerHTML = `
+                            <div class="intertext-card">
+                                <div class="pair-container">
+                                    <div class="quote-box">
+                                        <p class="quote-text">"${item.oracion_A.texto}"</p>
+                                        <div class="quote-meta">
+                                            <span class="meta-libro">${item.oracion_A.libro} (${item.oracion_A.año})</span>
+                                            <span class="meta-cuento">${item.oracion_A.cuento} &mdash; <span data-lang="es">Oración</span><span data-lang="en">Sentence</span> ${item.oracion_A.num_oracion}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="quote-box">
+                                        <p class="quote-text">"${item.oracion_B.texto}"</p>
+                                        <div class="quote-meta">
+                                            <span class="meta-libro">${item.oracion_B.libro} (${item.oracion_B.año})</span>
+                                            <span class="meta-cuento">${item.oracion_B.cuento} &mdash; <span data-lang="es">Oración</span><span data-lang="en">Sentence</span> ${item.oracion_B.num_oracion}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sim-badge">
+                                    <span data-lang="es">Similitud Semántica:</span>
+                                    <span data-lang="en">Semantic Similarity:</span> ${simPorcentaje}%
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    mostrarCasoAleatorio();
+                    setInterval(mostrarCasoAleatorio, 12000);
+                });
+            </script>
+
+
+        </article>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            revealElements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- LÓGICA DEL MODO OSCURO / CLARO ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = themeToggleBtn.querySelector('i');
+            
+            // Revisa si ya hay un tema guardado en el navegador
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun'); // Cambia el ícono a Sol
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                }
+            });
+
+            // --- LÓGICA DE TRADUCCIÓN (ES / EN) ---
+            const langToggleBtn = document.getElementById('lang-toggle');
+            
+            // Revisa el idioma guardado, por defecto ES
+            const currentLang = localStorage.getItem('language') || 'es';
+            document.body.setAttribute('data-language', currentLang);
+            langToggleBtn.textContent = currentLang.toUpperCase();
+
+            langToggleBtn.addEventListener('click', () => {
+                const isEs = document.body.getAttribute('data-language') === 'es';
+                const newLang = isEs ? 'en' : 'es';
+                
+                document.body.setAttribute('data-language', newLang);
+                localStorage.setItem('language', newLang);
+                langToggleBtn.textContent = newLang.toUpperCase();
+            });
+        });
+    </script>
+
+</body>
+</html>
