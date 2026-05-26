@@ -279,37 +279,62 @@
             transform: translateY(0);
         }
 
-        /* Responsividad: Ajustes específicos para celulares y tablets */
+        /* Contenedor que "rompe" el ancho del texto y se centra */
+        .breakout-wrapper {
+            position: relative;
+            width: 95vw !important;        /* Pasamos de 90vw a 95vw para que ocupe casi toda la pantalla */
+            max-width: 1600px !important;  /* Subimos el tope de 1200px a 1600px para monitores anchos */
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .breakout-wrapper iframe {
+            width: 100% !important;
+            border: none;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Responsividad: Ajustes para tablets y pantallas medianas (Hasta 950px) */
         @media (max-width: 950px) {
             .article-container {
-                margin-top: 80px; /* Reducimos el espacio superior en pantallas chicas */
+                margin-top: 80px; 
             }
             
             .hero-image {
                 float: none;
                 max-width: 100%;
-                margin: 30px 0; /* Anula el margen negativo exterior en celulares */
+                margin: 30px 0; 
             }
             
             .project-content p { 
-                text-align: left; /* La alineación justificada se lee mal en pantallas angostas */
+                text-align: left; 
             }
             
             .visual-grid { 
-                grid-template-columns: 1fr; /* Los gráficos se apilan uno abajo del otro en vertical */
+                grid-template-columns: 1fr; 
             }
+        }
 
-            /* 📱 AJUSTE PARA EL MAPA Y GRÁFICOS EN CELULARES */
-            .full-width-map {
-                width: 100vw;   /* En celular toma el 100% real de la pantalla de borde a borde */
-                height: auto;   /* Anulamos herencias de altura */
-                aspect-ratio: 4 / 3; /* Proporción más cuadrada, ideal para lectura en celular */
-                min-height: 350px; /* Piso mínimo para asegurar que se pueda interactuar */
+        /* 📱 Responsividad: Ajustes estrictos para celulares (Hasta 768px) */
+        @media (max-width: 768px) {
+            .breakout-wrapper {
+                width: 100vw !important; /* De borde a borde */
+                border-radius: 0 !important;
                 margin-top: 30px;
                 margin-bottom: 30px;
-                border-radius: 0; /* Sin bordes redondeados para simular una app nativa */
-                border-left: none;
-                border-right: none;
+            }
+            
+            .breakout-wrapper iframe {
+                /* Pisa la altura de computadora y los hace amigables en el celu */
+                height: 450px !important; 
+                border-radius: 0 !important;
+                border-left: none !important;
+                border-right: none !important;
             }
         }
 
@@ -444,8 +469,8 @@
                     <p>The following interactive map displays all the coordinates extracted from his work. As can be seen in the red hubs (the absolute Top 20 mentions), Borgesian geography is undeniably global, but it orbits with an overwhelming gravitational force around Buenos Aires and the South. By exploring each marker, the density of the location is revealed through an interactive word cloud, demonstrating that his literature did not ignore the local, but rather elevated it to a universal category.</p>
                 </div>
                 
-                <div class="interactive-section map-frame-container full-width-map" style="margin-top: 30px;">
-                    <iframe src="htmls_borges/mapa_interactivo_borges.html" title="Mapa Interactivo - Universo de Locaciones de Borges"></iframe>
+                <div class="interactive-section breakout-wrapper">
+                    <iframe src="htmls_borges/mapa_interactivo_borges.html" style="height: 600px;" title="Mapa Interactivo - Universo de Locaciones de Borges"></iframe>
                 </div>
             </div>
 
@@ -464,11 +489,11 @@
                     <p>The result is a mathematical filter that allows us to observe the lexical footprint of each chronological era. In the visualization below, <strong>the vertical axis quantifies the total amount of nouns</strong> used in each work, while exploring the interactive nodes reveals the Top 5 most distinctive concepts (highest TF-IDF score) of that literary moment.</p>
                 </div>
                 
-                <div class="visual-card">
-                    <div class="visual-card-title" style="padding: 5px 20px; margin-bottom: 0; border-bottom: none;">
+                <div class="visual-card breakout-wrapper" style="padding: 0; overflow: hidden;">
+                    <div class="visual-card-title" style="padding: 5px 20px; margin-bottom: 0; border-bottom: none; background: var(--sidebar-bg);">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <iframe src="htmls_borges/linea_tiempo_tfidf.html" scrolling="no" title="Gráfico Interactivo - Densidad Léxica TF-IDF"></iframe>
+                    <iframe src="htmls_borges/linea_tiempo_tfidf.html" style="height: 650px;" scrolling="no" title="Gráfico Interactivo - Densidad Léxica TF-IDF"></iframe>
                 </div>
             </div>
 
@@ -485,11 +510,11 @@
                     <p>The following chart tracks the descriptive volume these concepts receive over the decades, <strong>measuring on its vertical axis the exact amount of adjectives linked to each symbol</strong>. It is revealing to observe the topological prominence of the "tango" in his early stage (marked by <em>Cuaderno San Martín</em> in 1929), in contrast to the absolute monopoly acquired by the concept of "the man" as a transversal descriptive axis, or how the "labyrinth" and the "mirror" maintain a constant tension in his narrative maturity.</p>
                 </div>
 
-                <div class="visual-card">
-                    <div class="visual-card-title" style="padding: 5px 20px; margin-bottom: 0; border-bottom: none; display: flex; align-items: center; justify-content: space-between;">
-                        <i class="fas fa-project-diagram" style="margin-right: 0;"></i>
+                <div class="visual-card breakout-wrapper" style="padding: 0; overflow: hidden;">
+                    <div class="visual-card-title" style="padding: 5px 20px; margin-bottom: 0; border-bottom: none; background: var(--sidebar-bg);">
+                        <i class="fas fa-project-diagram"></i>
                     </div>
-                    <iframe src="htmls_borges/borges_adjetivos.html" scrolling="no" title="Gráfico Interactivo - Evolución de adjetivos por símbolo"></iframe>
+                    <iframe src="htmls_borges/borges_adjetivos.html" style="height: 800px;" scrolling="no" title="Gráfico Interactivo - Evolución de adjetivos por símbolo"></iframe>
                 </div>
             </div>
 
