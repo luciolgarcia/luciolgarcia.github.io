@@ -195,9 +195,11 @@
             width: 100%;
         }
 
+        /* Contenedor principal de gráficos interactivos */
         .map-frame-container {
             width: 100%;
-            height: 550px;
+            aspect-ratio: 16 / 9; /* Reemplaza el height fijo, mantiene proporción cine */
+            min-height: 400px; /* Un tope mínimo por seguridad */
             border-radius: 6px;
             overflow: hidden;
             border: 1px solid var(--border-color);
@@ -209,6 +211,18 @@
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        /* --- CLASE PARA EXPANDIR EL MAPA FUERA DEL TEXTO --- */
+        .full-width-map {
+            width: 90vw; /* 90% del ancho total de la pantalla */
+            max-width: 1200px; /* Agregado para que no se deforme en monitores ultra-anchos */
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%); /* Centra el elemento perfectamente */
+            /* Eliminamos el height: 650px fijo */
+            margin-top: 50px;
+            margin-bottom: 50px;
         }
 
         .visual-grid {
@@ -285,27 +299,18 @@
                 grid-template-columns: 1fr; /* Los gráficos se apilan uno abajo del otro en vertical */
             }
 
-            /* 📱 AJUSTE PARA EL MAPA EN CELULARES */
+            /* 📱 AJUSTE PARA EL MAPA Y GRÁFICOS EN CELULARES */
             .full-width-map {
                 width: 100vw;   /* En celular toma el 100% real de la pantalla de borde a borde */
-                height: 450px;  /* Bajamos la altura para que el usuario pueda scrollear la página sin quedar atrapado dentro del mapa */
+                height: auto;   /* Anulamos herencias de altura */
+                aspect-ratio: 4 / 3; /* Proporción más cuadrada, ideal para lectura en celular */
+                min-height: 350px; /* Piso mínimo para asegurar que se pueda interactuar */
                 margin-top: 30px;
                 margin-bottom: 30px;
-                border-radius: 0; /* Sin bordes redondeados para simular una app nativa en el teléfono */
+                border-radius: 0; /* Sin bordes redondeados para simular una app nativa */
                 border-left: none;
                 border-right: none;
             }
-        }
-
-        /* --- CLASE PARA EXPANDIR EL MAPA FUERA DEL TEXTO --- */
-        .full-width-map {
-            width: 90vw; /* 90% del ancho total de la pantalla */
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%); /* Centra el elemento perfectamente */
-            height: 650px; /* Un poco más alto para acompañar el nuevo ancho */
-            margin-top: 50px;
-            margin-bottom: 50px;
         }
 
 
@@ -1202,21 +1207,25 @@
                 }
             });
 
-            // --- LÓGICA DE TRADUCCIÓN (ES / EN) ---
+            // --- LÓGICA DE TRADUCCIÓN (EN / ES) ---
             const langToggleBtn = document.getElementById('lang-toggle');
             
-            // Revisa el idioma guardado, por defecto ES
-            const currentLang = localStorage.getItem('language') || 'es';
+            // Revisa el idioma guardado, por defecto ahora es EN (Inglés)
+            const currentLang = localStorage.getItem('language') || 'en';
             document.body.setAttribute('data-language', currentLang);
-            langToggleBtn.textContent = currentLang.toUpperCase();
+            
+            // EL TRUCO: El botón debe mostrar el idioma OPUESTO al actual
+            langToggleBtn.textContent = currentLang === 'en' ? 'ES' : 'EN';
 
             langToggleBtn.addEventListener('click', () => {
-                const isEs = document.body.getAttribute('data-language') === 'es';
-                const newLang = isEs ? 'en' : 'es';
+                const isEn = document.body.getAttribute('data-language') === 'en';
+                const newLang = isEn ? 'es' : 'en';
                 
                 document.body.setAttribute('data-language', newLang);
                 localStorage.setItem('language', newLang);
-                langToggleBtn.textContent = newLang.toUpperCase();
+                
+                // Al hacer click, el botón vuelve a mostrar el opuesto del nuevo idioma
+                langToggleBtn.textContent = newLang === 'en' ? 'ES' : 'EN';
             });
         });
     </script>

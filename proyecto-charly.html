@@ -209,20 +209,25 @@
                 }
             });
 
-            // Lógica Idioma (ES/EN)
+            // --- LÓGICA DE TRADUCCIÓN (EN / ES) ---
             const langToggleBtn = document.getElementById('lang-toggle');
             
-            const currentLang = localStorage.getItem('language') || 'es';
+            // Revisa el idioma guardado, por defecto ahora es EN (Inglés)
+            const currentLang = localStorage.getItem('language') || 'en';
             document.body.setAttribute('data-language', currentLang);
-            langToggleBtn.textContent = currentLang.toUpperCase();
+            
+            // EL TRUCO: El botón debe mostrar el idioma OPUESTO al actual
+            langToggleBtn.textContent = currentLang === 'en' ? 'ES' : 'EN';
 
             langToggleBtn.addEventListener('click', () => {
-                const isEs = document.body.getAttribute('data-language') === 'es';
-                const newLang = isEs ? 'en' : 'es';
+                const isEn = document.body.getAttribute('data-language') === 'en';
+                const newLang = isEn ? 'es' : 'en';
                 
                 document.body.setAttribute('data-language', newLang);
                 localStorage.setItem('language', newLang);
-                langToggleBtn.textContent = newLang.toUpperCase();
+                
+                // Al hacer click, el botón vuelve a mostrar el opuesto del nuevo idioma
+                langToggleBtn.textContent = newLang === 'en' ? 'ES' : 'EN';
             });
         });
     </script>
