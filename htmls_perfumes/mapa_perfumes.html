@@ -114,10 +114,31 @@
   ::-webkit-scrollbar{width:9px;height:9px}
   ::-webkit-scrollbar-thumb{background:#243047;border-radius:5px}
   ::-webkit-scrollbar-track{background:transparent}
+  /* barra inferior, solo en pantallas chicas */
+  #barra-movil{display:none;position:fixed;left:0;right:0;bottom:0;z-index:8;
+    gap:8px;padding:8px 10px;background:var(--panel);
+    border-top:1px solid var(--borde)}
+  #barra-movil button{flex:1;font-size:12.5px;padding:9px 6px}
+  #barra-movil button.activo{border-color:var(--acento);color:var(--acento)}
+
+  /* En un telefono los paneles flotantes tapaban el mapa entero: el de
+     controles se comia la mitad de arriba y la referencia la de abajo, y
+     quedaba una franja. Aca se esconden detras de la barra y el mapa se
+     queda con toda la pantalla. */
   @media (max-width:900px){
-    #controles{width:calc(100vw - 28px);max-height:46vh}
-    #detalle{width:calc(100vw - 28px);top:auto;bottom:14px;max-height:46vh}
-    #pie,#leyenda{display:none}
+    #barra-movil{display:flex}
+    #controles{width:auto;left:10px;right:10px;top:auto;bottom:58px;
+      max-height:64vh;display:none}
+    body.abre-controles #controles{display:block}
+    /* con la misma especificidad que #leyenda.visible de mas arriba, si no
+       aquella gana por orden y la referencia tapa medio mapa */
+    #leyenda,#leyenda.visible{display:none}
+    body.abre-leyenda #leyenda.visible{display:block;left:10px;right:10px;
+      bottom:58px;max-width:none;max-height:52vh}
+    #detalle{width:auto;left:10px;right:10px;top:auto;bottom:58px;max-height:72vh}
+    #pie{display:none}
+    #herramientas{top:auto;bottom:58px;right:10px;flex-direction:row}
+    #detalle.visible ~ #herramientas{right:10px;display:none}
   }
 </style>
 </head>
@@ -236,6 +257,11 @@
   </div>
 
   <div id="aviso_relax" style="color:var(--tenue);font-size:11px;margin-top:12px"></div>
+</div>
+
+<div id="barra-movil">
+  <button id="btn_panel">Controles</button>
+  <button id="btn_leyenda">Referencias</button>
 </div>
 
 <div id="herramientas">
@@ -997,10 +1023,15 @@ function encuadrarVisibles(){
      decidir el encuadre de los otros veinte mil */
   const x0 = cuantil(xs, 0.01), x1 = cuantil(xs, 0.99);
   const y0 = cuantil(ys, 0.01), y1 = cuantil(ys, 0.99);
-  cam.x = (x0+x1)/2; cam.y = (y0+y1)/2;
+  /* en el telefono la barra de abajo se come 58 px: el encuadre tiene que
+     usar el alto que queda, no el de la ventana, o el mapa cae detras */
+  const reserva = window.innerWidth <= 900 ? 70 : 0;
+  const util = Math.max(120, alto - reserva);
   const margen = 90;
   cam.z = Math.max(0.05, Math.min(6,
-    Math.min(ancho/((x1-x0) + margen), alto/((y1-y0) + margen))));
+    Math.min(ancho/((x1-x0) + margen), util/((y1-y0) + margen))));
+  cam.x = (x0+x1)/2;
+  cam.y = (y0+y1)/2 + reserva/(2*cam.z);
   pedirDibujo();
 }
 
@@ -1180,6 +1211,20 @@ function conectar(){
     cam.z = Math.max(0.05, cam.z/1.45); pedirDibujo();
   };
   document.getElementById("f_solo_referencia").onchange = refrescar;
+
+  /* en el telefono los paneles se abren de a uno, nunca los dos encima */
+  const alternar = (clase, boton, otro) => {
+    const abierto = document.body.classList.toggle(clase);
+    document.body.classList.remove(otro);
+    document.getElementById(boton).classList.toggle("activo", abierto);
+    document.getElementById(boton === "btn_panel" ? "btn_leyenda" : "btn_panel")
+      .classList.remove("activo");
+    setTimeout(() => { medir(); encuadrarVisibles(); }, 30);
+  };
+  document.getElementById("btn_panel").onclick =
+    () => alternar("abre-controles", "btn_panel", "abre-leyenda");
+  document.getElementById("btn_leyenda").onclick =
+    () => alternar("abre-leyenda", "btn_leyenda", "abre-controles");
 
   const busca = document.getElementById("busca");
   busca.oninput = () => {
