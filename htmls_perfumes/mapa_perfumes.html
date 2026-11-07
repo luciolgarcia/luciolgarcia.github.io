@@ -61,6 +61,10 @@
   #detalle .casa{color:var(--acento2);font-size:11px;text-transform:uppercase;letter-spacing:1px}
   #detalle h2{font-size:17px;line-height:1.25;margin:3px 0 8px}
   #detalle .meta{color:var(--tenue);font-size:11.5px;margin-bottom:12px}
+  .nota-chica{color:var(--tenue);font-size:10.5px;line-height:1.4;margin-top:5px}
+  .tit-chico{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--tenue);margin-bottom:2px}
+  .leyenda-radar{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--tenue);margin-top:2px}
+  .leyenda-radar i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
   .votantes{margin-top:3px;font-size:11px}
   .votantes b{color:var(--texto);font-weight:600}
   .pesos{font-size:13px;letter-spacing:1px;white-space:nowrap}
@@ -165,6 +169,17 @@
       <option value="sin">Sacar los de farmacia</option>
       <option value="todos" selected>Todos los perfumes</option>
     </select>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="genero">Para quién</label>
+    <select id="genero">
+      <option value="">Todos</option>
+      <option value="0">Femeninos</option>
+      <option value="2">Masculinos</option>
+      <option value="1">Unisex</option>
+    </select>
+    <div class="nota-chica">Según lo que votó la gente, no lo que dice la marca.</div>
   </div>
 
   <div class="grupo">
@@ -296,6 +311,14 @@
   <div class="seccion">
     <h3>También les gusta</h3>
     <div id="d_cogusto"></div>
+  </div>
+  <div class="seccion">
+    <h3>Parecido y más barato</h3>
+    <div id="d_barato"></div>
+  </div>
+  <div class="seccion">
+    <h3>Para explorar: lo opuesto</h3>
+    <div id="d_anti"></div>
   </div>
   <div class="seccion"><a id="d_link" target="_blank" rel="noopener">Ver en Fragrantica →</a></div>
 </div>
@@ -507,6 +530,8 @@ function aplicarFiltros(){
   const acIdx = ac === "" ? -1 : parseInt(ac, 10);
   const cat = document.getElementById("catalogo").value;
   const recortarPorColor = chk("f_solo_referencia");
+  const gen = document.getElementById("genero").value;
+  const genIdx = gen === "" ? -1 : parseInt(gen, 10);
 
   let cuenta = 0;
   for (let i=0;i<N;i++){
@@ -525,6 +550,7 @@ function aplicarFiltros(){
       if (e == null || b == null || e < 35 || Math.abs(b) > 0.35) ok = false;
     }
     if (ok && acIdx >= 0 && n.ac1[i] !== acIdx && n.ac2[i] !== acIdx && n.ac3[i] !== acIdx) ok = false;
+    if (ok && genIdx >= 0 && n.gen3[i] !== genIdx) ok = false;
     if (ok && cat !== "todos"){
       const esFarmacia = n.farmacia[i] === 1;
       if (cat === "farmacia" ? !esFarmacia : esFarmacia) ok = false;
@@ -784,6 +810,64 @@ function signosPesos(p){
     + `<b>${"$".repeat(k)}</b><span>${"$".repeat(5-k)}</span></span>`;
 }
 
+/* la misma escala, en una lista: sólo los signos encendidos */
+function pesosCortos(p){
+  if (p == null) return "—";
+  return `<span class="pesos"><b>${"$".repeat(Math.max(1, Math.min(5, Math.round(p))))}</b></span>`;
+}
+
+/* Radar en SVG. ejes: nombres; series: {nombre, valores, color, punteada}.
+   Los valores son porcentajes; la escala la fija la serie mas alta. */
+function radarSVG(ejes, series, lado = 250){
+  /* margen a los costados para los nombres de los ejes laterales */
+  const c = lado/2, R = lado/2 - 26, k = ejes.length, mx = 62;
+  const tope = Math.max(...series.flatMap(s => s.valores)) * 1.08 || 1;
+  const punto = (j, v) => {
+    const a = -Math.PI/2 + 2*Math.PI*j/k, r = R * v/tope;
+    return [c + r*Math.cos(a), c + r*Math.sin(a)];
+  };
+  let s = `<svg viewBox="${-mx} 0 ${lado + 2*mx} ${lado}" width="100%" role="img"
+    style="max-width:${lado + 2*mx}px;display:block;margin:6px auto 0">`;
+  for (const f of [0.25, 0.5, 0.75, 1]){
+    s += `<polygon points="${ejes.map((_, j) => punto(j, tope*f).join(",")).join(" ")}"
+      fill="none" stroke="#243042" stroke-width="1"/>`;
+  }
+  ejes.forEach((e, j) => {
+    const [x, y] = punto(j, tope), [lx, ly] = punto(j, tope*1.1);
+    s += `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="#243042" stroke-width="1"/>`;
+    const ancla = Math.abs(lx - c) < 6 ? "middle" : lx < c ? "end" : "start";
+    s += `<text x="${lx}" y="${ly}" font-size="11" fill="#9aa7b8" text-anchor="${ancla}"
+      dominant-baseline="middle">${escapar(e)}</text>`;
+  });
+  for (const se of series){
+    const pts = se.valores.map((v, j) => punto(j, v).join(",")).join(" ");
+    s += `<polygon points="${pts}" fill="${se.punteada ? "none" : se.color}" fill-opacity="0.16"
+      stroke="${se.color}" stroke-width="2" ${se.punteada ? 'stroke-dasharray="4 3"' : ""}
+      stroke-linejoin="round"><title>${escapar(se.nombre)}</title></polygon>`;
+  }
+  s += `</svg><div class="leyenda-radar">` + series.map(se =>
+    `<span><i style="border-color:${se.color};${se.punteada ? "border-style:dashed" : ""}"></i>${escapar(se.nombre)}</span>`
+  ).join("") + `</div>`;
+  return s;
+}
+
+/* Perfil aromatico de un conjunto de perfumes: el promedio de sus familias */
+function perfilDe(indices){
+  const k = D.meta.familias.length, suma = new Array(k).fill(0);
+  for (const i of indices) for (let f=0; f<k; f++) suma[f] += D.nodos.fam[i][f];
+  return suma.map(v => v / Math.max(1, indices.length));
+}
+function textoPerfil(perfil){
+  const glob = D.meta.perfil_global.map(v => v*100), fams = D.meta.familias;
+  const r = perfil.map((v, f) => [fams[f], v / glob[f]]).sort((a,b) => b[1]-a[1]);
+  const mas = r.filter(x => x[1] >= 1.2).slice(0, 3);
+  const menos = r.filter(x => x[1] <= 0.75).slice(-2).reverse();
+  const veces = x => `${escapar(x[0].toLowerCase())} (${x[1] < 0.05 ? "nada"
+    : fmt1(x[1]).replace(/,0$/, "") + "×"})`;
+  return (mas.length ? `Te tira más de lo normal: ${mas.map(veces).join(", ")}.` : "Tu perfil está cerca del promedio.")
+    + (menos.length ? ` Casi no tenés: ${menos.map(veces).join(", ")}.` : "");
+}
+
 function mostrarDetalle(i){
   const n = D.nodos, M = D.meta;
   seleccion = i;
@@ -853,6 +937,24 @@ function mostrarDetalle(i){
     : `<div style="color:var(--tenue)">su página no recomienda ninguno</div>`)
     + (entran ? `<div style="color:var(--tenue);font-size:11px;margin-top:6px">
         y lo nombran en las recomendaciones de <b>${fmt(entran)}</b> perfumes más</div>` : "");
+
+  /* recomendaciones precalculadas en 06_analisis.py */
+  const filaRec = j => `<div class="vecino" data-i="${j}">
+      <span>${escapar(nombreCorto(j))}</span>
+      <span class="pt">${pesosCortos(n.precio[j])} · ${fmt2(n.rating[j])}</span></div>`;
+  const barato = (n.barato && n.barato[i]) || [];
+  document.getElementById("d_barato").innerHTML = barato.length
+    ? barato.map(filaRec).join("") +
+      `<div class="nota-chica">Entre sus vecinos olfativos: al menos 0,3 $ más barato
+        y con un rating que no baja más de 0,15.</div>`
+    : `<div style="color:var(--tenue)">${n.precio[i] == null ? "no hay datos de costo"
+        : "no hay uno parecido que sea más barato sin perder calidad"}</div>`;
+  const anti = (n.anti && n.anti[i]) || [];
+  document.getElementById("d_anti").innerHTML = anti.length
+    ? anti.map(filaRec).join("") +
+      `<div class="nota-chica">Fuertes justo donde este es débil, entre perfumes con más de
+        500 votos y rating 4 o más. Tres casas distintas.</div>`
+    : `<div style="color:var(--tenue)">sin datos de acordes</div>`;
 
   document.getElementById("d_link").href =
     `https://www.fragrantica.es/perfume/_/_-${n.id[i]}.html`;
@@ -1142,6 +1244,19 @@ function marcarColeccion(){
       ${perdidos.length>8?` y ${perdidos.length-8} más`:""}.
       Puede ser que tengan menos de ${D.meta.piso_votos} votos y estén fuera del mapa.</div>`;
   }
+  /* el perfil aromatico de la coleccion contra el del catalogo entero */
+  if (hallados.length){
+    const tuyo = perfilDe(hallados);
+    html += `<div style="margin-top:10px"><h3 class="tit-chico">Tu perfil aromático</h3>` +
+      radarSVG(D.meta.familias, [
+        { nombre: "Tu colección", valores: tuyo, color: "#3987e5" },
+        { nombre: "Todo el catálogo", valores: D.meta.perfil_global.map(v=>v*100),
+          color: "#8a96a8", punteada: true },
+      ]) +
+      `<div class="nota-chica" style="font-size:11.5px;color:var(--texto)">${textoPerfil(tuyo)}</div>
+       <div class="nota-chica">Cada eje es la parte de la fuerza de los acordes que cae en esa
+       familia, promediada sobre tus ${hallados.length} perfumes.</div></div>`;
+  }
   caja.innerHTML = html;
   pedirDibujo();
 }
@@ -1286,6 +1401,7 @@ function conectar(){
   };
   document.getElementById("btn_sin_foco").onclick = sacarFoco;
   document.getElementById("catalogo").onchange = refrescar;
+  document.getElementById("genero").onchange = refrescar;
 
   /* --- pan, zoom, hover ---
      Pellizco con dos dedos: lo maneja el mapa. Antes no habia codigo para eso

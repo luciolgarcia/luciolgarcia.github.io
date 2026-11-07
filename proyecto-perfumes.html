@@ -111,7 +111,58 @@
             padding: 14px 18px; font-size: .92rem; margin: 26px 0;
         }
 
+        /* --- graficos del analisis --- */
+        body {
+            --serie-1: #2a78d6; --serie-2: #eb6834; --serie-3: #1baf7a;
+            --referencia: #8f8494; --grilla: #e6dde8; --tinta-2: #6d5f73;
+        }
+        body[data-theme="dark"] {
+            --serie-1: #3987e5; --serie-2: #d95926; --serie-3: #199e70;
+            --referencia: #9d90a6; --grilla: #3a2d47; --tinta-2: #b9aac3;
+        }
+        .pestanas { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px; }
+        .pestanas button {
+            background: var(--card-bg); color: var(--text-color);
+            border: 1px solid var(--border-color); border-radius: 20px;
+            padding: 7px 16px; font: inherit; font-size: .9rem; cursor: pointer;
+        }
+        .pestanas button[aria-selected="true"] {
+            background: var(--tag-bg); color: var(--heading-color);
+            border-color: var(--link-color); font-weight: 600;
+        }
+        .panel-analisis { display: none; }
+        .panel-analisis.activo { display: block; }
+        .grafico {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 16px 16px 10px; margin: 18px 0;
+        }
+        .grafico h3 { font-size: 1rem; color: var(--heading-color); margin-bottom: 2px; }
+        .grafico .sub { font-size: .82rem; color: var(--tinta-2); margin-bottom: 8px; }
+        .grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
+        .grafico svg text { fill: var(--tinta-2); font-family: inherit; }
+        .leyenda-g { display: flex; flex-wrap: wrap; gap: 16px; font-size: .82rem; color: var(--tinta-2); margin: 4px 0 6px; }
+        .leyenda-g i { display: inline-block; width: 16px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+        .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+        .rasgo { display: grid; grid-template-columns: 9.5em 1fr 3.4em; gap: 8px; align-items: center; font-size: .86rem; margin: 5px 0; }
+        .rasgo .barra-l { height: 8px; background: var(--serie-1); border-radius: 0 4px 4px 0; }
+        .rasgo .tipo { font-size: .7rem; color: var(--tinta-2); text-transform: uppercase; letter-spacing: .5px; }
+        .rasgo b { text-align: right; font-weight: 600; color: var(--text-color); }
+        .grafico select {
+            font: inherit; font-size: .9rem; padding: 6px 10px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color);
+            max-width: 100%;
+        }
+        .ficha-casa { font-size: .86rem; color: var(--tinta-2); margin: 8px 0 4px; }
+        details.tabla { font-size: .82rem; margin-top: 6px; }
+        details.tabla table { border-collapse: collapse; margin-top: 6px; width: 100%; }
+        details.tabla td, details.tabla th { border-bottom: 1px solid var(--border-color); padding: 3px 6px; text-align: right; }
+        details.tabla td:first-child, details.tabla th:first-child { text-align: left; }
+        .perfumista { margin: 6px 0 18px; }
+        .perfumista h4 { font-size: .95rem; color: var(--heading-color); }
+        .perfumista .sub { font-size: .8rem; color: var(--tinta-2); }
+
         @media (max-width: 860px) {
+            .dos-col { grid-template-columns: 1fr; }
             main { padding: 34px 18px 70px; }
             h1 { font-size: 1.85rem; }
             .topbar-simple { padding: 0 16px; }
@@ -174,7 +225,7 @@
             <p>Salen de correr Leiden sobre la red olfativa. El nombre de cada una no es su acorde más frecuente sino el más <strong>sobre-representado</strong>: etiquetar por frecuencia llenaría el mapa de "amaderado", que aparece en veinte mil perfumes. Al pasar el mouse por encima, cada comunidad se abre en sus partes: dentro de <em>cuero</em> aparecen gamuza, vetiver, tomillo, osmanto.</p>
 
             <h2>Una advertencia sobre el precio</h2>
-            <p>Fragrantica no publica precios. Lo que hay son votos sobre si una fragancia se siente cara o barata, y con eso armé un índice de 1 a 5. El filtro de costo recorta por <strong>carestía percibida</strong>, que no es plata.</p>
+            <p>Fragrantica no publica precios. Lo que hay son votos sobre si una fragancia se siente cara o barata, y con eso armé un índice de 1 a 5. El filtro de costo recorta por <strong>costo percibido</strong>, que no es plata.</p>
         </div>
 
         <div data-lang="en">
@@ -193,12 +244,12 @@
             <p>They come from running Leiden over the olfactory network. Each name is not its commonest accord but its most <strong>over-represented</strong> one: labelling by frequency would fill the map with "woody", which appears in twenty thousand perfumes. Hovering opens a community into its parts: inside <em>leather</em> you find suede, vetiver, thyme, osmanthus.</p>
 
             <h2>A warning about price</h2>
-            <p>Fragrantica publishes no prices. What exists are votes on whether a fragrance feels expensive or cheap, and from those I built a 1-to-5 index. The cost filter cuts by <strong>perceived dearness</strong>, which is not money.</p>
+            <p>Fragrantica publishes no prices. What exists are votes on whether a fragrance feels expensive or cheap, and from those I built a 1-to-5 index. The cost filter cuts by <strong>perceived cost</strong>, which is not money.</p>
         </div>
 
         <div class="aviso">
-            <span data-lang="es"><i class="fas fa-mobile-screen"></i> &nbsp;El mapa baja unos 4 MB comprimidos. Desde el celular se ve mejor apaisado.</span>
-            <span data-lang="en"><i class="fas fa-mobile-screen"></i> &nbsp;The map downloads about 4 MB compressed. On a phone, turn it sideways.</span>
+            <span data-lang="es"><i class="fas fa-mobile-screen"></i> &nbsp;El mapa baja unos 4,5 MB comprimidos. Desde el celular se ve mejor apaisado.</span>
+            <span data-lang="en"><i class="fas fa-mobile-screen"></i> &nbsp;The map downloads about 4.5 MB compressed. On a phone, turn it sideways.</span>
         </div>
 
         <div class="breakout-wrapper">
@@ -208,6 +259,104 @@
             <span data-lang="es">¿Te queda chico? <a href="htmls_perfumes/mapa_perfumes.html" target="_blank" rel="noopener">Abrir el mapa en pantalla completa →</a></span>
             <span data-lang="en">Too small? <a href="htmls_perfumes/mapa_perfumes.html" target="_blank" rel="noopener">Open the map full screen →</a></span>
         </p>
+
+        <div data-lang="es">
+            <h2>Lo que dicen los datos</h2>
+            <p>Para comparar casas, géneros, décadas y perfumistas agrupé los 86 acordes en once familias: cítrico, floral, frutal, gourmand, amaderado, especiado, aromático, fresco y acuático, almizclado, ámbar y bálsamo, cuero y humo. El perfil de un perfume es qué parte de la fuerza de sus acordes cae en cada familia, así que todos los perfiles suman lo mismo y uno con tres acordes se compara de igual a igual con uno que tiene doce.</p>
+        </div>
+        <div data-lang="en">
+            <h2>What the data says</h2>
+            <p>To compare houses, genders, decades and perfumers I grouped the 86 accords into eleven families: citrus, floral, fruity, gourmand, woody, spicy, aromatic, fresh and aquatic, musky, amber and balsamic, leather and smoke. A perfume's profile is the share of its accord strength that falls in each family, so every profile adds up to the same total and one with three accords compares fairly with one that has twelve.</p>
+        </div>
+
+        <div class="pestanas" role="tablist">
+            <button role="tab" data-panel="casas" aria-selected="true"><span data-lang="es">Casas</span><span data-lang="en">Houses</span></button>
+            <button role="tab" data-panel="genero" aria-selected="false"><span data-lang="es">Género</span><span data-lang="en">Gender</span></button>
+            <button role="tab" data-panel="tiempo" aria-selected="false"><span data-lang="es">En el tiempo</span><span data-lang="en">Over time</span></button>
+            <button role="tab" data-panel="perfumistas" aria-selected="false"><span data-lang="es">Perfumistas</span><span data-lang="en">Perfumers</span></button>
+        </div>
+
+        <!-- ============ casas ============ -->
+        <section class="panel-analisis activo" id="panel-casas">
+            <div data-lang="es">
+                <p>Lo que caracteriza a una casa no es lo que más usa, porque casi todas usan bergamota y almizcle, sino lo que usa <strong>mucho más que el resto</strong>. Por eso cada rasgo se mide como <em>lift</em>: la proporción de perfumes de la casa que lo tienen dividida por la proporción en todo el catálogo. Un lift de 3 quiere decir tres veces más frecuente que en el promedio. Sólo cuentan rasgos presentes en al menos el 20&nbsp;% de los perfumes de la casa y en 30 del catálogo, para que una nota rara en dos frascos no gane por azar.</p>
+                <p>Algunas firmas salen solas de los números. En <strong>Chanel</strong> los aldehídos aparecen 11,6 veces más que en el promedio, en el 26&nbsp;% de sus 151 perfumes: es la marca de Chanel N°5 que se volvió estilo de la casa. <strong>Acqua di Parma</strong> tiene el <em>petit grain</em> 10,5 veces sobre la media, y el 71&nbsp;% de sus perfumes llevan el acorde cítrico. <strong>Creed</strong> se reconoce por el ámbar gris (×8,0, en un tercio de su catálogo), <strong>Montale</strong> por el oud (×7,8) y <strong>Amouage</strong> por el ládano y el incienso (×5,1 y ×4,2). <strong>Guerlain</strong> por el iris (×3,5) y <strong>Natura</strong>, con 438 perfumes, por el muguete (×4,0). En el otro extremo, <strong>Zara</strong> no tiene ninguna nota por encima de ×1,5: con mil perfumes, su firma es justamente no tener una.</p>
+            </div>
+            <div data-lang="en">
+                <p>What characterises a house is not what it uses most, since almost all of them use bergamot and musk, but what it uses <strong>far more than everyone else</strong>. So each trait is measured as <em>lift</em>: the share of the house's perfumes that have it, divided by the share in the whole catalogue. A lift of 3 means three times as frequent as average. Only traits present in at least 20&nbsp;% of the house's perfumes and in 30 across the catalogue count, so a rare note in two bottles cannot win by chance.</p>
+                <p>Some signatures fall straight out of the numbers. At <strong>Chanel</strong> aldehydes appear 11.6 times more than average, in 26&nbsp;% of its 151 perfumes: the mark of Chanel N°5 turned house style. <strong>Acqua di Parma</strong> has <em>petit grain</em> 10.5 times above the mean, and 71&nbsp;% of its perfumes carry the citrus accord. <strong>Creed</strong> is recognisable by ambergris (×8.0, in a third of its catalogue), <strong>Montale</strong> by oud (×7.8) and <strong>Amouage</strong> by labdanum and incense (×5.1 and ×4.2). <strong>Guerlain</strong> by iris (×3.5) and <strong>Natura</strong>, with 438 perfumes, by lily of the valley (×4.0). At the other end, <strong>Zara</strong> has no note above ×1.5: with a thousand perfumes, its signature is precisely not having one.</p>
+            </div>
+            <div class="grafico">
+                <h3><span data-lang="es">El perfil de una casa</span><span data-lang="en">A house's profile</span></h3>
+                <div class="sub"><span data-lang="es">Las 162 casas con al menos 25 perfumes en el mapa.</span><span data-lang="en">The 162 houses with at least 25 perfumes on the map.</span></div>
+                <select id="sel-casa" aria-label="Casa"></select>
+                <div class="ficha-casa" id="ficha-casa"></div>
+                <div class="dos-col">
+                    <div id="g-casa-radar"></div>
+                    <div>
+                        <div class="sub" style="margin-top:8px"><span data-lang="es">Rasgos más sobre-representados (lift)</span><span data-lang="en">Most over-represented traits (lift)</span></div>
+                        <div id="g-casa-rasgos"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ genero ============ -->
+        <section class="panel-analisis" id="panel-genero">
+            <div data-lang="es">
+                <p>El género no sale de la marca sino de los votos: Fragrantica le pregunta a la gente si un perfume le parece femenino, más femenino, unisex, más masculino o masculino. Con esos cinco votos calculé una posición de 0 a 4 y la corté en tercios. Quedan 10.369 femeninos, 5.790 unisex y 5.026 masculinos, y 98 sin votos.</p>
+                <p>El gráfico toma las cinco comunidades olfativas más grandes de cada género y muestra qué parte de los perfumes de cada género cae en cada una. Lo masculino está mucho más concentrado: <strong>uno de cada cuatro</strong> perfumes masculinos (24,7&nbsp;%) cae en la comunidad <em>lavanda</em>, la de los fougère y aromáticos. Lo femenino está repartido: su comunidad más grande, <em>peonía</em>, junta apenas el 9,4&nbsp;%, seguida de <em>caramelo</em> y <em>coco</em>. Lo unisex se apoya en <em>madera de oud</em> (10,0&nbsp;%) e <em>incienso</em> (7,6&nbsp;%). Mirado por rasgos, lo masculino sobre-representa lavanda (×2,8), el acorde aromático (×2,4) y el fresco especiado (×2,3). Lo femenino, los acordes florales (×1,8), floral blanco (×1,7) y afrutado (×1,6).</p>
+            </div>
+            <div data-lang="en">
+                <p>Gender comes from votes, not from the brand: Fragrantica asks people whether a perfume feels feminine, more feminine, unisex, more masculine or masculine. From those five votes I computed a position from 0 to 4 and cut it into thirds. That leaves 10,369 feminine, 5,790 unisex and 5,026 masculine, plus 98 with no votes.</p>
+                <p>The chart takes the five largest olfactory communities of each gender and shows what share of each gender's perfumes falls in each one. Masculine is far more concentrated: <strong>one in four</strong> masculine perfumes (24.7&nbsp;%) falls in the <em>lavender</em> community, home of fougères and aromatics. Feminine is spread out: its largest community, <em>peony</em>, holds just 9.4&nbsp;%, followed by <em>caramel</em> and <em>coconut</em>. Unisex leans on <em>oud wood</em> (10.0&nbsp;%) and <em>incense</em> (7.6&nbsp;%). By traits, masculine over-represents lavender (×2.8), the aromatic accord (×2.4) and fresh spicy (×2.3). Feminine, the floral accords (×1.8), white floral (×1.7) and fruity (×1.6).</p>
+            </div>
+            <div class="grafico">
+                <h3><span data-lang="es">Dónde cae cada género</span><span data-lang="en">Where each gender falls</span></h3>
+                <div class="sub"><span data-lang="es">% de los perfumes de cada género en las cinco comunidades más grandes de cada uno.</span><span data-lang="en">% of each gender's perfumes in the five largest communities of each.</span></div>
+                <div id="g-genero"></div>
+                <details class="tabla"><summary><span data-lang="es">Ver como tabla</span><span data-lang="en">View as table</span></summary><div id="t-genero"></div></details>
+            </div>
+        </section>
+
+        <!-- ============ tiempo ============ -->
+        <section class="panel-analisis" id="panel-tiempo">
+            <div data-lang="es">
+                <p>Comparando los perfumes lanzados antes de 1980 con los de esta década, lo que más creció es lo <strong>gourmand</strong>: pasó del 4,5&nbsp;% al 16,8&nbsp;% del perfil promedio, casi cuatro veces más. Lo frutal también se multiplicó (de 1,4&nbsp;% a 6,9&nbsp;%). Lo que retrocedió es lo floral (−9,0 puntos), lo aromático (−6,5) y lo amaderado (−5,9). En paralelo, los perfumes que el público vota como unisex pasaron del 20&nbsp;% al 30&nbsp;%.</p>
+                <p>Hay que leerlo con cuidado. Antes de 1980 hay 257 perfumes y en los 2020 hay 8.778, porque lo que sobrevive en Fragrantica de otras décadas son los clásicos que se siguen vendiendo o recordando, no el catálogo de la época. La comparación dice cómo es el pasado que quedó, no cómo era el pasado.</p>
+            </div>
+            <div data-lang="en">
+                <p>Comparing perfumes launched before 1980 with this decade's, what grew most is <strong>gourmand</strong>: from 4.5&nbsp;% to 16.8&nbsp;% of the average profile, almost four times as much. Fruity multiplied too (1.4&nbsp;% to 6.9&nbsp;%). What receded is floral (−9.0 points), aromatic (−6.5) and woody (−5.9). Meanwhile, the perfumes the public votes unisex went from 20&nbsp;% to 30&nbsp;%.</p>
+                <p>Read it with care. Before 1980 there are 257 perfumes and in the 2020s there are 8,778, because what survives on Fragrantica from other decades is the classics still sold or remembered, not the catalogue of the time. The comparison describes the past that remained, not the past as it was.</p>
+            </div>
+            <div class="grafico">
+                <h3><span data-lang="es">Antes de 1980 contra los 2020</span><span data-lang="en">Before 1980 against the 2020s</span></h3>
+                <div class="sub"><span data-lang="es">% del perfil aromático promedio, por familia. Ordenado por cuánto cambió.</span><span data-lang="en">% of the average aromatic profile, by family. Sorted by change.</span></div>
+                <div id="g-tiempo"></div>
+            </div>
+            <div class="grafico">
+                <h3><span data-lang="es">Para quién se hacen</span><span data-lang="en">Who they are made for</span></h3>
+                <div class="sub"><span data-lang="es">% de los perfumes de cada período según el género votado.</span><span data-lang="en">% of each period's perfumes by voted gender.</span></div>
+                <div id="g-tiempo-genero"></div>
+            </div>
+        </section>
+
+        <!-- ============ perfumistas ============ -->
+        <section class="panel-analisis" id="panel-perfumistas">
+            <div data-lang="es">
+                <p>Cinco narices con catálogos grandes en el mapa: Alberto Morillas (324 perfumes), Olivier Cresp (286), Dominique Ropion (230), Francis Kurkdjian (184) y Jacques Cavallier Belletrud (168). Cada punto es un perfume, ubicado por año y por su <strong>familia distintiva</strong>: no la familia que más pesa, que casi siempre sería floral porque agrupa ocho acordes, sino la que más se aparta del promedio del catálogo. El tamaño es la cantidad de votos.</p>
+                <p>Cada uno tiene su terreno. En Morillas la familia distintiva más frecuente es <strong>fresco y acuático</strong> (55 de 323 con año). En Cresp, <strong>gourmand</strong> (42), con la peonía 3,3 veces sobre la media. Ropion reparte entre <strong>cuero y humo</strong> y floral (30 y 30), con flor de azahar ×2,9, iris ×2,3 y pachulí en casi la mitad de sus perfumes. Kurkdjian se mueve en lo floral (33) y aromático, con rosas y lavanda como firma. Cavallier, en lo <strong>cítrico</strong> (25), con el jengibre 2,5 veces sobre el promedio.</p>
+            </div>
+            <div data-lang="en">
+                <p>Five noses with large catalogues on the map: Alberto Morillas (324 perfumes), Olivier Cresp (286), Dominique Ropion (230), Francis Kurkdjian (184) and Jacques Cavallier Belletrud (168). Each dot is a perfume, placed by year and by its <strong>distinctive family</strong>: not the family that weighs most, which would almost always be floral because it groups eight accords, but the one furthest above the catalogue average. Size is the number of votes.</p>
+                <p>Each has their own ground. For Morillas the most frequent distinctive family is <strong>fresh and aquatic</strong> (55 of 323 dated). For Cresp, <strong>gourmand</strong> (42), with peony 3.3 times above the mean. Ropion splits between <strong>leather and smoke</strong> and floral (30 and 30), with orange blossom ×2.9, iris ×2.3 and patchouli in almost half his perfumes. Kurkdjian moves in floral (33) and aromatic, with rose and lavender as signature. Cavallier, in <strong>citrus</strong> (25), with ginger 2.5 times above average.</p>
+            </div>
+            <div class="grafico">
+                <h3><span data-lang="es">Qué ramas exploró cada uno, y cuándo</span><span data-lang="en">Which branches each explored, and when</span></h3>
+                <div class="sub"><span data-lang="es">Un punto por perfume. Pasá el mouse para ver cuál es.</span><span data-lang="en">One dot per perfume. Hover to see which.</span></div>
+                <div id="g-perfumistas"></div>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -250,6 +399,243 @@
                 langToggleBtn.textContent = newLang === 'en' ? 'ES' : 'EN';
             });
         });
+    </script>
+
+    <script>
+    /* Graficos del analisis. Todo sale de htmls_perfumes/datos/analisis.json,
+       que escribe 06_analisis.py. SVG a mano, sin librerias. */
+    (() => {
+        const FAM_EN = {
+            "Cítrico": "Citrus", "Floral": "Floral", "Frutal": "Fruity", "Gourmand": "Gourmand",
+            "Amaderado": "Woody", "Especiado": "Spicy", "Aromático": "Aromatic",
+            "Fresco y acuático": "Fresh & aquatic", "Almizclado": "Musky",
+            "Ámbar y bálsamo": "Amber & balsamic", "Cuero y humo": "Leather & smoke",
+        };
+        const GEN = { es: ["Femenino", "Unisex", "Masculino"], en: ["Feminine", "Unisex", "Masculine"] };
+        const SERIES = ["var(--serie-1)", "var(--serie-2)", "var(--serie-3)"];
+        let A = null;
+        const idioma = () => document.body.getAttribute("data-language") === "es" ? "es" : "en";
+        const fam = f => idioma() === "es" ? f : (FAM_EN[f] || f);
+        const num = (v, d = 1) => v.toLocaleString(idioma() === "es" ? "es-AR" : "en-US",
+            { minimumFractionDigits: d, maximumFractionDigits: d });
+        const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+        const t = (es, en) => idioma() === "es" ? es : en;
+
+        function leyenda(items){
+            return `<div class="leyenda-g">` + items.map(([nom, color, punteada]) =>
+                `<span><i style="border-color:${color};${punteada ? "border-top-style:dashed" : ""}"></i>${esc(nom)}</span>`
+            ).join("") + `</div>`;
+        }
+
+        /* radar: ejes = nombres, series = [{nombre, valores (%), color, punteada}] */
+        /* raiz = true: el radio va con la raiz del valor, para que una serie con un
+           pico enorme no aplaste a las otras contra el centro. Los anillos llevan
+           su valor escrito, porque en esa escala no son equidistantes. */
+        function radar(ejes, series, lado = 380, raiz = false){
+            const c = lado / 2, R = lado / 2 - 30, k = ejes.length, mx = 90;
+            const tope = Math.max(...series.flatMap(s => s.valores)) * 1.08 || 1;
+            const escala = v => raiz ? Math.sqrt(v / tope) : v / tope;
+            const p = (j, v) => {
+                const a = -Math.PI / 2 + 2 * Math.PI * j / k, r = R * escala(v);
+                return [c + r * Math.cos(a), c + r * Math.sin(a)];
+            };
+            let s = `<svg viewBox="${-mx} 0 ${lado + 2 * mx} ${lado}" role="img">`;
+            const anillos = raiz ? [2, 5, 10, 20].filter(v => v < tope) : [0.25, 0.5, 0.75].map(f => tope * f);
+            for (const v of [...anillos, tope]){
+                s += `<polygon points="${ejes.map((_, j) => p(j, v).join(",")).join(" ")}" fill="none" stroke="var(--grilla)"/>`;
+            }
+            if (raiz) for (const v of anillos){
+                s += `<text x="${c + 4}" y="${c - R * escala(v) - 3}" font-size="10">${v} %</text>`;
+            }
+            ejes.forEach((e, j) => {
+                const [x, y] = p(j, tope), [lx, ly] = p(j, tope * 1.09);
+                const ancla = Math.abs(lx - c) < 8 ? "middle" : lx < c ? "end" : "start";
+                s += `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="var(--grilla)"/>`;
+                s += `<text x="${lx}" y="${ly}" font-size="13" text-anchor="${ancla}" dominant-baseline="middle">${esc(e)}</text>`;
+            });
+            /* escala: el anillo exterior */
+            if (!raiz) s += `<text x="${c + 6}" y="${c - R + 14}" font-size="10.5">${num(tope, 0)} %</text>`;
+            for (const se of series){
+                const pts = se.valores.map((v, j) => p(j, v).join(",")).join(" ");
+                s += `<polygon points="${pts}" fill="${se.punteada ? "none" : se.color}" fill-opacity="0.14"
+                    stroke="${se.color}" stroke-width="2" stroke-linejoin="round" ${se.punteada ? 'stroke-dasharray="5 4"' : ""}/>`;
+                /* un punto por eje, con tooltip */
+                se.valores.forEach((v, j) => {
+                    const [x, y] = p(j, v);
+                    s += `<circle cx="${x}" cy="${y}" r="${se.punteada ? 2.5 : 4}" fill="${se.color}" stroke="var(--card-bg)" stroke-width="2">
+                        <title>${esc(se.nombre)} · ${esc(ejes[j])}: ${num(v)} %</title></circle>`;
+                });
+            }
+            return s + `</svg>`;
+        }
+
+        /* ---------------- casas ---------------- */
+        function dibujarCasa(){
+            const sel = document.getElementById("sel-casa"), nom = sel.value, h = A.casas[nom];
+            const glob = A.perfil_global.map(v => v * 100);
+            document.getElementById("ficha-casa").innerHTML =
+                `${t("Perfumes en el mapa", "Perfumes on the map")}: <b>${h.n}</b> · ` +
+                `${t("costo percibido", "perceived cost")}: <b>${num(h.precio)}</b>/5 · ` +
+                `${t("rating medio", "mean rating")}: <b>${num(h.rating, 2)}</b>`;
+            document.getElementById("g-casa-radar").innerHTML =
+                leyenda([[nom, SERIES[0]], [t("Todo el catálogo", "Whole catalogue"), "var(--referencia)", true]]) +
+                radar(A.familias.map(fam), [
+                    { nombre: nom, valores: h.perfil.map(v => v * 100), color: SERIES[0] },
+                    { nombre: t("Catálogo", "Catalogue"), valores: glob, color: "var(--referencia)", punteada: true },
+                ]);
+            const ras = h.rasgos;
+            const tope = Math.max(...ras.map(r => r[1]), 1);
+            document.getElementById("g-casa-rasgos").innerHTML = ras.length ? ras.map(([term, lift, cob]) => {
+                const [tipo, nombre] = term.split(":");
+                return `<div class="rasgo" title="${esc(nombre)}: ${t("en el", "in")} ${num(cob * 100, 0)} % ${t("de sus perfumes", "of its perfumes")}">
+                    <span>${esc(nombre)} <span class="tipo">${tipo === "n" ? t("nota", "note") : t("acorde", "accord")}</span></span>
+                    <span class="barra-l" style="width:${100 * lift / tope}%"></span><b>×${num(lift)}</b></div>`;
+            }).join("") + `<div class="sub" style="margin-top:8px">${t(
+                "Veces más frecuente que en el catálogo. Pasá el mouse para ver en qué parte de la casa aparece.",
+                "Times more frequent than in the catalogue. Hover to see how much of the house has it.")}</div>`
+                : `<div class="sub">${t("Ningún rasgo pasa el umbral: la casa no se aparta del promedio.",
+                                        "No trait clears the threshold: the house sits at the average.")}</div>`;
+        }
+
+        /* ---------------- genero ---------------- */
+        function dibujarGenero(){
+            const G = A.generos, nombres = ["Femenino", "Unisex", "Masculino"];
+            const ejes = [];
+            for (const g of nombres) for (const c of G[g].top5) if (!ejes.includes(c)) ejes.push(c);
+            const etq = c => A.etiquetas_comunidad[String(c)] || `#${c}`;
+            const series = nombres.map((g, k) => ({
+                nombre: GEN[idioma()][k], color: SERIES[k],
+                valores: ejes.map(c => (G[g].comunidades[String(c)] || 0) * 100),
+            }));
+            document.getElementById("g-genero").innerHTML =
+                leyenda(series.map(s => [`${s.nombre} (${num(G[nombres[GEN[idioma()].indexOf(s.nombre)]].n, 0)})`, s.color])) +
+                radar(ejes.map(etq), series, 420, true) +
+                `<div class="sub">${t("Escala de raíz cuadrada: los anillos marcan 2, 5, 10 y 20 %. Pasá el mouse por un punto para ver el valor.", "Square-root scale: rings mark 2, 5, 10 and 20 %. Hover a dot for its value.")}</div>`;
+            document.getElementById("t-genero").innerHTML = `<table><tr><th>${t("Comunidad", "Community")}</th>` +
+                series.map(s => `<th>${esc(s.nombre)}</th>`).join("") + `</tr>` +
+                ejes.map((c, j) => `<tr><td>${esc(etq(c))}</td>` +
+                    series.map(s => `<td>${num(s.valores[j])} %</td>`).join("") + `</tr>`).join("") + `</table>`;
+        }
+
+        /* ---------------- tiempo ---------------- */
+        function dibujarTiempo(){
+            const T = A.tiempo, ini = T[0], fin = T[T.length - 1];
+            const filas = A.familias.map((f, k) => ({ f, a: ini.perfil[k] * 100, b: fin.perfil[k] * 100 }))
+                .sort((x, y) => (y.b - y.a) - (x.b - x.a));
+            const W = 720, izq = 150, der = 70, alto = 26, H = filas.length * alto + 34;
+            const xmax = Math.ceil(Math.max(...filas.flatMap(r => [r.a, r.b])) / 5) * 5;
+            const X = v => izq + (W - izq - der) * v / xmax;
+            let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+            for (let v = 0; v <= xmax; v += 5){
+                s += `<line x1="${X(v)}" y1="4" x2="${X(v)}" y2="${H - 24}" stroke="var(--grilla)"/>
+                      <text x="${X(v)}" y="${H - 8}" font-size="12" text-anchor="middle">${v} %</text>`;
+            }
+            filas.forEach((r, i) => {
+                const y = 16 + i * alto, d = r.b - r.a;
+                s += `<text x="${izq - 10}" y="${y}" font-size="13" text-anchor="end" dominant-baseline="middle">${esc(fam(r.f))}</text>
+                      <line x1="${X(r.a)}" y1="${y}" x2="${X(r.b)}" y2="${y}" stroke="var(--referencia)" stroke-width="2"/>
+                      <circle cx="${X(r.a)}" cy="${y}" r="5" fill="var(--card-bg)" stroke="var(--referencia)" stroke-width="2">
+                        <title>${esc(fam(r.f))} · ${esc(ini.tramo)}: ${num(r.a)} %</title></circle>
+                      <circle cx="${X(r.b)}" cy="${y}" r="5.5" fill="var(--serie-1)" stroke="var(--card-bg)" stroke-width="2">
+                        <title>${esc(fam(r.f))} · 2020s: ${num(r.b)} %</title></circle>
+                      <text x="${W - der + 10}" y="${y}" font-size="12" dominant-baseline="middle">${d > 0 ? "+" : ""}${num(d)} pp</text>`;
+            });
+            document.getElementById("g-tiempo").innerHTML = leyenda([
+                [`${t("Antes de 1980", "Before 1980")} (n = ${num(ini.n, 0)})`, "var(--referencia)"],
+                [`2020s (n = ${num(fin.n, 0)})`, "var(--serie-1)"],
+            ]) + s + `</svg>`;
+
+            /* genero por periodo: tres lineas, rotuladas al final */
+            const W2 = 720, iz = 50, de = 110, H2 = 250, arr = 16, ab = 34;
+            const X2 = j => iz + (W2 - iz - de) * j / (T.length - 1);
+            const Y2 = v => arr + (H2 - arr - ab) * (1 - v / 70);
+            let g = `<svg viewBox="0 0 ${W2} ${H2}" role="img">`;
+            for (let v = 0; v <= 70; v += 10){
+                g += `<line x1="${iz}" y1="${Y2(v)}" x2="${W2 - de}" y2="${Y2(v)}" stroke="var(--grilla)"/>
+                      <text x="${iz - 8}" y="${Y2(v)}" font-size="11" text-anchor="end" dominant-baseline="middle">${v} %</text>`;
+            }
+            T.forEach((p, j) => {
+                g += `<text x="${X2(j)}" y="${H2 - 16}" font-size="11.5" text-anchor="middle">${esc(p.tramo === "antes de 1980" ? t("antes de 1980", "pre-1980") : p.tramo)}</text>
+                      <text x="${X2(j)}" y="${H2 - 3}" font-size="10" text-anchor="middle">n=${num(p.n, 0)}</text>`;
+            });
+            [0, 1, 2].forEach(k => {
+                const pts = T.map((p, j) => `${X2(j)},${Y2(p.genero[k] * 100)}`).join(" ");
+                g += `<polyline points="${pts}" fill="none" stroke="${SERIES[k]}" stroke-width="2" stroke-linejoin="round"/>`;
+                T.forEach((p, j) => {
+                    g += `<circle cx="${X2(j)}" cy="${Y2(p.genero[k] * 100)}" r="4" fill="${SERIES[k]}" stroke="var(--card-bg)" stroke-width="2">
+                        <title>${GEN[idioma()][k]} · ${esc(p.tramo)}: ${num(p.genero[k] * 100)} %</title></circle>`;
+                });
+                const ult = T[T.length - 1].genero[k] * 100;
+                g += `<text x="${X2(T.length - 1) + 10}" y="${Y2(ult)}" font-size="12.5" dominant-baseline="middle"
+                        style="fill:var(--text-color)">${GEN[idioma()][k]} ${num(ult, 0)} %</text>`;
+            });
+            document.getElementById("g-tiempo-genero").innerHTML = g + `</svg>`;
+        }
+
+        /* ---------------- perfumistas ---------------- */
+        function dibujarPerfumistas(){
+            const F = A.familias, W = 720, iz = 128, de = 14, fila = 15, arr = 6, ab = 22;
+            const H = F.length * fila + arr + ab;
+            const a0 = 1984, a1 = 2026;
+            const X = a => iz + (W - iz - de) * (a - a0) / (a1 - a0);
+            const Y = f => arr + f * fila + fila / 2;
+            let html = "";
+            for (const [nom, p] of Object.entries(A.perfumistas)){
+                const cuenta = new Array(F.length).fill(0);
+                for (const o of p.obras) cuenta[o[1]]++;
+                const top = cuenta.map((c, f) => [c, f]).sort((x, y) => y[0] - x[0]).slice(0, 2);
+                const rasgos = p.rasgos.slice(0, 3).map(r => `${esc(r[0].split(":")[1])} ×${num(r[1])}`).join(", ");
+                let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(nom)}">`;
+                F.forEach((f, k) => {
+                    s += `<line x1="${iz}" y1="${Y(k)}" x2="${W - de}" y2="${Y(k)}" stroke="var(--grilla)"/>
+                          <text x="${iz - 8}" y="${Y(k)}" font-size="11" text-anchor="end" dominant-baseline="middle">${esc(fam(f))}</text>`;
+                });
+                for (let a = 1990; a <= 2025; a += 5){
+                    s += `<text x="${X(a)}" y="${H - 6}" font-size="10.5" text-anchor="middle">${a}</text>`;
+                }
+                for (const [anio, f, nombre, casa, votos] of p.obras){
+                    if (anio < a0) continue;
+                    const r = Math.min(7, 2 + Math.sqrt(votos) / 22);
+                    /* un leve corrimiento vertical para que los del mismo año no se tapen */
+                    const jit = ((nombre.length * 7) % 9 - 4) * 0.9;
+                    s += `<circle cx="${X(anio)}" cy="${Y(f) + jit}" r="${r}" fill="var(--serie-1)" fill-opacity="0.55"
+                            stroke="var(--card-bg)" stroke-width="1"><title>${esc(nombre)} · ${esc(casa)} · ${anio} · ${num(votos, 0)} ${t("votos", "votes")}</title></circle>`;
+                }
+                html += `<div class="perfumista"><h4>${esc(nom)}</h4>
+                    <div class="sub">${p.n} ${t("perfumes", "perfumes")} · ${t("más frecuente", "most frequent")}: ${esc(fam(F[top[0][1]]))} (${top[0][0]}), ${esc(fam(F[top[1][1]]))} (${top[1][0]})
+                    · ${t("rasgos", "traits")}: ${rasgos}</div>${s}</svg></div>`;
+            }
+            document.getElementById("g-perfumistas").innerHTML = html;
+        }
+
+        function dibujarTodo(){
+            if (!A) return;
+            dibujarCasa(); dibujarGenero(); dibujarTiempo(); dibujarPerfumistas();
+        }
+
+        /* pestanas */
+        for (const b of document.querySelectorAll(".pestanas button")){
+            b.addEventListener("click", () => {
+                for (const o of document.querySelectorAll(".pestanas button")) o.setAttribute("aria-selected", o === b);
+                for (const pnl of document.querySelectorAll(".panel-analisis"))
+                    pnl.classList.toggle("activo", pnl.id === "panel-" + b.dataset.panel);
+            });
+        }
+        /* el idioma cambia los rotulos: se redibuja */
+        new MutationObserver(dibujarTodo).observe(document.body, { attributes: true, attributeFilter: ["data-language"] });
+
+        fetch("htmls_perfumes/datos/analisis.json").then(r => r.json()).then(datos => {
+            A = datos;
+            const sel = document.getElementById("sel-casa");
+            const casas = Object.keys(A.casas).sort((a, b) => a.localeCompare(b, "es"));
+            sel.innerHTML = casas.map(c => `<option${c === "Chanel" ? " selected" : ""}>${esc(c)}</option>`).join("");
+            sel.addEventListener("change", dibujarCasa);
+            dibujarTodo();
+        }).catch(err => {
+            for (const id of ["g-casa-radar", "g-genero", "g-tiempo", "g-perfumistas"])
+                document.getElementById(id).textContent = "No pude cargar los datos del análisis: " + err.message;
+        });
+    })();
     </script>
 
 </body>
