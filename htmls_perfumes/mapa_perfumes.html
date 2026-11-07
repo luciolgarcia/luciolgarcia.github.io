@@ -162,13 +162,13 @@
   </div>
 
   <div class="grupo">
-    <label class="tit" for="capa">Capa de enlaces</label>
+    <label class="tit" for="capa">Layout</label>
     <select id="capa">
       <option value="olfativo" selected>Familias olfativas similares</option>
       <option value="linaje">Linajes y flankers</option>
       <option value="cogusto">Recomendados por el público</option>
       <option value="similares">Similitud votada (¿huelen parecido?)</option>
-      <option value="ninguna">Sin enlaces (sólo nube)</option>
+      <option value="ninguna">Ninguno (sólo nube)</option>
     </select>
     <div id="ctl_similares" style="display:none">
       <div class="deslizador">
@@ -549,6 +549,18 @@ function aristasVisibles(){
   return { c, filtro:null };
 }
 
+/* indices de las aristas que tocan a un nodo; se recorre la capa una sola vez
+   por seleccion y no en cada cuadro */
+let cacheAristas = { c:null, i:-1, ks:[] };
+function aristasDe(c, i){
+  if (cacheAristas.c !== c || cacheAristas.i !== i){
+    const ks = [];
+    for (let k=0;k<c.o.length;k++) if (c.o[k] === i || c.d[k] === i) ks.push(k);
+    cacheAristas = { c, i, ks };
+  }
+  return cacheAristas.ks;
+}
+
 function dibujar(){
   pedido = null;
   const n = D.nodos;
@@ -559,26 +571,15 @@ function dibujar(){
   const ae = aristasVisibles();
   let dibujadas = 0;
 
-  /* --- aristas: se omiten mientras se arrastra, para que el pan no se traben --- */
-  if (ae && !arrastrando){
+  /* --- aristas ---
+     La malla completa ya no se dibuja: con cientos de miles de lineas era lo
+     que mas trababa la pagina, sobre todo en el telefono. La capa sigue
+     decidiendo la disposicion y quienes son vecinos, pero solo se trazan los
+     enlaces del perfume tocado y los del foco. */
+  if (ae){
     const { c, filtro } = ae;
     const vecinosDeSel = seleccion >= 0;
     const hayFocoAristas = foco >= 0 && focoSet;
-    ctx.lineWidth = Math.max(0.35, 0.7*cam.z);
-    ctx.strokeStyle = hayFocoAristas ? "rgba(125,160,210,0.05)" : "rgba(118,150,196,0.11)";
-    ctx.beginPath();
-    const total = c.o.length;
-    for (let k=0;k<total;k++){
-      const a = c.o[k], b = c.d[k];
-      if (!vis[a] || !vis[b]) continue;
-      if (filtro && !filtro(k)) continue;
-      const x1 = aPantallaX(n.x[a]), y1 = aPantallaY(n.y[a]);
-      const x2 = aPantallaX(n.x[b]), y2 = aPantallaY(n.y[b]);
-      if ((x1<0&&x2<0)||(x1>ancho&&x2>ancho)||(y1<0&&y2<0)||(y1>alto&&y2>alto)) continue;
-      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      dibujadas++;
-    }
-    ctx.stroke();
 
     /* con foco puesto, los radios del elegido a sus 5 van por encima de todo */
     if (hayFocoAristas){
@@ -598,13 +599,13 @@ function dibujar(){
       ctx.strokeStyle = "rgba(100,255,218,0.55)";
       ctx.lineWidth = Math.max(0.8, 1.4*cam.z);
       ctx.beginPath();
-      for (let k=0;k<total;k++){
+      for (const k of aristasDe(c, seleccion)){
         const a = c.o[k], b = c.d[k];
-        if (a !== seleccion && b !== seleccion) continue;
         if (!vis[a] || !vis[b]) continue;
         if (filtro && !filtro(k)) continue;
         ctx.moveTo(aPantallaX(n.x[a]), aPantallaY(n.y[a]));
         ctx.lineTo(aPantallaX(n.x[b]), aPantallaY(n.y[b]));
+        dibujadas++;
       }
       ctx.stroke();
     }
