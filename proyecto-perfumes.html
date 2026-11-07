@@ -157,6 +157,10 @@
         details.tabla table { border-collapse: collapse; margin-top: 6px; width: 100%; }
         details.tabla td, details.tabla th { border-bottom: 1px solid var(--border-color); padding: 3px 6px; text-align: right; }
         details.tabla td:first-child, details.tabla th:first-child { text-align: left; }
+        .cierre { margin-top: 56px; padding-top: 8px; border-top: 1px solid var(--border-color); }
+        .paso-tit { font-size: 1.05rem; color: var(--heading-color); margin: 26px 0 10px; }
+        ol.pasos { margin: 0 0 16px 22px; }
+        ol.pasos li { margin-bottom: 10px; padding-left: 4px; }
         .perfumista { margin: 6px 0 18px; }
         .perfumista h4 { font-size: .95rem; color: var(--heading-color); }
         .perfumista .sub { font-size: .8rem; color: var(--tinta-2); }
@@ -211,7 +215,7 @@
 
         <div data-lang="es">
             <h2>Introducción</h2>
-            <p>¿Se puede dibujar el olor? Elegir un perfume suele ser un salto al vacío: las descripciones hablan de "notas de salida" y "acordes ambarados", pero cuesta imaginar si algo que nunca olimos se parece a lo que ya nos gusta. Este proyecto intenta responder esa pregunta con datos. Tomé el catálogo completo de <strong>Fragrantica</strong>, la enciclopedia de perfumes más grande de la web, y lo convertí en un mapa donde cada punto es una fragancia y los que están cerca huelen parecido.</p>
+            <p>¿Se puede dibujar el olor? Elegir un perfume suele ser un salto al vacío: las descripciones hablan de "notas de salida" y "acordes ambarados", pero cuesta imaginar si algo que nunca olimos se parece a lo que ya nos gusta. Este proyecto intenta responder esa pregunta con datos. Reuní más de 33.000 fichas de <strong>Fragrantica</strong>, la enciclopedia de perfumes más grande de la web, y las convertí en un mapa donde cada punto es una fragancia y los que están cerca huelen parecido.</p>
 
             <h2>Metodología: de la ficha al mapa</h2>
             <p>Cada ficha de Fragrantica describe un perfume con sus <strong>acordes</strong>, que son los grandes rasgos (amaderado, cítrico, dulce), y sus <strong>notas</strong>, que son los ingredientes puntuales (bergamota, vainilla, cuero). Además, la gente vota cuánto dura, en qué estación conviene usarlo, si le parece femenino o masculino y si se siente caro o barato. De las 33.210 fichas me quedé con las 21.283 que tienen al menos una veintena de votos, porque con menos las opiniones son demasiado pocas para tomarlas en serio.</p>
@@ -228,7 +232,7 @@
 
         <div data-lang="en">
             <h2>Introduction</h2>
-            <p>Can smell be drawn? Choosing a perfume is usually a leap in the dark: descriptions talk about "top notes" and "amber accords", but it is hard to tell whether something we have never smelled resembles what we already like. This project tries to answer that question with data. I took the full catalogue of <strong>Fragrantica</strong>, the largest perfume encyclopedia on the web, and turned it into a map where every dot is a fragrance and the ones close together smell alike.</p>
+            <p>Can smell be drawn? Choosing a perfume is usually a leap in the dark: descriptions talk about "top notes" and "amber accords", but it is hard to tell whether something we have never smelled resembles what we already like. This project tries to answer that question with data. I gathered more than 33,000 entries from <strong>Fragrantica</strong>, the largest perfume encyclopedia on the web, and turned them into a map where every dot is a fragrance and the ones close together smell alike.</p>
 
             <h2>Methodology: from the entry to the map</h2>
             <p>Each Fragrantica entry describes a perfume through its <strong>accords</strong>, the broad traits (woody, citrus, sweet), and its <strong>notes</strong>, the specific ingredients (bergamot, vanilla, leather). On top of that, people vote on how long it lasts, which season it suits, whether it feels feminine or masculine, and whether it feels expensive or cheap. Of the 33,210 entries I kept the 21,283 with at least twenty or so votes, because with fewer the opinions are too few to take seriously.</p>
@@ -258,11 +262,11 @@
 
         <div data-lang="es">
             <h2>Lo que cuentan los datos: casas, géneros, épocas y perfumistas</h2>
-            <p>Para comparar grupos de perfumes junté los acordes en once grandes familias: cítrico, floral, frutal, gourmand, amaderado, especiado, aromático, fresco y acuático, almizclado, ámbar y bálsamo, y cuero y humo. Así, cada casa, cada época o cada colección tiene un perfil que se puede dibujar como una telaraña y comparar con el del catálogo entero.</p>
+            <p>Para comparar grupos de perfumes junté los acordes en once grandes familias: cítrico, floral, frutal, gourmand, amaderado, especiado, aromático, fresco y acuático, almizclado, ámbar y bálsamo, y cuero y humo. Así, cada casa, cada época o cada colección tiene un perfil que se puede dibujar como una telaraña y comparar con el promedio de todos los perfumes del mapa.</p>
         </div>
         <div data-lang="en">
             <h2>What the data tells: houses, genders, eras and perfumers</h2>
-            <p>To compare groups of perfumes I gathered the accords into eleven broad families: citrus, floral, fruity, gourmand, woody, spicy, aromatic, fresh and aquatic, musky, amber and balsamic, and leather and smoke. That way every house, era or collection has a profile that can be drawn as a web and compared with the whole catalogue.</p>
+            <p>To compare groups of perfumes I gathered the accords into eleven broad families: citrus, floral, fruity, gourmand, woody, spicy, aromatic, fresh and aquatic, musky, amber and balsamic, and leather and smoke. That way every house, era or collection has a profile that can be drawn as a web and compared with the average of every perfume on the map.</p>
         </div>
 
         <div class="pestanas" role="tablist">
@@ -340,17 +344,64 @@
         <!-- ============ perfumistas ============ -->
         <section class="panel-analisis" id="panel-perfumistas">
             <div data-lang="es">
-                <p>Elegí cinco perfumistas con mucha obra en el mapa: <strong>Alberto Morillas</strong> (324 perfumes), <strong>Olivier Cresp</strong> (286), <strong>Dominique Ropion</strong> (230), <strong>Francis Kurkdjian</strong> (184) y <strong>Jacques Cavallier Belletrud</strong> (168). En el gráfico, cada punto es un perfume, ubicado según el año en que salió y la familia en la que más se destaca. Cuanto más grande el punto, más votos tiene.</p>
+                <p>Elegí siete perfumistas con mucha obra en el mapa: <strong>Alberto Morillas</strong> (324 perfumes), <strong>Olivier Cresp</strong> (286), <strong>Dominique Ropion</strong> (230), <strong>Francis Kurkdjian</strong> (184), <strong>François Demachy</strong> (181), <strong>Jacques Cavallier Belletrud</strong> (168) y <strong>Quentin Bisch</strong> (160). Los dos últimos que sumé son, después de los primeros tres, los que más votos juntan entre todos sus perfumes. En el gráfico, cada punto es un perfume, ubicado según el año en que salió y la familia en la que más se destaca. Cuanto más grande el punto, más votos tiene.</p>
                 <p>Cada uno tiene su terreno. Morillas vuelve una y otra vez a lo fresco y acuático, y trabaja mucho la mandarina. Cresp es el más gourmand de los cinco, y su nota más personal es la peonía. Ropion se mueve entre las flores y el cuero, con el azahar, el iris y el pachulí como firma. Kurkdjian combina lo floral con lo aromático, casi siempre cerca de la rosa y la lavanda. En Cavallier lo más frecuente es lo cítrico, con una debilidad marcada por el jengibre.</p>
+                <p>Los dos que sumé son de una generación más reciente de éxitos masivos. Demachy, que firma casi toda su obra para Dior, es el autor de <em>Sauvage</em>: trabaja mucho la rosa y los cítricos. Bisch aparece en el mapa recién desde 2013 y es la nariz detrás de <em>Le Male Le Parfum</em>, <em>Le Male Elixir</em> y <em>Good Girl</em>: su terreno son los ámbares cálidos, con el haba tonka, la vainilla y el vetiver como firma.</p>
             </div>
             <div data-lang="en">
-                <p>I chose five perfumers with a large body of work on the map: <strong>Alberto Morillas</strong> (324 perfumes), <strong>Olivier Cresp</strong> (286), <strong>Dominique Ropion</strong> (230), <strong>Francis Kurkdjian</strong> (184) and <strong>Jacques Cavallier Belletrud</strong> (168). In the chart, each dot is a perfume, placed by the year it came out and the family where it stands out most. The bigger the dot, the more votes it has.</p>
+                <p>I chose seven perfumers with a large body of work on the map: <strong>Alberto Morillas</strong> (324 perfumes), <strong>Olivier Cresp</strong> (286), <strong>Dominique Ropion</strong> (230), <strong>Francis Kurkdjian</strong> (184), <strong>François Demachy</strong> (181), <strong>Jacques Cavallier Belletrud</strong> (168) and <strong>Quentin Bisch</strong> (160). The last two I added are, after the first three, the ones whose perfumes gather the most votes overall. In the chart, each dot is a perfume, placed by the year it came out and the family where it stands out most. The bigger the dot, the more votes it has.</p>
                 <p>Each has their own ground. Morillas returns again and again to fresh and aquatic scents, and works a lot with mandarin. Cresp is the most gourmand of the five, and his most personal note is peony. Ropion moves between flowers and leather, with orange blossom, iris and patchouli as his signature. Kurkdjian blends floral with aromatic, nearly always close to rose and lavender. With Cavallier the most frequent ground is citrus, with a marked fondness for ginger.</p>
+                <p>The two I added belong to a more recent generation of mass hits. Demachy, who signs almost all his work for Dior, is the author of <em>Sauvage</em>: he works a lot with rose and citrus. Bisch only appears on the map from 2013 and is the nose behind <em>Le Male Le Parfum</em>, <em>Le Male Elixir</em> and <em>Good Girl</em>: his ground is warm ambers, with tonka bean, vanilla and vetiver as signature.</p>
             </div>
             <div class="grafico">
                 <h3><span data-lang="es">Qué caminos exploró cada uno, y cuándo</span><span data-lang="en">Which paths each explored, and when</span></h3>
                 <div class="sub"><span data-lang="es">Un punto por perfume. Pasá el mouse por encima para ver cuál es.</span><span data-lang="en">One dot per perfume. Hover over it to see which.</span></div>
                 <div id="g-perfumistas"></div>
+            </div>
+        </section>
+
+
+        <!-- ============ notas contra nariz: seccion de cierre ============ -->
+        <section class="cierre" id="notas-contra-nariz">
+            <div data-lang="es">
+                <h2>Notas vs Nariz: un sistema complejo</h2>
+                <p>Si un perfume fuera sólo la suma de sus notas, dos fragancias con listas parecidas deberían oler parecido. Fragrantica permite ponerlo a prueba, porque guarda dos cosas distintas: lo que cada perfume dice tener y lo que la gente siente al olerlo.</p>
+                <p>Así que armé dos redes con los mismos perfumes. En la primera, cada perfume está unido a los que más se le parecen según sus notas y acordes, es decir, según los papeles. En la segunda, están unidos los pares que la gente votó como parecidos, siempre que hubieran opinado al menos cinco personas. Después me fijé cuánto se superponen y, para saber si eso era mucho o poco, lo comparé con lo que daría el azar.</p>
+                <p>El resultado tiene sentido, pero se queda corto. Las dos redes coinciden mucho más que por casualidad: de los pares que la gente siente parecidos, uno de cada cinco también son vecinos por sus notas, cuando por azar sería uno cada mil. Pero mirado perfume por perfume, sus vecinos en una red y en la otra casi no se repiten, y en cuatro de cada diez perfumes no coincide ninguno.</p>
+            </div>
+            <div data-lang="en">
+                <h2>Notes vs Nose: a complex system</h2>
+                <p>If a perfume were just the sum of its notes, two fragrances with similar lists should smell alike. Fragrantica makes it possible to test this, because it keeps two different things: what each perfume claims to contain and what people feel when they smell it.</p>
+                <p>So I built two networks with the same perfumes. In the first, each perfume is joined to the ones most like it by notes and accords, that is, on paper. In the second, the joined pairs are the ones people voted as alike, as long as at least five people gave their opinion. Then I looked at how much they overlap and, to know whether that was a lot or a little, compared it with what chance would give.</p>
+                <p>The result makes sense, but it falls short. The two networks match far more than by coincidence: of the pairs people feel are alike, one in five are also neighbours by their notes, where chance would give one in a thousand. But perfume by perfume, its neighbours in one network and in the other barely repeat, and for four in ten perfumes not a single one matches.</p>
+            </div>
+
+            <div class="grafico">
+                <h3><span data-lang="es">Cuándo la nariz le da la razón a las notas</span><span data-lang="en">When the nose agrees with the notes</span></h3>
+                <div class="sub"><span data-lang="es">Los pares votados, ordenados de menos a más parecidos según sus notas y partidos en diez grupos iguales. Para cada grupo, qué parte la gente votó como parecida.</span><span data-lang="en">Voted pairs, sorted from least to most alike by their notes and split into ten equal groups. For each group, the share people voted similar.</span></div>
+                <div id="g-nariz-curva"></div>
+            </div>
+
+            <div data-lang="es">
+                <p>El gráfico muestra dónde está la diferencia. Mientras dos perfumes se parezcan poco o más o menos en los papeles, la gente los vota como parecidos con una frecuencia bastante pareja. Recién cuando las listas son casi iguales la nariz acompaña, y ocho de cada diez se votan como similares. Pensé que eso podía deberse a que muchos de esos pares son versiones de la misma casa, casi la misma fórmula con otro nombre, pero aun sacándolos el salto se mantiene.</p>
+                <p>¿Por qué las notas explican tan poco? En parte porque el olor no funciona como una suma. Las notas se tapan, se realzan, se mezclan y forman algo nuevo, y eso es justamente lo que percibe la nariz y lo que una lista no puede contar. Pero también porque a la lista le falta información: no dice cuánto lleva de cada cosa ni de qué calidad es cada ingrediente. Y la gente sólo vota los pares que a alguien se le ocurrió comparar. Con estos datos no se puede separar una cosa de la otra, pero la conclusión práctica es clara: conocer las notas de un perfume ayuda bastante menos de lo que parece a saber cómo se va a sentir.</p>
+            </div>
+            <div data-lang="en">
+                <p>The chart shows where the difference lies. As long as two perfumes look little or only somewhat alike on paper, people vote them alike at a fairly even rate. Only when the lists are nearly the same does the nose follow, and eight in ten are voted similar. I thought that could be because many of those pairs are versions from the same house, nearly the same formula under another name, but even without them the jump remains.</p>
+                <p>Why do notes explain so little? Partly because smell does not work like a sum. Notes mask each other, lift each other, blend and become something new, and that is exactly what the nose perceives and what a list cannot tell. But also because the list is missing information: it does not say how much of each thing goes in or how good each ingredient is. And people only vote on the pairs someone thought of comparing. These data cannot pull those apart, but the practical conclusion is clear: knowing a perfume's notes helps much less than it seems in knowing how it will feel.</p>
+            </div>
+
+            <div class="grafico">
+                <h3><span data-lang="es">Dónde coinciden más las dos redes</span><span data-lang="en">Where the two networks match most</span></h3>
+                <div class="sub"><span data-lang="es">Cuánto se repiten, en promedio, los vecinos de cada perfume en las dos redes, según su familia aromática.</span><span data-lang="en">How much, on average, each perfume's neighbours repeat across the two networks, by aromatic family.</span></div>
+                <div id="g-nariz-familias"></div>
+            </div>
+
+            <div data-lang="es">
+                <p>Las familias tampoco se comportan igual. Las dos redes coinciden más en los gourmand y los especiados, y menos en los frescos y acuáticos. Quizás porque en los primeros unas pocas notas fuertes, como la vainilla o la canela, marcan el carácter, mientras que en los frescos todo depende del equilibrio entre muchas notas suaves.</p>
+            </div>
+            <div data-lang="en">
+                <p>Families do not behave the same either. The two networks match more for gourmand and spicy perfumes, and less for fresh and aquatic ones. Perhaps because in the former a few strong notes, such as vanilla or cinnamon, set the character, while in fresh ones everything depends on the balance among many soft notes.</p>
             </div>
         </section>
     </main>
@@ -409,7 +460,7 @@
         };
         const GEN = { es: ["Femenino", "Unisex", "Masculino"], en: ["Feminine", "Unisex", "Masculine"] };
         const SERIES = ["var(--serie-1)", "var(--serie-2)", "var(--serie-3)"];
-        let A = null;
+        let A = null, CMP = null;
         const idioma = () => document.body.getAttribute("data-language") === "es" ? "es" : "en";
         const fam = f => idioma() === "es" ? f : (FAM_EN[f] || f);
         const num = (v, d = 1) => v.toLocaleString(idioma() === "es" ? "es-AR" : "en-US",
@@ -603,9 +654,50 @@
             document.getElementById("g-perfumistas").innerHTML = html;
         }
 
+        /* ---------------- notas contra nariz ---------------- */
+        function dibujarNariz(){
+            if (!CMP) return;
+            const cur = CMP.correlacion.curva, base = CMP.solape.pares_parecidos / CMP.solape.pares_votados * 100;
+            const W = 720, iz = 50, de = 20, H = 270, arr = 14, ab = 46;
+            const X = j => iz + (W - iz - de) * (j + 0.5) / cur.length;
+            const Y = v => arr + (H - arr - ab) * (1 - v / 100);
+            let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+            for (let v = 0; v <= 100; v += 20){
+                s += `<line x1="${iz}" y1="${Y(v)}" x2="${W - de}" y2="${Y(v)}" stroke="var(--grilla)"/>
+                      <text x="${iz - 8}" y="${Y(v)}" font-size="11" text-anchor="end" dominant-baseline="middle">${v} %</text>`;
+            }
+            /* referencia: la proporcion de parecidos entre todos los pares votados */
+            s += `<line x1="${iz}" y1="${Y(base)}" x2="${W - de}" y2="${Y(base)}" stroke="var(--referencia)" stroke-width="1.5" stroke-dasharray="5 4"/>
+                  <text x="${iz + 6}" y="${Y(base) - 6}" font-size="11.5">${t("promedio de todos los pares", "average over all pairs")}</text>`;
+            s += `<polyline points="${cur.map((c, j) => `${X(j)},${Y(c.prop_parecidos * 100)}`).join(" ")}"
+                    fill="none" stroke="var(--serie-1)" stroke-width="2" stroke-linejoin="round"/>`;
+            cur.forEach((c, j) => {
+                s += `<circle cx="${X(j)}" cy="${Y(c.prop_parecidos * 100)}" r="5" fill="var(--serie-1)" stroke="var(--card-bg)" stroke-width="2">
+                    <title>${t("Grupo", "Group")} ${j + 1}: ${num(c.prop_parecidos * 100, 0)} % ${t("votados parecidos", "voted similar")} · ${num(c.n, 0)} ${t("pares", "pairs")}</title></circle>
+                    <text x="${X(j)}" y="${H - ab + 16}" font-size="11" text-anchor="middle">${j + 1}</text>`;
+            });
+            s += `<text x="${iz}" y="${H - 6}" font-size="11.5">← ${t("menos parecidos en notas", "least alike in notes")}</text>
+                  <text x="${W - de}" y="${H - 6}" font-size="11.5" text-anchor="end">${t("más parecidos en notas", "most alike in notes")} →</text>`;
+            document.getElementById("g-nariz-curva").innerHTML = s + `</svg>`;
+
+            /* barras horizontales por familia, de mayor a menor */
+            const fams = CMP.por_familia, tope = Math.max(...fams.map(f => f.media));
+            const W2 = 720, iz2 = 150, de2 = 60, fila = 26, H2 = fams.length * fila + 8;
+            const X2 = v => iz2 + (W2 - iz2 - de2) * v / tope;
+            let b = `<svg viewBox="0 0 ${W2} ${H2}" role="img">`;
+            fams.forEach((f, i) => {
+                const y = 4 + i * fila;
+                b += `<text x="${iz2 - 10}" y="${y + fila / 2 - 2}" font-size="13" text-anchor="end" dominant-baseline="middle">${esc(fam(f.familia))}</text>
+                      <rect x="${iz2}" y="${y + 4}" width="${X2(f.media) - iz2}" height="${fila - 12}" rx="3" fill="var(--serie-1)">
+                        <title>${esc(fam(f.familia))}: ${num(f.media * 100)} % · ${num(f.n, 0)} ${t("perfumes", "perfumes")}</title></rect>
+                      <text x="${X2(f.media) + 8}" y="${y + fila / 2 - 2}" font-size="12" dominant-baseline="middle">${num(f.media * 100)} %</text>`;
+            });
+            document.getElementById("g-nariz-familias").innerHTML = b + `</svg>`;
+        }
+
         function dibujarTodo(){
             if (!A) return;
-            dibujarCasa(); dibujarGenero(); dibujarTiempo(); dibujarPerfumistas();
+            dibujarCasa(); dibujarGenero(); dibujarTiempo(); dibujarPerfumistas(); dibujarNariz();
         }
 
         /* pestanas */
@@ -619,8 +711,11 @@
         /* el idioma cambia los rotulos: se redibuja */
         new MutationObserver(dibujarTodo).observe(document.body, { attributes: true, attributeFilter: ["data-language"] });
 
-        fetch("htmls_perfumes/datos/analisis.json").then(r => r.json()).then(datos => {
-            A = datos;
+        Promise.all([
+            fetch("htmls_perfumes/datos/analisis.json").then(r => r.json()),
+            fetch("htmls_perfumes/datos/comparacion.json").then(r => r.json()),
+        ]).then(([datos, cmp]) => {
+            A = datos; CMP = cmp;
             const sel = document.getElementById("sel-casa");
             const casas = Object.keys(A.casas).sort((a, b) => a.localeCompare(b, "es"));
             sel.innerHTML = casas.map(c => `<option${c === "Chanel" ? " selected" : ""}>${esc(c)}</option>`).join("");
