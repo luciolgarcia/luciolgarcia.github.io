@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfumes - Mapa de la red olfativa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS Variables - Light Mode (Ciruela / Ambar) - DEFAULT */
+        :root {
+            --bg-color: #faf7fa;
+            --sidebar-bg: #f1eaf1;
+            --card-bg: #ffffff;
+
+            --text-color: #413546;
+            --heading-color: #5c3566;
+            --link-color: #8a4a9c;
+            --link-hover: #5f2f70;
+
+            --border-color: #e3d7e6;
+            --tag-bg: #ece0ef;
+            --tag-text: #543b5c;
+        }
+
+        /* CSS Variables - Dark Mode (Ciruela Nocturna) */
+        [data-theme="dark"] {
+            --bg-color: #191420;
+            --sidebar-bg: #231b2c;
+            --card-bg: #1e1826;
+
+            --text-color: #e9e1ee;
+            --heading-color: #d6a8e6;
+            --link-color: #c89bdb;
+            --link-hover: #e4c6f0;
+
+            --border-color: #3a2d47;
+            --tag-bg: #3d2d4a;
+            --tag-text: #f3ecf7;
+        }
+
+        /* Language Toggle Logic */
+        body[data-language="en"] [data-lang="es"] { display: none !important; }
+        body[data-language="es"] [data-lang="en"] { display: none !important; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: background-color .3s, color .3s;
+        }
+
+        .topbar-simple {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; height: 64px;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .back-btn {
+            color: var(--link-color); text-decoration: none; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 8px; font-size: .95rem;
+        }
+        .back-btn:hover { color: var(--link-hover); }
+        .action-buttons { display: flex; gap: 10px; }
+        .top-btn {
+            background: none; border: 1px solid var(--border-color); color: var(--text-color);
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            font-size: .85rem; font-weight: 600; transition: all .2s;
+        }
+        .top-btn:hover { border-color: var(--link-color); color: var(--link-color); }
+
+        main { max-width: 820px; margin: 0 auto; padding: 50px 24px 90px; }
+        h1 { font-size: 2.4rem; color: var(--heading-color); line-height: 1.2; margin-bottom: 8px; }
+        .bajada { font-size: 1.05rem; color: var(--text-color); opacity: .78; margin-bottom: 34px; }
+        h2 { font-size: 1.45rem; color: var(--heading-color); margin: 44px 0 14px; }
+        p { margin-bottom: 16px; }
+        ul { margin: 0 0 16px 22px; }
+        li { margin-bottom: 7px; }
+        strong { color: var(--heading-color); }
+
+        .cifras {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+            gap: 14px; margin: 26px 0 10px;
+        }
+        .cifra {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 14px 16px;
+        }
+        .cifra b { display: block; font-size: 1.5rem; color: var(--heading-color); line-height: 1.2; }
+        .cifra span { font-size: .82rem; opacity: .75; }
+
+        /* El mapa se sale del ancho de lectura: necesita espacio */
+        .breakout-wrapper {
+            width: 92vw; max-width: 1500px;
+            position: relative; left: 50%; transform: translateX(-50%);
+            margin: 30px 0 10px;
+        }
+        .breakout-wrapper iframe {
+            width: 100%; height: 760px; border: 1px solid var(--border-color);
+            border-radius: 12px; background: #0a0d12; display: block;
+        }
+        .pie-figura { font-size: .85rem; opacity: .7; text-align: center; margin-top: 10px; }
+        .pie-figura a { color: var(--link-color); }
+
+        .aviso {
+            background: var(--tag-bg); color: var(--tag-text);
+            border: 1px solid var(--border-color); border-radius: 10px;
+            padding: 14px 18px; font-size: .92rem; margin: 26px 0;
+        }
+
+        @media (max-width: 860px) {
+            main { padding: 34px 18px 70px; }
+            h1 { font-size: 1.85rem; }
+            .topbar-simple { padding: 0 16px; }
+            .breakout-wrapper { width: 100vw; border-radius: 0; }
+            .breakout-wrapper iframe { height: 78vh; border-radius: 0; border-left: 0; border-right: 0; }
+        }
+    </style>
+</head>
+<body data-language="en">
+
+    <nav class="topbar-simple">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span data-lang="es">Volver al CV</span>
+            <span data-lang="en">Back to CV</span>
+        </a>
+
+        <div style="font-weight: 600; color: var(--heading-color); flex: 1; text-align: center; padding: 0 20px;">
+            Lucio L. Garcia
+        </div>
+
+        <div class="action-buttons">
+            <button id="theme-toggle" class="top-btn" title="Cambiar Tema">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+            <button id="lang-toggle" class="top-btn" title="Cambiar Idioma">ES</button>
+        </div>
+    </nav>
+
+    <main>
+        <div data-lang="es">
+            <h1>El mapa de los perfumes</h1>
+            <p class="bajada">Veintiún mil fragancias, puestas en el plano según a qué se parecen.</p>
+        </div>
+        <div data-lang="en">
+            <h1>The perfume map</h1>
+            <p class="bajada">Twenty-one thousand fragrances, placed on a plane by what they smell like.</p>
+        </div>
+
+        <div class="cifras">
+            <div class="cifra"><b>21.283</b><span data-lang="es">perfumes</span><span data-lang="en">perfumes</span></div>
+            <div class="cifra"><b>53</b><span data-lang="es">comunidades olfativas</span><span data-lang="en">olfactory communities</span></div>
+            <div class="cifra"><b>725.178</b><span data-lang="es">enlaces</span><span data-lang="en">links</span></div>
+            <div class="cifra"><b>728</b><span data-lang="es">casas</span><span data-lang="en">houses</span></div>
+        </div>
+
+        <div data-lang="es">
+            <p>Los datos salen de Fragrantica: el catálogo completo, 33.210 fichas, y de cada una sus acordes, sus notas, su familia olfativa y las votaciones del público sobre duración, estela, estación, momento del día, género y precio percibido. En el mapa entran los 21.283 que tienen más de veinte votos, porque por debajo de eso los porcentajes son ruido.</p>
+
+            <h2>Qué une a dos perfumes</h2>
+            <p>El mapa tiene cuatro capas y cada una los acerca por una razón distinta, así que cada una arma su propio dibujo:</p>
+            <ul>
+                <li><strong>Familias olfativas similares</strong>: vecinos en un espacio de 86 acordes y 573 notas. Es el espacio del olor propiamente dicho.</li>
+                <li><strong>Similitud votada</strong>: la gente responde si dos fragancias huelen parecido. El puntaje es <em>(sí − no) / total</em>, y cada enlace guarda cuántos votaron, porque la mitad de los pares tiene menos de seis.</li>
+                <li><strong>Recomendados por el público</strong>: a quienes les gusta esta, también les gusta aquella. No es lo mismo que oler parecido, y esa diferencia es buena parte de la gracia.</li>
+                <li><strong>Linajes</strong>: cada <em>flanker</em> colgando del original de su línea.</li>
+            </ul>
+
+            <h2>Las comunidades</h2>
+            <p>Salen de correr Leiden sobre la red olfativa. El nombre de cada una no es su acorde más frecuente sino el más <strong>sobre-representado</strong>: etiquetar por frecuencia llenaría el mapa de "amaderado", que aparece en veinte mil perfumes. Al pasar el mouse por encima, cada comunidad se abre en sus partes: dentro de <em>cuero</em> aparecen gamuza, vetiver, tomillo, osmanto.</p>
+
+            <h2>Una advertencia sobre el precio</h2>
+            <p>Fragrantica no publica precios. Lo que hay son votos sobre si una fragancia se siente cara o barata, y con eso armé un índice de 1 a 5. El filtro de costo recorta por <strong>carestía percibida</strong>, que no es plata.</p>
+        </div>
+
+        <div data-lang="en">
+            <p>The data comes from Fragrantica: the full catalogue, 33,210 entries, each with its accords, notes, olfactory family and the public's votes on longevity, sillage, season, time of day, gender and perceived price. The map holds the 21,283 with more than twenty votes, because below that the percentages are noise.</p>
+
+            <h2>What joins two perfumes</h2>
+            <p>The map has four layers and each pulls them together for a different reason, so each one draws its own arrangement:</p>
+            <ul>
+                <li><strong>Similar olfactory families</strong>: neighbours in a space of 86 accords and 573 notes. The space of smell itself.</li>
+                <li><strong>Voted similarity</strong>: people answer whether two fragrances smell alike. The score is <em>(yes − no) / total</em>, and every link keeps how many voted, because half the pairs have fewer than six.</li>
+                <li><strong>Crowd recommendations</strong>: people who like this one also like that one. Not the same as smelling alike, and that gap is much of the interest.</li>
+                <li><strong>Lineages</strong>: each <em>flanker</em> hanging off the original of its line.</li>
+            </ul>
+
+            <h2>The communities</h2>
+            <p>They come from running Leiden over the olfactory network. Each name is not its commonest accord but its most <strong>over-represented</strong> one: labelling by frequency would fill the map with "woody", which appears in twenty thousand perfumes. Hovering opens a community into its parts: inside <em>leather</em> you find suede, vetiver, thyme, osmanthus.</p>
+
+            <h2>A warning about price</h2>
+            <p>Fragrantica publishes no prices. What exists are votes on whether a fragrance feels expensive or cheap, and from those I built a 1-to-5 index. The cost filter cuts by <strong>perceived dearness</strong>, which is not money.</p>
+        </div>
+
+        <div class="aviso">
+            <span data-lang="es"><i class="fas fa-mobile-screen"></i> &nbsp;El mapa carga unos 17 MB de datos. Desde el celular conviene wifi, y se ve mejor apaisado.</span>
+            <span data-lang="en"><i class="fas fa-mobile-screen"></i> &nbsp;The map loads about 17 MB of data. On a phone, use wifi and turn it sideways.</span>
+        </div>
+
+        <div class="breakout-wrapper">
+            <iframe src="htmls_perfumes/mapa_perfumes.html" title="Mapa interactivo de la red de perfumes" loading="lazy"></iframe>
+        </div>
+        <p class="pie-figura">
+            <span data-lang="es">¿Te queda chico? <a href="htmls_perfumes/mapa_perfumes.html" target="_blank" rel="noopener">Abrir el mapa en pantalla completa →</a></span>
+            <span data-lang="en">Too small? <a href="htmls_perfumes/mapa_perfumes.html" target="_blank" rel="noopener">Open the map full screen →</a></span>
+        </p>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- LÓGICA DE TEMA (CLARO / OSCURO) ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                }
+            });
+
+            // --- LÓGICA DE TRADUCCIÓN (EN / ES) ---
+            const langToggleBtn = document.getElementById('lang-toggle');
+
+            const currentLang = localStorage.getItem('language') || 'en';
+            document.body.setAttribute('data-language', currentLang);
+            langToggleBtn.textContent = currentLang === 'en' ? 'ES' : 'EN';
+
+            langToggleBtn.addEventListener('click', () => {
+                const isEn = document.body.getAttribute('data-language') === 'en';
+                const newLang = isEn ? 'es' : 'en';
+                document.body.setAttribute('data-language', newLang);
+                localStorage.setItem('language', newLang);
+                langToggleBtn.textContent = newLang === 'en' ? 'ES' : 'EN';
+            });
+        });
+    </script>
+
+</body>
+</html>

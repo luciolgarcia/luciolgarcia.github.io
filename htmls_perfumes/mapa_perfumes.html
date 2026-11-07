@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de perfumes</title>
+<style>
+  :root{
+    --fondo:#0a0d12; --panel:#11161f; --panel2:#161d28; --borde:#223047;
+    --texto:#e8eef7; --tenue:#8da2bf; --acento:#64ffda; --acento2:#ffb86b;
+    --sombra:0 8px 30px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--fondo); color:var(--texto); overflow:hidden;
+    font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  /* a canvas is a replaced element: inset:0 alone leaves it at its intrinsic
+     300x150, so the size has to be stated */
+  #lienzo{position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;cursor:grab}
+  #lienzo.arrastrando{cursor:grabbing}
+
+  .caja{background:var(--panel);border:1px solid var(--borde);border-radius:10px;box-shadow:var(--sombra)}
+
+  /* ---------- barra lateral izquierda ---------- */
+  #controles{
+    position:fixed;top:14px;left:14px;width:286px;max-height:calc(100vh - 28px);
+    overflow-y:auto;padding:14px;z-index:5;
+  }
+  #controles h1{font-size:15px;letter-spacing:.3px;margin-bottom:2px}
+  #controles .sub{color:var(--tenue);font-size:11px;margin-bottom:12px}
+  .grupo{margin:14px 0 0}
+  .grupo>label.tit{display:block;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.9px;color:var(--tenue);margin-bottom:6px}
+  select,input[type=text],textarea,button{
+    width:100%;background:var(--panel2);color:var(--texto);border:1px solid var(--borde);
+    border-radius:7px;padding:7px 9px;font:inherit;font-size:12.5px;
+  }
+  textarea{resize:vertical;min-height:72px;font-size:12px}
+  button{cursor:pointer;transition:border-color .15s,color .15s}
+  button:hover{border-color:var(--acento);color:var(--acento)}
+  button.sec{font-size:11.5px;padding:5px 8px}
+  .fila{display:flex;gap:6px;margin-top:6px}
+  .deslizador{margin:9px 0 2px}
+  .deslizador .enc{display:flex;justify-content:space-between;font-size:11px;color:var(--tenue)}
+  .deslizador .enc b{color:var(--texto);font-weight:600}
+  input[type=range]{width:100%;accent-color:var(--acento);background:none;border:0;padding:0;margin:2px 0}
+  .par{display:flex;gap:7px;align-items:center}
+  .par input[type=range]{flex:1}
+  .chk{display:flex;align-items:center;gap:7px;font-size:12px;margin-top:7px;cursor:pointer}
+  .chk input{accent-color:var(--acento);width:auto}
+
+  /* ---------- panel derecho ---------- */
+  #detalle{
+    position:fixed;top:14px;right:14px;width:330px;max-height:calc(100vh - 28px);
+    overflow-y:auto;padding:16px;z-index:5;display:none;
+  }
+  #detalle.visible{display:block}
+  #detalle .casa{color:var(--acento2);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  #detalle h2{font-size:17px;line-height:1.25;margin:3px 0 8px}
+  #detalle .meta{color:var(--tenue);font-size:11.5px;margin-bottom:12px}
+  #cerrar{position:absolute;top:10px;right:12px;width:auto;border:0;background:none;
+    color:var(--tenue);font-size:18px;line-height:1;padding:2px 4px}
+  #cerrar:hover{color:var(--texto)}
+  .seccion{margin-top:15px}
+  .seccion>h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;
+    color:var(--tenue);margin-bottom:7px}
+  .barra{margin-bottom:5px}
+  .barra .et{display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px}
+  .barra .et span:last-child{color:var(--tenue)}
+  .barra .pista{height:5px;background:#1d2736;border-radius:3px;overflow:hidden}
+  .barra .relleno{height:100%;background:var(--acento);border-radius:3px}
+  .vecino{display:flex;justify-content:space-between;gap:8px;padding:4px 0;
+    border-bottom:1px solid #1a2331;cursor:pointer;font-size:12px}
+  .vecino:hover{color:var(--acento)}
+  .vecino .pt{color:var(--tenue);font-size:11px;white-space:nowrap}
+  .etq{display:inline-block;background:var(--panel2);border:1px solid var(--borde);
+    border-radius:20px;padding:2px 9px;font-size:11px;margin:0 4px 4px 0}
+  .ficha{margin-top:13px;border-top:1px solid #1a2331;padding-top:11px}
+  .ficha .f{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:12.5px}
+  .ficha .f span:first-child{color:var(--tenue)}
+  .ficha .f b{font-weight:600;text-align:right}
+  a{color:var(--acento);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ---------- varios ---------- */
+  /* botones sobre la figura, no en la barra: centrar es algo que se pide
+     mirando el mapa, no leyendo la lista de controles */
+  #herramientas{position:fixed;right:16px;top:16px;z-index:6;display:flex;
+    flex-direction:column;gap:7px}
+  .redondo{width:36px;height:36px;border-radius:50%;padding:0;font-size:16px;
+    line-height:1;background:var(--panel);border:1px solid var(--borde);
+    color:var(--texto);box-shadow:var(--sombra)}
+  .redondo:hover{border-color:var(--acento);color:var(--acento)}
+  #detalle.visible ~ #herramientas{right:360px}
+  #pie{position:fixed;left:14px;bottom:12px;color:var(--tenue);font-size:11px;z-index:4;
+    width:286px;padding:8px 10px}
+  #globo{position:fixed;z-index:9;pointer-events:none;display:none;padding:6px 9px;
+    font-size:12px;max-width:260px}
+  #globo b{color:var(--acento)}
+  #cargando{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:10px;background:var(--fondo);z-index:20;color:var(--tenue)}
+  #leyenda{position:fixed;right:14px;bottom:12px;z-index:4;padding:10px 12px;max-width:300px;
+    max-height:40vh;overflow-y:auto;display:none}
+  #leyenda.visible{display:block}
+  #leyenda h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;
+    color:var(--tenue);margin-bottom:7px}
+  .lin{display:flex;align-items:center;gap:7px;font-size:11.5px;padding:1px 0;cursor:pointer}
+  .lin:hover{color:var(--acento)}
+  .pto{width:9px;height:9px;border-radius:50%;flex:none}
+  .aviso{background:#2a1f13;border:1px solid #5a3f1d;color:#ffd9a8;
+    border-radius:7px;padding:7px 9px;font-size:11px;margin-top:8px}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:#243047;border-radius:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+  @media (max-width:900px){
+    #controles{width:calc(100vw - 28px);max-height:46vh}
+    #detalle{width:calc(100vw - 28px);top:auto;bottom:14px;max-height:46vh}
+    #pie,#leyenda{display:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="lienzo"></canvas>
+
+<div id="cargando"><div>cargando el mapa…</div><div id="progreso" style="font-size:11px"></div></div>
+
+<div id="controles" class="caja">
+  <h1>Mapa de perfumes</h1>
+  <div class="sub" id="resumen">—</div>
+
+  <div class="grupo">
+    <label class="tit" for="catalogo">Dónde se consigue</label>
+    <select id="catalogo">
+      <option value="farmacia">Fáciles de conseguir (farmacia y cadena)</option>
+      <option value="sin">Sacar los de farmacia</option>
+      <option value="todos" selected>Todos los perfumes</option>
+    </select>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="capa">Capa de enlaces</label>
+    <select id="capa">
+      <option value="olfativo" selected>Familias olfativas similares</option>
+      <option value="linaje">Linajes y flankers</option>
+      <option value="cogusto">Recomendados por el público</option>
+      <option value="similares">Similitud votada (¿huelen parecido?)</option>
+      <option value="ninguna">Sin enlaces (sólo nube)</option>
+    </select>
+    <div id="ctl_similares" style="display:none">
+      <div class="deslizador">
+        <div class="enc"><span>score mínimo</span><b id="v_score">0.30</b></div>
+        <input type="range" id="f_score" min="-1" max="1" step="0.05" value="0.3">
+      </div>
+      <div class="deslizador">
+        <div class="enc"><span>votos mínimos del par</span><b id="v_nsim">10</b></div>
+        <input type="range" id="f_nsim" min="5" max="200" step="5" value="10">
+      </div>
+    </div>
+    <label class="chk" id="ctl_recip" style="display:none">
+      <input type="checkbox" id="f_recip"> sólo enlaces recíprocos
+    </label>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="color">Colorear por</label>
+    <select id="color">
+      <option value="anio">Año</option>
+      <option value="balance">Balance de opinión</option>
+      <option value="casa">Casa</option>
+      <option value="com" selected>Comunidad olfativa</option>
+      <option value="precio">Costo percibido</option>
+      <option value="familia">Familia olfativa</option>
+      <option value="perfumista">Perfumista</option>
+      <option value="extremos">Voto en los extremos</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="f_solo_referencia" checked>
+      dejar sólo los de la referencia</label>
+  </div>
+
+  <div class="grupo">
+    <label class="tit">Recortar la red</label>
+    <div class="deslizador">
+      <div class="enc"><span>costo percibido</span><b id="v_precio">1,0 – 5,0</b></div>
+      <div class="par">
+        <input type="range" id="f_precio_min" min="1" max="5" step="0.1" value="1">
+        <input type="range" id="f_precio_max" min="1" max="5" step="0.1" value="5">
+      </div>
+    </div>
+    <div class="deslizador">
+      <div class="enc"><span>votos mínimos</span><b id="v_votos">51</b></div>
+      <input type="range" id="f_votos" min="51" max="3000" step="10" value="51">
+    </div>
+    <div class="deslizador">
+      <div class="enc"><span>año</span><b id="v_anio">todos</b></div>
+      <div class="par">
+        <input type="range" id="f_anio_min" min="1900" max="2026" step="1" value="1900">
+        <input type="range" id="f_anio_max" min="1900" max="2026" step="1" value="2026">
+      </div>
+    </div>
+    <div class="deslizador">
+      <div class="enc"><span>rating mínimo</span><b id="v_rating">0,0</b></div>
+      <input type="range" id="f_rating" min="0" max="5" step="0.1" value="0">
+    </div>
+    <label class="chk"><input type="checkbox" id="f_descont"> ocultar descontinuados</label>
+    <label class="chk"><input type="checkbox" id="f_divisivos"> sólo divisivos (extremos repartidos)</label>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="acorde">Acorde principal</label>
+    <select id="acorde"><option value="">(todos)</option></select>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="busca">¿Qué perfume te gusta?</label>
+    <input type="text" id="busca" placeholder="escribí un nombre…" autocomplete="off">
+    <div id="sugerencias"></div>
+    <div id="foco_activo" style="display:none">
+      <div class="fila"><button class="sec" id="btn_sin_foco">Ver toda la red otra vez</button></div>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="coleccion">Mi colección</label>
+    <textarea id="coleccion" placeholder="Un perfume por línea.&#10;Sauvage&#10;Dior - Homme Intense&#10;Aventus"></textarea>
+    <div class="fila">
+      <button class="sec" id="btn_marcar">Marcar en la red</button>
+      <button class="sec" id="btn_limpiar">Limpiar</button>
+    </div>
+    <div class="fila">
+      <button class="sec" id="btn_vecinos">Vecinos que no tengo</button>
+    </div>
+    <div id="resultado_coleccion"></div>
+  </div>
+
+  <div id="aviso_relax" style="color:var(--tenue);font-size:11px;margin-top:12px"></div>
+</div>
+
+<div id="herramientas">
+  <button class="redondo" id="btn_reset" title="Centrar el mapa en lo que se ve">⤢</button>
+  <button class="redondo" id="btn_mas" title="Acercar">+</button>
+  <button class="redondo" id="btn_menos" title="Alejar">−</button>
+</div>
+
+<div id="pie" class="caja">
+  <span id="pie_txt">—</span>
+</div>
+
+<div id="leyenda" class="caja"><h3 id="leyenda_tit">Referencias</h3><div id="leyenda_cuerpo"></div></div>
+
+<div id="detalle" class="caja">
+  <button id="cerrar" title="cerrar">×</button>
+  <div class="casa" id="d_casa"></div>
+  <h2 id="d_nombre"></h2>
+  <div class="meta" id="d_meta"></div>
+  <div id="d_acordes"></div>
+  <div class="ficha" id="d_ficha"></div>
+  <div class="seccion">
+    <h3 id="t_similares">Huelen parecido</h3>
+    <div id="d_similares"></div>
+  </div>
+  <div class="seccion">
+    <h3>También les gusta</h3>
+    <div id="d_cogusto"></div>
+  </div>
+  <div class="seccion"><a id="d_link" target="_blank" rel="noopener">Ver en Fragrantica →</a></div>
+</div>
+
+<div id="globo" class="caja"></div>
+
+<script>
+"use strict";
+
+/* ===================== datos ===================== */
+const D = { nodos:null, capas:null, meta:null };
+let N = 0;                       // cantidad de nodos
+let vis = null;                  // Uint8Array: pasa los filtros
+let marcado = null;              // Uint8Array: esta en "mi coleccion"
+let adyacencia = {};             // por capa: indices CSR para el panel
+let seleccion = -1, sobre = -1;
+let foco = -1;                   // perfume elegido en "que perfume te gusta"
+let focoSet = null;              // el y sus 5 vecinos mas parecidos
+const VECINOS_MOSTRADOS = 5;
+let capaXY = "olfativo";         // disposicion en uso
+let animando = null;             // tween entre disposiciones
+const TOPE_RELAJAR = 6000;       // arriba de esto el navegador no da
+
+/* D.nodos.x e y son las posiciones VIVAS: arrancan en la disposicion de la capa
+   y despues las mueve el tween o la relajacion. Las originales quedan en
+   D.nodos.xy, intactas, para poder volver. */
+function posicionesDe(capa){
+  const p = D.nodos.xy[capa] || D.nodos.xy.olfativo;
+  return [Float32Array.from(p[0]), Float32Array.from(p[1])];
+}
+
+/* Paleta apagada y pareja en luminosidad. Los neones saturados sobre fondo
+   oscuro se funden entre si y con las aristas; estos tonos se separan por
+   matiz, no por brillo, y dejan que el nodo se lea como un punto. */
+const PALETA = ["#e0998d","#7fb0d1","#9dc392","#d4b46c","#b096cc","#6fbdb4",
+  "#d48dab","#8b9dcd","#c5a689","#84c29c","#cc9fca","#a5b47b","#dba87d",
+  "#78b2c0","#c08c9c","#99b199","#c7af7b","#97a3c0","#b9868a","#8fc0d8"];
+
+const fmt = n => n==null ? "—" : n.toLocaleString("es-AR");
+const fmt1 = n => n==null ? "—" : n.toFixed(1).replace(".", ",");
+const fmt2 = n => n==null ? "—" : n.toFixed(2).replace(".", ",");
+
+/* ===================== camara ===================== */
+const cam = { x:0, y:0, z:0.35 };
+const lienzo = document.getElementById("lienzo");
+const ctx = lienzo.getContext("2d", { alpha:false });
+let dpr = 1, ancho = 0, alto = 0;
+
+function medir(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  ancho = lienzo.clientWidth; alto = lienzo.clientHeight;
+  lienzo.width = Math.round(ancho*dpr); lienzo.height = Math.round(alto*dpr);
+}
+const aPantallaX = x => (x - cam.x)*cam.z + ancho/2;
+const aPantallaY = y => (y - cam.y)*cam.z + alto/2;
+const aMundoX = sx => (sx - ancho/2)/cam.z + cam.x;
+const aMundoY = sy => (sy - alto/2)/cam.z + cam.y;
+
+/* ===================== grilla para picking ===================== */
+let grilla = null, celda = 40, gx0 = 0, gy0 = 0, gcols = 0, gfilas = 0;
+function construirGrilla(){
+  const xs = D.nodos.x, ys = D.nodos.y;
+  gx0 = Math.min(...xs); gy0 = Math.min(...ys);
+  const x1 = Math.max(...xs), y1 = Math.max(...ys);
+  gcols = Math.ceil((x1-gx0)/celda)+1; gfilas = Math.ceil((y1-gy0)/celda)+1;
+  grilla = Array.from({length:gcols*gfilas}, () => []);
+  for (let i=0;i<N;i++){
+    const c = Math.floor((xs[i]-gx0)/celda), f = Math.floor((ys[i]-gy0)/celda);
+    grilla[f*gcols+c].push(i);
+  }
+}
+function nodoEn(sx, sy){
+  const mx = aMundoX(sx), my = aMundoY(sy);
+  const r = 14/cam.z;                       // radio de busqueda en mundo
+  const c0 = Math.max(0, Math.floor((mx-r-gx0)/celda)), c1 = Math.min(gcols-1, Math.floor((mx+r-gx0)/celda));
+  const f0 = Math.max(0, Math.floor((my-r-gy0)/celda)), f1 = Math.min(gfilas-1, Math.floor((my+r-gy0)/celda));
+  let mejor = -1, mejorD = r*r;
+  for (let f=f0; f<=f1; f++) for (let c=c0; c<=c1; c++){
+    for (const i of grilla[f*gcols+c]){
+      if (!vis[i]) continue;
+      const dx = D.nodos.x[i]-mx, dy = D.nodos.y[i]-my, d = dx*dx+dy*dy;
+      if (d < mejorD){ mejorD = d; mejor = i; }
+    }
+  }
+  return mejor;
+}
+
+/* ===================== color ===================== */
+let colorDe = null, leyendaActual = [];
+let arrCategoria = null, categoriasVisibles = null;
+let comunidadSobre = null;        // comunidad bajo el mouse: se abre en sus partes
+let ordenSub = null;              // subcomunidad -> su lugar dentro de la comunidad
+
+/* El matiz sale del angulo aureo (137,508 grados): es la vuelta que menos
+   repite tonos cercanos cuando no se sabe de antemano cuantos hacen falta. */
+function colorComunidad(c){
+  const h = (c * 137.508) % 360;
+  return `hsl(${h.toFixed(1)}, 40%, ${[58, 66, 72][c % 3]}%)`;
+}
+/* Las partes de una comunidad conservan su matiz y se separan por claridad y
+   saturacion: se leen como variantes de la misma familia, no como otra cosa. */
+function colorSub(c, s){
+  const h = (c * 137.508) % 360;
+  const j = ordenSub ? (ordenSub.get(s) || 0) : 0;
+  return `hsl(${((h + (j % 5) * 7 - 14 + 360) % 360).toFixed(1)}, ${38 + (j % 3) * 14}%, ${48 + (j % 6) * 8}%)`;
+}
+
+function escalaSecuencial(t){                 // 0..1 -> azul apagado a arena
+  t = Math.max(0, Math.min(1, t));
+  const a = [116,154,196], b = [218,174,124];
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*t)},${Math.round(a[1]+(b[1]-a[1])*t)},${Math.round(a[2]+(b[2]-a[2])*t)})`;
+}
+function escalaDivergente(t){                 // -1..1 -> terracota, gris, verde
+  if (t == null) return "#56607a";
+  const u = (t+1)/2;
+  const a = [206,124,112], m = [142,150,166], b = [140,192,150];
+  const [p,q,k] = u < 0.5 ? [a,m,u*2] : [m,b,(u-0.5)*2];
+  return `rgb(${Math.round(p[0]+(q[0]-p[0])*k)},${Math.round(p[1]+(q[1]-p[1])*k)},${Math.round(p[2]+(q[2]-p[2])*k)})`;
+}
+
+function armarColor(){
+  const n = D.nodos, modo = document.getElementById("color").value;
+  leyendaActual = [];
+  arrCategoria = null; categoriasVisibles = null;
+
+  if (modo === "com"){
+    /* 53 comunidades no entran en una paleta escrita a mano: los tonos salen
+       del angulo aureo, que reparte los matices lo mas lejos posible unos de
+       otros, con la claridad alternada para que dos vecinas no se confundan */
+    const et = D.meta.etiquetas.comunidad || {};
+    const tam = new Map();
+    for (let i=0;i<N;i++) tam.set(n.com[i], (tam.get(n.com[i])||0)+1);
+    leyendaActual = [...tam.entries()].map(([c,t])=>({
+      color:colorComunidad(c), texto:(et[String(c)]?.t || `comunidad ${c}`), n:t
+    }));
+    colorDe = i => (comunidadSobre != null && n.com[i] === comunidadSobre)
+      ? colorSub(n.com[i], n.sub[i]) : colorComunidad(n.com[i]);
+  }
+  else if (modo === "casa" || modo === "familia" || modo === "perfumista"){
+    const arr = modo === "perfumista" ? n.perfumista : n[modo];
+    const tam = new Map();
+    for (let i=0;i<N;i++){ const v = arr[i]; if (v==null||v===-1) continue; tam.set(v,(tam.get(v)||0)+1); }
+    const orden = [...tam.entries()].sort((a,b)=>b[1]-a[1]).slice(0, PALETA.length);
+    const mapa = new Map(orden.map(([c],k)=>[c, PALETA[k]]));
+    const nombre = v => modo === "perfumista" ? v
+      : (modo === "casa" ? D.meta.casas[v] : D.meta.familias[v]);
+    leyendaActual = orden.map(([c,t],k)=>({color:PALETA[k], texto:nombre(c), n:t}));
+    colorDe = i => mapa.get(arr[i]) || "#3d4860";
+    /* los que no entran en la referencia se sacan de la red, no se pintan de
+       gris: con 322 casas o 2.800 perfumistas el gris es casi todo el dibujo */
+    arrCategoria = arr;
+    categoriasVisibles = new Set(orden.map(([c]) => c));
+  }
+  else if (modo === "anio"){
+    colorDe = i => n.anio[i]==null ? "#3d4860" : escalaSecuencial((n.anio[i]-1960)/66);
+    leyendaActual = [1960,1980,2000,2020].map(a=>({color:escalaSecuencial((a-1960)/66), texto:String(a)}));
+  }
+  else if (modo === "precio"){
+    colorDe = i => n.precio[i]==null ? "#3d4860" : escalaSecuencial((n.precio[i]-1)/4);
+    leyendaActual = [1,2,3,4,5].map(p=>({color:escalaSecuencial((p-1)/4),
+      texto:["costo excelente","barato","moderado","algo caro","carísimo"][p-1]}));
+  }
+  else if (modo === "balance"){
+    colorDe = i => escalaDivergente(n.balance[i]);
+    leyendaActual = [[-1,"lo odian"],[0,"partido al medio"],[1,"lo aman"]]
+      .map(([v,t])=>({color:escalaDivergente(v), texto:t}));
+  }
+  else if (modo === "extremos"){
+    colorDe = i => n.extremos[i]==null ? "#3d4860" : escalaSecuencial(n.extremos[i]/90);
+    leyendaActual = [10,40,70,90].map(e=>({color:escalaSecuencial(e/90), texto:`${e}% en los extremos`}));
+  }
+  pintarLeyenda();
+}
+
+function pintarLeyenda(){
+  const caja = document.getElementById("leyenda"), cuerpo = document.getElementById("leyenda_cuerpo");
+  if (!leyendaActual.length){ caja.classList.remove("visible"); return; }
+  caja.classList.add("visible");
+  document.getElementById("leyenda_tit").textContent =
+    document.getElementById("color").selectedOptions[0].textContent;
+  cuerpo.innerHTML = "";
+  /* alfabetico: en una lista de 18 nombres se busca por nombre, no por tamano.
+     Las escalas numericas (año, costo) conservan su orden, que es el dato. */
+  const esEscala = ["anio","precio","balance","extremos"]
+    .includes(document.getElementById("color").value);
+  const items = esEscala ? leyendaActual
+    : [...leyendaActual].sort((a,b)=> a.texto.localeCompare(b.texto, "es"));
+  for (const l of items){
+    const d = document.createElement("div");
+    d.className = "lin";
+    d.innerHTML = `<span class="pto" style="background:${l.color}"></span>
+      <span>${escapar(l.texto)}${l.n!=null?` <span style="color:var(--tenue)">(${fmt(l.n)})</span>`:""}</span>`;
+    cuerpo.appendChild(d);
+  }
+}
+
+/* ===================== filtros ===================== */
+function val(id){ return parseFloat(document.getElementById(id).value); }
+function chk(id){ return document.getElementById(id).checked; }
+
+function aplicarFiltros(){
+  const n = D.nodos;
+  const pMin = val("f_precio_min"), pMax = val("f_precio_max");
+  const vMin = val("f_votos"), aMin = val("f_anio_min"), aMax = val("f_anio_max");
+  const rMin = val("f_rating");
+  const ocultarDesc = chk("f_descont"), soloDiv = chk("f_divisivos");
+  const ac = document.getElementById("acorde").value;
+  const acIdx = ac === "" ? -1 : parseInt(ac, 10);
+  const cat = document.getElementById("catalogo").value;
+  const recortarPorColor = chk("f_solo_referencia");
+
+  let cuenta = 0;
+  for (let i=0;i<N;i++){
+    let ok = true;
+    const p = n.precio[i];
+    if (p == null ? (pMin > 1 || pMax < 5) : (p < pMin || p > pMax)) ok = false;
+    if (ok && n.n_votos[i] < vMin) ok = false;
+    if (ok && (aMin > 1900 || aMax < 2026)){
+      const a = n.anio[i];
+      if (a == null || a < aMin || a > aMax) ok = false;
+    }
+    if (ok && rMin > 0 && (n.rating[i] == null || n.rating[i] < rMin)) ok = false;
+    if (ok && ocultarDesc && n.descontinuado[i]) ok = false;
+    if (ok && soloDiv){
+      const e = n.extremos[i], b = n.balance[i];
+      if (e == null || b == null || e < 35 || Math.abs(b) > 0.35) ok = false;
+    }
+    if (ok && acIdx >= 0 && n.ac1[i] !== acIdx && n.ac2[i] !== acIdx && n.ac3[i] !== acIdx) ok = false;
+    if (ok && cat !== "todos"){
+      const esFarmacia = n.farmacia[i] === 1;
+      if (cat === "farmacia" ? !esFarmacia : esFarmacia) ok = false;
+    }
+    if (ok && recortarPorColor && categoriasVisibles && !categoriasVisibles.has(arrCategoria[i]))
+      ok = false;
+    vis[i] = ok ? 1 : 0;
+    if (ok) cuenta++;
+  }
+  document.getElementById("resumen").textContent =
+    `${fmt(cuenta)} de ${fmt(N)} perfumes a la vista`;
+  return cuenta;
+}
+
+/* ===================== dibujo ===================== */
+let pedido = null, arrastrando = false;
+function pedirDibujo(){ if (!pedido) pedido = requestAnimationFrame(dibujar); }
+
+function aristasVisibles(){
+  const capa = document.getElementById("capa").value;
+  if (capa === "ninguna") return null;
+  const c = D.capas[capa];
+  if (!c) return null;
+  if (capa === "similares"){
+    const s = val("f_score"), nmin = val("f_nsim");
+    return { c, filtro:(k)=> c.s[k] >= s && c.n[k] >= nmin };
+  }
+  if (capa === "cogusto" && chk("f_recip")) return { c, filtro:(k)=> c.r[k] === 2 };
+  return { c, filtro:null };
+}
+
+function dibujar(){
+  pedido = null;
+  const n = D.nodos;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle = "#0a0d12";
+  ctx.fillRect(0,0,ancho,alto);
+
+  const ae = aristasVisibles();
+  let dibujadas = 0;
+
+  /* --- aristas: se omiten mientras se arrastra, para que el pan no se traben --- */
+  if (ae && !arrastrando){
+    const { c, filtro } = ae;
+    const vecinosDeSel = seleccion >= 0;
+    const hayFocoAristas = foco >= 0 && focoSet;
+    ctx.lineWidth = Math.max(0.35, 0.7*cam.z);
+    ctx.strokeStyle = hayFocoAristas ? "rgba(125,160,210,0.05)" : "rgba(118,150,196,0.11)";
+    ctx.beginPath();
+    const total = c.o.length;
+    for (let k=0;k<total;k++){
+      const a = c.o[k], b = c.d[k];
+      if (!vis[a] || !vis[b]) continue;
+      if (filtro && !filtro(k)) continue;
+      const x1 = aPantallaX(n.x[a]), y1 = aPantallaY(n.y[a]);
+      const x2 = aPantallaX(n.x[b]), y2 = aPantallaY(n.y[b]);
+      if ((x1<0&&x2<0)||(x1>ancho&&x2>ancho)||(y1<0&&y2<0)||(y1>alto&&y2>alto)) continue;
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      dibujadas++;
+    }
+    ctx.stroke();
+
+    /* con foco puesto, los radios del elegido a sus 5 van por encima de todo */
+    if (hayFocoAristas){
+      ctx.strokeStyle = "rgba(226,234,245,0.5)";
+      ctx.lineWidth = Math.max(1, 1.6*cam.z);
+      ctx.beginPath();
+      for (const j of focoSet){
+        if (j === foco) continue;
+        ctx.moveTo(aPantallaX(n.x[foco]), aPantallaY(n.y[foco]));
+        ctx.lineTo(aPantallaX(n.x[j]), aPantallaY(n.y[j]));
+      }
+      ctx.stroke();
+    }
+
+    /* los del nodo elegido, encima y con color */
+    if (vecinosDeSel && !hayFocoAristas){
+      ctx.strokeStyle = "rgba(100,255,218,0.55)";
+      ctx.lineWidth = Math.max(0.8, 1.4*cam.z);
+      ctx.beginPath();
+      for (let k=0;k<total;k++){
+        const a = c.o[k], b = c.d[k];
+        if (a !== seleccion && b !== seleccion) continue;
+        if (!vis[a] || !vis[b]) continue;
+        if (filtro && !filtro(k)) continue;
+        ctx.moveTo(aPantallaX(n.x[a]), aPantallaY(n.y[a]));
+        ctx.lineTo(aPantallaX(n.x[b]), aPantallaY(n.y[b]));
+      }
+      ctx.stroke();
+    }
+  }
+
+  /* --- nodos ---
+     Con foco puesto, el resto de la red baja a un alfa muy bajo: queda como
+     telon de fondo y el perfume elegido con sus vecinos se lee solo. */
+  const base = Math.max(1.1, 1.9*Math.sqrt(cam.z/0.35));
+  const hayFoco = foco >= 0 && focoSet;
+  const conBorde = base > 2.2;              // a ciertos tamanos el contorno ayuda
+  for (let i=0;i<N;i++){
+    if (!vis[i]) continue;
+    const sx = aPantallaX(n.x[i]), sy = aPantallaY(n.y[i]);
+    if (sx < -6 || sx > ancho+6 || sy < -6 || sy > alto+6) continue;
+    const enFoco = hayFoco && focoSet.has(i);
+    const r = base * (1 + Math.min(1.5, Math.log10(Math.max(10, n.n_votos[i]))/2.2 - 0.6))
+            * (enFoco ? 2.1 : 1);
+    ctx.beginPath();
+    ctx.arc(sx, sy, r, 0, 6.2832);
+    ctx.fillStyle = colorDe(i);
+    const fueraDeLaAbierta = comunidadSobre != null && n.com[i] !== comunidadSobre;
+    ctx.globalAlpha = hayFoco ? (enFoco ? 1 : 0.07)
+                   : fueraDeLaAbierta ? 0.22
+                   : (marcado && marcado[i] ? 1 : 0.88);
+    ctx.fill();
+    /* un contorno del color del fondo despega el punto de las aristas */
+    if ((conBorde && !hayFoco) || enFoco){
+      ctx.globalAlpha = enFoco ? 1 : 0.6;
+      ctx.lineWidth = enFoco ? 1.8 : 0.9;
+      ctx.strokeStyle = enFoco ? "#f2f6fb" : "#0a0d12";
+      ctx.stroke();
+    }
+    if (marcado && marcado[i] && !hayFoco){
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1.5; ctx.strokeStyle = "#e8eef7";
+      ctx.beginPath(); ctx.arc(sx, sy, r+2.6, 0, 6.2832); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  /* nombres de los del foco, que son pocos y vale la pena leerlos */
+  if (hayFoco){
+    ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    ctx.font = "600 12px -apple-system,Segoe UI,Roboto,sans-serif";
+    for (const i of focoSet){
+      if (!vis[i]) continue;
+      const sx = aPantallaX(n.x[i]), sy = aPantallaY(n.y[i]);
+      if (sx < 0 || sx > ancho || sy < 0 || sy > alto) continue;
+      const txt = n.nombre[i] || "";
+      ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(10,13,18,0.9)";
+      ctx.strokeText(txt, sx, sy - 9);
+      ctx.fillStyle = i === foco ? "#ffffff" : "rgba(226,234,245,0.92)";
+      ctx.fillText(txt, sx, sy - 9);
+    }
+  }
+
+  /* --- nodo elegido --- */
+  if (seleccion >= 0 && vis[seleccion]){
+    const sx = aPantallaX(n.x[seleccion]), sy = aPantallaY(n.y[seleccion]);
+    ctx.lineWidth = 2; ctx.strokeStyle = "#64ffda";
+    ctx.beginPath(); ctx.arc(sx, sy, 9, 0, 6.2832); ctx.stroke();
+  }
+
+  /* --- etiquetas de comunidad, sólo cuando hay lugar --- */
+  dibujarEtiquetas();
+
+  document.getElementById("pie_txt").textContent =
+    `${fmt(dibujadas)} enlaces dibujados · zoom ${cam.z.toFixed(2)}×`;
+}
+
+function dibujarEtiquetas(){
+  /* Un solo nivel. Cuando el mouse se posa sobre una comunidad, esa se abre:
+     en vez de su nombre aparecen los de sus partes, que es lo unico que
+     cambia de nivel y solo mientras dura el hover. */
+  const abierta = comunidadSobre != null;
+  const et = D.meta.etiquetas[abierta ? "sub" : "comunidad"];
+  if (!et) return;
+  const n = D.nodos, arr = abierta ? n.sub : n.com;
+  const sum = new Map();
+  for (let i=0;i<N;i++){
+    if (!vis[i]) continue;
+    if (abierta && n.com[i] !== comunidadSobre) continue;
+    const c = arr[i];
+    let s = sum.get(c);
+    if (!s){ s = [0,0,0]; sum.set(c, s); }
+    s[0] += n.x[i]; s[1] += n.y[i]; s[2]++;
+  }
+  const minMiembros = abierta ? 6 : 20;
+  const candidatos = [...sum.entries()].filter(([,s])=>s[2] >= minMiembros)
+    .sort((a,b)=>b[1][2]-a[1][2]).slice(0, abierta ? 14 : 30);
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const puestos = [];
+  for (const [c, s] of candidatos){
+    const texto = et[String(c)]?.t || "";
+    if (!texto) continue;
+    const sx = aPantallaX(s[0]/s[2]), sy = aPantallaY(s[1]/s[2]);
+    if (sx < 60 || sx > ancho-60 || sy < 20 || sy > alto-20) continue;
+    if (puestos.some(p => Math.abs(p[0]-sx) < 95 && Math.abs(p[1]-sy) < 20)) continue;
+    puestos.push([sx, sy]);
+    ctx.font = abierta ? "600 11px -apple-system,Segoe UI,Roboto,sans-serif"
+                       : "600 11.5px -apple-system,Segoe UI,Roboto,sans-serif";
+    ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(10,13,18,0.88)";
+    ctx.strokeText(texto, sx, sy);
+    ctx.fillStyle = abierta ? "rgba(255,255,255,0.96)" : "rgba(232,238,247,0.92)";
+    ctx.fillText(texto, sx, sy);
+  }
+  if (abierta){
+    const nombre = D.meta.etiquetas.comunidad[String(comunidadSobre)];
+    if (nombre){
+      ctx.font = "600 13px -apple-system,Segoe UI,Roboto,sans-serif";
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      const t = `${nombre.t} · ${candidatos.length} de sus partes`;
+      ctx.lineWidth = 4; ctx.strokeStyle = "rgba(10,13,18,0.9)";
+      ctx.strokeText(t, 16, alto - 34);
+      ctx.fillStyle = colorComunidad(comunidadSobre);
+      ctx.fillText(t, 16, alto - 34);
+    }
+  }
+}
+
+/* ===================== panel derecho ===================== */
+function escapar(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, m =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+function construirAdyacencia(){
+  for (const capa of ["similares","cogusto"]){
+    const c = D.capas[capa];
+    if (!c) continue;
+    const listas = Array.from({length:N}, () => []);
+    for (let k=0;k<c.o.length;k++){
+      listas[c.o[k]].push(k);
+      listas[c.d[k]].push(k);
+    }
+    adyacencia[capa] = listas;
+  }
+}
+
+function vecinosEn(capa, i){
+  const c = D.capas[capa], ks = adyacencia[capa]?.[i] || [];
+  return ks.map(k => ({
+    otro: c.o[k] === i ? c.d[k] : c.o[k],
+    dir: c.o[k] === i ? 1 : 0,        // 1 = esta pagina lo lista, 0 = la listan a ella
+    s: c.s ? c.s[k] : null,
+    n: c.n ? c.n[k] : null,
+    r: c.r ? c.r[k] : null,
+  }));
+}
+
+function mostrarDetalle(i){
+  const n = D.nodos, M = D.meta;
+  seleccion = i;
+  document.getElementById("detalle").classList.add("visible");
+  document.getElementById("d_casa").textContent = n.casa[i] >= 0 ? M.casas[n.casa[i]] : "—";
+  document.getElementById("d_nombre").textContent = n.nombre[i] || "(sin nombre)";
+
+  const partes = [];
+  if (n.anio[i]) partes.push(n.anio[i]);
+  if (n.familia[i] >= 0) partes.push(M.familias[n.familia[i]]);
+  if (n.perfumista[i]) partes.push(n.perfumista[i]);
+  if (n.descontinuado[i]) partes.push("descontinuado");
+  document.getElementById("d_meta").innerHTML =
+    escapar(partes.join(" · ")) +
+    `<br>rating <b>${fmt2(n.rating[i])}</b> sobre ${fmt(n.n_votos[i])} votos` +
+    ` · costo <b>${fmt2(n.precio[i])}</b>/5`;
+
+  const acs = [n.ac1[i], n.ac2[i], n.ac3[i]].filter(a=>a>=0).map(a=>M.acordes[a]);
+  document.getElementById("d_acordes").innerHTML =
+    acs.map(a=>`<span class="etq">${escapar(a)}</span>`).join("");
+
+  /* Ficha corta: de cada perfil, el dato que lo representa y nada mas. Las
+     quince barras de antes decian lo mismo ocupando una pantalla entera. */
+  const mayor = (etiquetas, valores) => {
+    let k = -1, mx = -1;
+    valores.forEach((v, j) => { if (v != null && v > mx){ mx = v; k = j; } });
+    return k < 0 ? null : { et: etiquetas[k], v: mx };
+  };
+  const estacion = mayor(["invierno","primavera","verano","otoño"], n.uso[i].slice(0,4));
+  const momento = mayor(["de día","de noche"], n.uso[i].slice(4));
+  const dur = mayor(["escasa","débil","moderada","duradera","muy duradera"], n.long[i]);
+  const est = mayor(["suave","moderada","pesada","enorme"], n.estela[i]);
+  const gen = mayor(["femenino","más femenino","unisex","más masculino","masculino"], n.genero[i]);
+  const bal = n.balance[i], ext = n.extremos[i];
+  const divisivo = ext != null && ext >= 35 && Math.abs(bal || 0) <= 0.35;
+
+  const linea = (t, v) => v ? `<div class="f"><span>${t}</span><b>${v}</b></div>` : "";
+  document.getElementById("d_ficha").innerHTML =
+    linea("se usa", [estacion && estacion.et, momento && momento.et].filter(Boolean).join(", "))
+    + linea("duración", dur && dur.et)
+    + linea("estela", est && est.et)
+    + linea("lo usan", gen && gen.et)
+    + linea("opinión", divisivo
+        ? `<span style="color:${escalaDivergente(bal)}">divisivo</span>`
+        : (bal == null ? null : (bal > 0.6 ? "lo aman" : bal < -0.2 ? "no gusta" : "tibia")));
+
+  /* similares votados, con su score y su n */
+  const sim = vecinosEn("similares", i)
+    .sort((a,b)=> (b.s - a.s) || (b.n - a.n)).slice(0, VECINOS_MOSTRADOS);
+  document.getElementById("d_similares").innerHTML = sim.length
+    ? sim.map(v=>`<div class="vecino" data-i="${v.otro}">
+        <span>${escapar(nombreCorto(v.otro))}</span>
+        <span class="pt">${(v.s>0?"+":"")+fmt2(v.s)} · n=${fmt(v.n)}</span></div>`).join("")
+    : `<div style="color:var(--tenue)">sin pares votados por encima del mínimo</div>`;
+
+  /* la capa de co-gusto es dirigida: lo que recomienda ESTA pagina va primero,
+     y los que la nombran a ella se cuentan aparte porque son otra cosa */
+  const co = vecinosEn("cogusto", i);
+  const salen = co.filter(v => v.dir === 1).slice(0, VECINOS_MOSTRADOS);
+  const entran = co.filter(v => v.dir === 0).length;
+  document.getElementById("d_cogusto").innerHTML = (salen.length
+    ? salen.map(v=>`<div class="vecino" data-i="${v.otro}">
+        <span>${escapar(nombreCorto(v.otro))}</span>
+        <span class="pt">${v.r===1?"mutuo":""}</span></div>`).join("")
+    : `<div style="color:var(--tenue)">su página no recomienda ninguno</div>`)
+    + (entran ? `<div style="color:var(--tenue);font-size:11px;margin-top:6px">
+        y lo nombran en las recomendaciones de <b>${fmt(entran)}</b> perfumes más</div>` : "");
+
+  document.getElementById("d_link").href =
+    `https://www.fragrantica.es/perfume/_/_-${n.id[i]}.html`;
+  for (const el of document.querySelectorAll(".vecino")){
+    el.onclick = () => { const j = +el.dataset.i; irA(j); mostrarDetalle(j); };
+  }
+  pedirDibujo();
+}
+
+/* ===================== foco: un perfume y sus 5 mas parecidos ===================== */
+function masParecidos(i, cuantos){
+  let v = vecinosEn("similares", i).filter(x => x.s > 0)
+    .sort((a,b)=> (b.s - a.s) || (b.n - a.n));
+  if (v.length < cuantos){                 // sin pares votados, el vecino olfativo
+    const olf = D.capas.olfativo, extra = [];
+    for (let k=0;k<olf.o.length && extra.length < cuantos*4;k++){
+      if (olf.o[k] === i) extra.push({otro:olf.d[k], s:olf.w[k], n:null});
+      else if (olf.d[k] === i) extra.push({otro:olf.o[k], s:olf.w[k], n:null});
+    }
+    const ya = new Set(v.map(x=>x.otro));
+    v = v.concat(extra.filter(x => !ya.has(x.otro)).sort((a,b)=>b.s-a.s));
+  }
+  return v.slice(0, cuantos);
+}
+
+function ponerFoco(i){
+  foco = i;
+  const vecinos = masParecidos(i, VECINOS_MOSTRADOS);
+  focoSet = new Set([i, ...vecinos.map(v => v.otro)]);
+  document.getElementById("foco_activo").style.display = "block";
+  /* encuadra el foco entero, no sólo el elegido */
+  const xs = [...focoSet].map(k => D.nodos.x[k]), ys = [...focoSet].map(k => D.nodos.y[k]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = Math.min(...ys), y1 = Math.max(...ys);
+  cam.x = (x0+x1)/2; cam.y = (y0+y1)/2;
+  const margen = 180;
+  cam.z = Math.max(0.3, Math.min(5,
+    Math.min(ancho/(x1-x0+margen), alto/(y1-y0+margen))));
+  mostrarDetalle(i);
+  pedirDibujo();
+}
+
+function sacarFoco(){
+  foco = -1; focoSet = null;
+  document.getElementById("foco_activo").style.display = "none";
+  pedirDibujo();
+}
+
+function nombreCorto(i){
+  const casa = D.nodos.casa[i] >= 0 ? D.meta.casas[D.nodos.casa[i]] : "";
+  return casa ? `${casa} — ${D.nodos.nombre[i]}` : D.nodos.nombre[i];
+}
+/* ===================== mover la red ===================== */
+function animarA(destinoX, destinoY, ms, alTerminar){
+  const n = D.nodos;
+  const desdeX = Float32Array.from(n.x), desdeY = Float32Array.from(n.y);
+  const t0 = performance.now();
+  if (animando) cancelAnimationFrame(animando);
+  const paso = () => {
+    const t = Math.min(1, (performance.now() - t0) / ms);
+    const e = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;   // suave en los bordes
+    for (let i=0;i<N;i++){
+      n.x[i] = desdeX[i] + (destinoX[i] - desdeX[i])*e;
+      n.y[i] = desdeY[i] + (destinoY[i] - desdeY[i])*e;
+    }
+    dibujar();
+    if (t < 1) animando = requestAnimationFrame(paso);
+    else { animando = null; construirGrilla(); if (alTerminar) alTerminar(); }
+  };
+  animando = requestAnimationFrame(paso);
+}
+
+function cambiarDisposicion(capa){
+  if (!D.nodos.xy[capa]) return;            // "ninguna" se queda donde esta
+  capaXY = capa;
+  const [dx, dy] = posicionesDe(capa);
+  animarA(dx, dy, 850, () => { encuadrarVisibles(); relajar(); });
+}
+
+/* Fruchterman-Reingold sobre lo que quedo a la vista. Al sacar nodos la red
+   queda llena de huecos; esto la vuelve a juntar usando las aristas de la capa
+   activa. Corre en tandas por cuadro para no congelar la pagina. */
+function relajar(){
+  const idx = [];
+  for (let i=0;i<N;i++) if (vis[i]) idx.push(i);
+  const aviso = document.getElementById("aviso_relax");
+  if (idx.length < 3 || idx.length > TOPE_RELAJAR){
+    aviso.textContent = idx.length > TOPE_RELAJAR
+      ? `La red se reacomoda sola cuando quedan menos de ${fmt(TOPE_RELAJAR)} perfumes a la vista.`
+      : "";
+    /* al soltar los filtros se vuelve a la disposicion calculada de la capa,
+       en vez de quedar con las posiciones que dejo la ultima relajacion */
+    const [dx, dy] = posicionesDe(capaXY);
+    let difiere = false;
+    for (let i=0;i<N && !difiere;i+=37) if (Math.abs(D.nodos.x[i]-dx[i]) > 1) difiere = true;
+    if (difiere) animarA(dx, dy, 600, encuadrarVisibles);
+    return;
+  }
+  aviso.textContent = "";
+  const n = D.nodos;
+  const local = new Map(idx.map((g, k) => [g, k]));
+  const X = new Float64Array(idx.length), Y = new Float64Array(idx.length);
+  idx.forEach((g, k) => { X[k] = n.x[g]; Y[k] = n.y[g]; });
+
+  const ae = aristasVisibles();
+  const ar = [];
+  if (ae){
+    const { c, filtro } = ae;
+    for (let k=0;k<c.o.length;k++){
+      const a = local.get(c.o[k]), b = local.get(c.d[k]);
+      if (a === undefined || b === undefined) continue;
+      if (filtro && !filtro(k)) continue;
+      ar.push(a, b);
+      if (ar.length > 240000) break;        // de aca en mas no cambia el dibujo
+    }
+  }
+
+  const m = idx.length, area = 2.2e6;
+  const k0 = Math.sqrt(area/m), celdaR = k0*2;
+  let temp = 260, hechas = 0, total = 140;
+  const tanda = () => {
+    for (let it=0; it<7 && hechas<total; it++, hechas++){
+      const dx = new Float64Array(m), dy = new Float64Array(m);
+      /* repulsion: solo contra los vecinos de grilla, no contra todos */
+      const bal = new Map();
+      for (let i=0;i<m;i++){
+        const cx = Math.floor(X[i]/celdaR), cy = Math.floor(Y[i]/celdaR);
+        const key = cx + "," + cy;
+        let b = bal.get(key); if (!b){ b = []; bal.set(key, b); }
+        b.push(i);
+      }
+      for (const [key, grupo] of bal){
+        const [cx, cy] = key.split(",").map(Number);
+        const cerca = [];
+        for (let a=-1;a<=1;a++) for (let b=-1;b<=1;b++){
+          const o = bal.get((cx+a) + "," + (cy+b));
+          if (o) cerca.push(...o);
+        }
+        for (const i of grupo) for (const j of cerca){
+          if (i === j) continue;
+          let ex = X[i]-X[j], ey = Y[i]-Y[j];
+          let d2 = ex*ex + ey*ey;
+          if (d2 < 1e-6){ ex = Math.random()-0.5; ey = Math.random()-0.5; d2 = 1e-6; }
+          const f = (k0*k0)/d2;
+          dx[i] += ex*f; dy[i] += ey*f;
+        }
+      }
+      /* atraccion por arista */
+      for (let e=0;e<ar.length;e+=2){
+        const i = ar[e], j = ar[e+1];
+        const ex = X[i]-X[j], ey = Y[i]-Y[j];
+        const d = Math.sqrt(ex*ex + ey*ey) || 1e-3;
+        const f = (d*d)/k0/d;
+        dx[i] -= ex*f; dy[i] -= ey*f;
+        dx[j] += ex*f; dy[j] += ey*f;
+      }
+      for (let i=0;i<m;i++){
+        const d = Math.hypot(dx[i], dy[i]) || 1e-6;
+        const paso = Math.min(d, temp);
+        X[i] += dx[i]/d*paso - X[i]*0.0015;   // leve tiron al centro
+        Y[i] += dy[i]/d*paso - Y[i]*0.0015;
+      }
+      temp *= 0.965;
+    }
+    idx.forEach((g, kk) => { n.x[g] = X[kk]; n.y[g] = Y[kk]; });
+    dibujar();
+    if (hechas < total) requestAnimationFrame(tanda);
+    else { normalizarEscala(idx); construirGrilla(); encuadrarVisibles(); }
+  };
+  requestAnimationFrame(tanda);
+}
+
+/* Deja el resultado de la relajacion del mismo tamano que las disposiciones
+   calculadas afuera. Sin esto la red se encoge un poco en cada pasada y
+   termina siendo un punto. */
+function normalizarEscala(idx){
+  const n = D.nodos;
+  const cx = mediana(idx.map(i => n.x[i])), cy = mediana(idx.map(i => n.y[i]));
+  const radios = idx.map(i => Math.hypot(n.x[i]-cx, n.y[i]-cy)).sort((a,b)=>a-b);
+  const r98 = radios[Math.floor(radios.length*0.98)] || 1;
+  const k = 950/r98;
+  for (const i of idx){ n.x[i] = (n.x[i]-cx)*k; n.y[i] = (n.y[i]-cy)*k; }
+}
+function mediana(a){
+  const b = [...a].sort((x,y)=>x-y);
+  return b.length ? b[b.length >> 1] : 0;
+}
+function cuantil(a, q){
+  const b = [...a].sort((x,y)=>x-y);
+  return b.length ? b[Math.min(b.length-1, Math.floor(b.length*q))] : 0;
+}
+
+function encuadrarVisibles(){
+  const n = D.nodos;
+  const xs = [], ys = [];
+  for (let i=0;i<N;i++) if (vis[i]){ xs.push(n.x[i]); ys.push(n.y[i]); }
+  if (!xs.length) return;
+  /* por percentiles: cuatro nodos perdidos en la periferia no tienen por que
+     decidir el encuadre de los otros veinte mil */
+  const x0 = cuantil(xs, 0.01), x1 = cuantil(xs, 0.99);
+  const y0 = cuantil(ys, 0.01), y1 = cuantil(ys, 0.99);
+  cam.x = (x0+x1)/2; cam.y = (y0+y1)/2;
+  const margen = 90;
+  cam.z = Math.max(0.05, Math.min(6,
+    Math.min(ancho/((x1-x0) + margen), alto/((y1-y0) + margen))));
+  pedirDibujo();
+}
+
+function irA(i){
+  cam.x = D.nodos.x[i]; cam.y = D.nodos.y[i];
+  cam.z = Math.max(cam.z, 1.2);
+  pedirDibujo();
+}
+
+/* ===================== mi coleccion ===================== */
+function normalizar(s){
+  return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+}
+let indiceBusqueda = null;
+function construirIndice(){
+  indiceBusqueda = [];
+  for (let i=0;i<N;i++){
+    const casa = D.nodos.casa[i] >= 0 ? D.meta.casas[D.nodos.casa[i]] : "";
+    indiceBusqueda.push(normalizar(casa + " " + (D.nodos.nombre[i]||"")));
+  }
+}
+function buscarUno(texto){
+  const q = normalizar(texto);
+  if (!q) return [];
+  const exactos = [], parciales = [];
+  for (let i=0;i<N;i++){
+    const s = indiceBusqueda[i];
+    if (s === q) exactos.push(i);
+    else if (s.includes(q)) parciales.push(i);
+  }
+  const orden = (a,b)=> D.nodos.n_votos[b] - D.nodos.n_votos[a];
+  return (exactos.length ? exactos : parciales).sort(orden);
+}
+
+function marcarColeccion(){
+  const lineas = document.getElementById("coleccion").value
+    .split("\n").map(s=>s.trim()).filter(Boolean);
+  marcado = new Uint8Array(N);
+  const hallados = [], ambiguos = [], perdidos = [];
+  for (const linea of lineas){
+    const r = buscarUno(linea);
+    if (!r.length) perdidos.push(linea);
+    else {
+      marcado[r[0]] = 1;
+      hallados.push(r[0]);
+      if (r.length > 1) ambiguos.push([linea, r.length, r[0]]);
+    }
+  }
+  const caja = document.getElementById("resultado_coleccion");
+  let html = `<div style="margin-top:8px;font-size:11.5px;color:var(--tenue)">
+    ${hallados.length} de ${lineas.length} reconocidos</div>`;
+  if (ambiguos.length){
+    html += `<div class="aviso"><b>${ambiguos.length}</b> con más de una coincidencia;
+      tomé la más votada:<br>` +
+      ambiguos.slice(0,5).map(([l,c,i])=>`“${escapar(l)}” → ${escapar(nombreCorto(i))} (${c} opciones)`)
+        .join("<br>") + `</div>`;
+  }
+  if (perdidos.length){
+    html += `<div class="aviso">No encontré: ${perdidos.slice(0,8).map(escapar).join(", ")}
+      ${perdidos.length>8?` y ${perdidos.length-8} más`:""}.
+      Puede ser que tengan menos de ${D.meta.piso_votos} votos y estén fuera del mapa.</div>`;
+  }
+  caja.innerHTML = html;
+  pedirDibujo();
+}
+
+function vecinosQueNoTengo(){
+  if (!marcado || !marcado.some(v=>v)){
+    document.getElementById("resultado_coleccion").innerHTML =
+      `<div class="aviso">Primero marcá tu colección.</div>`;
+    return;
+  }
+  const capa = document.getElementById("capa").value;
+  const usar = (capa === "similares" || capa === "cogusto") ? capa : "similares";
+  const puntos = new Map();
+  for (let i=0;i<N;i++){
+    if (!marcado[i]) continue;
+    for (const v of vecinosEn(usar, i)){
+      if (marcado[v.otro] || !vis[v.otro]) continue;
+      const peso = v.s != null ? Math.max(0, v.s) : 1;
+      puntos.set(v.otro, (puntos.get(v.otro)||0) + peso);
+    }
+  }
+  const top = [...puntos.entries()].sort((a,b)=>b[1]-a[1]).slice(0, VECINOS_MOSTRADOS);
+  document.getElementById("resultado_coleccion").innerHTML = top.length
+    ? `<div style="margin-top:8px"><h3 style="font-size:10.5px;text-transform:uppercase;
+         letter-spacing:.9px;color:var(--tenue);margin-bottom:6px">
+         Cerca de lo tuyo, por ${usar === "similares" ? "similitud votada" : "co-gusto"}</h3>` +
+      top.map(([i,p])=>`<div class="vecino" data-j="${i}"><span>${escapar(nombreCorto(i))}</span>
+        <span class="pt">${fmt2(p)}</span></div>`).join("") + `</div>`
+    : `<div class="aviso">No hay vecinos fuera de tu colección con los filtros actuales.</div>`;
+  for (const el of document.querySelectorAll("[data-j]")){
+    el.onclick = () => { const j = +el.dataset.j; irA(j); mostrarDetalle(j); };
+  }
+}
+
+/* ===================== eventos ===================== */
+function conectar(){
+  let pendienteRelax = null;
+  const refrescar = () => {
+    aplicarFiltros();
+    /* si un filtro se llevo puesto al perfume del foco, la pantalla quedaria
+       casi vacia sin explicar por que: mejor soltar el foco */
+    if (foco >= 0 && !vis[foco]) sacarFoco();
+    pedirDibujo();
+    /* reacomodar es caro: se espera a que el usuario suelte el control */
+    clearTimeout(pendienteRelax);
+    pendienteRelax = setTimeout(relajar, 320);
+  };
+
+  document.getElementById("capa").onchange = e => {
+    document.getElementById("ctl_similares").style.display =
+      e.target.value === "similares" ? "block" : "none";
+    document.getElementById("ctl_recip").style.display =
+      e.target.value === "cogusto" ? "flex" : "none";
+    /* cada capa tiene su propia disposicion: la red se reacomoda, no cambia
+       solo de lineas sobre las mismas posiciones */
+    cambiarDisposicion(e.target.value);
+    pedirDibujo();
+  };
+  document.getElementById("color").onchange = () => { armarColor(); refrescar(); };
+
+  for (const [id, salida, formato] of [
+    ["f_score","v_score", v=>fmt2(v)],
+    ["f_nsim","v_nsim", v=>fmt(v)],
+    ["f_votos","v_votos", v=>fmt(v)],
+    ["f_rating","v_rating", v=>fmt1(v)],
+  ]){
+    const el = document.getElementById(id);
+    el.oninput = () => {
+      document.getElementById(salida).textContent = formato(parseFloat(el.value));
+      refrescar();
+    };
+  }
+  for (const id of ["f_precio_min","f_precio_max"]){
+    document.getElementById(id).oninput = () => {
+      let a = val("f_precio_min"), b = val("f_precio_max");
+      if (a > b){ if (id === "f_precio_min") document.getElementById("f_precio_max").value = a;
+                  else document.getElementById("f_precio_min").value = b; }
+      document.getElementById("v_precio").textContent =
+        `${fmt1(val("f_precio_min"))} – ${fmt1(val("f_precio_max"))}`;
+      refrescar();
+    };
+  }
+  for (const id of ["f_anio_min","f_anio_max"]){
+    document.getElementById(id).oninput = () => {
+      let a = val("f_anio_min"), b = val("f_anio_max");
+      if (a > b){ if (id === "f_anio_min") document.getElementById("f_anio_max").value = a;
+                  else document.getElementById("f_anio_min").value = b; }
+      const x = val("f_anio_min"), y = val("f_anio_max");
+      document.getElementById("v_anio").textContent =
+        (x <= 1900 && y >= 2026) ? "todos" : `${x} – ${y}`;
+      refrescar();
+    };
+  }
+  for (const id of ["f_descont","f_divisivos","f_recip"]) document.getElementById(id).onchange = refrescar;
+  document.getElementById("acorde").onchange = refrescar;
+
+  document.getElementById("cerrar").onclick = () => {
+    document.getElementById("detalle").classList.remove("visible");
+    seleccion = -1; pedirDibujo();
+  };
+  document.getElementById("btn_marcar").onclick = marcarColeccion;
+  document.getElementById("btn_vecinos").onclick = vecinosQueNoTengo;
+  document.getElementById("btn_limpiar").onclick = () => {
+    marcado = new Uint8Array(N);
+    document.getElementById("coleccion").value = "";
+    document.getElementById("resultado_coleccion").innerHTML = "";
+    pedirDibujo();
+  };
+  document.getElementById("btn_reset").onclick = encuadrarVisibles;
+  document.getElementById("btn_mas").onclick = () => {
+    cam.z = Math.min(14, cam.z*1.45); pedirDibujo();
+  };
+  document.getElementById("btn_menos").onclick = () => {
+    cam.z = Math.max(0.05, cam.z/1.45); pedirDibujo();
+  };
+  document.getElementById("f_solo_referencia").onchange = refrescar;
+
+  const busca = document.getElementById("busca");
+  busca.oninput = () => {
+    const caja = document.getElementById("sugerencias");
+    const r = buscarUno(busca.value).slice(0, 6);
+    caja.innerHTML = r.map(i=>`<div class="vecino" data-k="${i}">
+      <span>${escapar(nombreCorto(i))}</span>
+      <span class="pt">${fmt(D.nodos.n_votos[i])}</span></div>`).join("");
+    for (const el of caja.querySelectorAll("[data-k]")){
+      el.onclick = () => { ponerFoco(+el.dataset.k); caja.innerHTML = ""; };
+    }
+  };
+  document.getElementById("btn_sin_foco").onclick = sacarFoco;
+  document.getElementById("catalogo").onchange = refrescar;
+
+  /* --- pan, zoom, hover --- */
+  let ultimo = null;
+  lienzo.addEventListener("pointerdown", e => {
+    ultimo = [e.clientX, e.clientY]; arrastrando = false;
+    lienzo.setPointerCapture(e.pointerId);
+  });
+  lienzo.addEventListener("pointermove", e => {
+    if (ultimo){
+      const dx = e.clientX - ultimo[0], dy = e.clientY - ultimo[1];
+      if (!arrastrando && Math.hypot(dx, dy) > 3){ arrastrando = true; lienzo.classList.add("arrastrando"); }
+      if (arrastrando){
+        cam.x -= dx/cam.z; cam.y -= dy/cam.z;
+        ultimo = [e.clientX, e.clientY];
+        pedirDibujo();
+      }
+      return;
+    }
+    const i = nodoEn(e.clientX, e.clientY);
+    const globo = document.getElementById("globo");
+    /* posarse sobre un nodo abre su comunidad en subcomunidades */
+    const nuevaCom = i >= 0 ? D.nodos.com[i] : null;
+    if (nuevaCom !== comunidadSobre){ comunidadSobre = nuevaCom; pedirDibujo(); }
+    if (i >= 0){
+      sobre = i;
+      const et = D.meta.etiquetas;
+      const cNom = et.comunidad[String(D.nodos.com[i])]?.t;
+      const sNom = et.sub[String(D.nodos.sub[i])]?.t;
+      globo.style.display = "block";
+      globo.style.left = Math.min(e.clientX + 14, window.innerWidth - 270) + "px";
+      globo.style.top = (e.clientY + 14) + "px";
+      globo.innerHTML = `<b>${escapar(D.nodos.nombre[i])}</b><br>
+        ${escapar(D.nodos.casa[i] >= 0 ? D.meta.casas[D.nodos.casa[i]] : "")}
+        <span style="color:var(--tenue)"> · ${fmt(D.nodos.n_votos[i])} votos</span>`
+        + (cNom ? `<br><span style="color:var(--tenue)">${escapar(cNom)}`
+                  + (sNom && sNom !== cNom ? ` › ${escapar(sNom)}` : "") + `</span>` : "");
+    } else { sobre = -1; globo.style.display = "none"; }
+  });
+  lienzo.addEventListener("pointerup", e => {
+    const fueArrastre = arrastrando;
+    ultimo = null; arrastrando = false; lienzo.classList.remove("arrastrando");
+    lienzo.classList.remove("arrastrando");
+    if (!fueArrastre){
+      const i = nodoEn(e.clientX, e.clientY);
+      if (i >= 0) mostrarDetalle(i);
+    }
+    pedirDibujo();
+  });
+  lienzo.addEventListener("wheel", e => {
+    e.preventDefault();
+    const mx = aMundoX(e.clientX), my = aMundoY(e.clientY);
+    cam.z *= Math.exp(-e.deltaY * 0.0014);
+    cam.z = Math.max(0.08, Math.min(14, cam.z));
+    cam.x = mx - (e.clientX - ancho/2)/cam.z;
+    cam.y = my - (e.clientY - alto/2)/cam.z;
+    pedirDibujo();
+  }, { passive:false });
+
+  window.addEventListener("resize", () => { medir(); pedirDibujo(); });
+  window.addEventListener("keydown", e => {
+    if (e.key === "Escape") document.getElementById("cerrar").click();
+  });
+}
+
+/* ===================== arranque ===================== */
+async function traer(nombre, etiqueta){
+  document.getElementById("progreso").textContent = etiqueta;
+  const r = await fetch(`datos/${nombre}.json`);
+  if (!r.ok) throw new Error(`${nombre}.json: ${r.status}`);
+  return r.json();
+}
+
+(async function inicio(){
+  try {
+    D.meta  = await traer("meta",  "metadatos…");
+    D.nodos = await traer("nodos", "perfumes…");
+    D.capas = await traer("capas", "enlaces…");
+  } catch (err){
+    document.getElementById("cargando").innerHTML =
+      `<div style="max-width:440px;text-align:center;line-height:1.6">
+        <b style="color:var(--acento2)">No pude cargar los datos.</b><br>
+        <span style="font-size:12px">${escapar(err.message)}</span><br><br>
+        <span style="font-size:12px;color:var(--tenue)">Esta página necesita un servidor:
+        abierta como archivo suelto el navegador bloquea la lectura del JSON.
+        Desde esta carpeta, correr<br>
+        <code style="color:var(--acento)">python -m http.server 8000</code><br>
+        y entrar a <code style="color:var(--acento)">localhost:8000/htmls_perfumes/mapa_perfumes.html</code>.
+        </span></div>`;
+    return;
+  }
+
+  N = D.nodos.id.length;
+  vis = new Uint8Array(N).fill(1);
+  marcado = new Uint8Array(N);
+  /* posiciones vivas, copiadas de la disposicion inicial */
+  [D.nodos.x, D.nodos.y] = posicionesDe(capaXY);
+
+  /* lugar de cada subcomunidad dentro de su comunidad, para que los tonos de
+     las partes no dependan del numero global que les toco */
+  ordenSub = new Map();
+  const porPadre = new Map();
+  for (const [s, info] of Object.entries(D.meta.etiquetas.sub || {})){
+    const lista = porPadre.get(info.p) || [];
+    lista.push(Number(s));
+    porPadre.set(info.p, lista);
+  }
+  for (const lista of porPadre.values()){
+    lista.sort((a,b)=>a-b).forEach((s, k) => ordenSub.set(s, k));
+  }
+
+  const sel = document.getElementById("acorde");
+  D.meta.acordes.map((a, i) => ({a, i}))
+    .sort((p, q) => p.a.localeCompare(q.a, "es"))
+    .forEach(({a, i}) => {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = a; sel.appendChild(o);
+    });
+  document.getElementById("f_votos").min = D.meta.piso_votos;
+  document.getElementById("f_votos").value = D.meta.piso_votos;
+  document.getElementById("v_votos").textContent = fmt(D.meta.piso_votos);
+
+  medir();
+  construirGrilla();
+  construirIndice();
+  construirAdyacencia();
+  armarColor();
+  aplicarFiltros();
+  conectar();
+  document.getElementById("cargando").style.display = "none";
+  encuadrarVisibles();
+})();
+</script>
+</body>
+</html>
