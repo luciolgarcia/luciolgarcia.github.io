@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mapa de perfumes</title>
 <style>
   :root{
@@ -18,7 +18,8 @@
   }
   /* a canvas is a replaced element: inset:0 alone leaves it at its intrinsic
      300x150, so the size has to be stated */
-  #lienzo{position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;cursor:grab}
+  #lienzo{position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;cursor:grab;
+    touch-action:none}   /* los gestos sobre el mapa son del mapa, no del navegador */
   #lienzo.arrastrando{cursor:grabbing}
 
   .caja{background:var(--panel);border:1px solid var(--borde);border-radius:10px;box-shadow:var(--sombra)}
@@ -60,6 +61,11 @@
   #detalle .casa{color:var(--acento2);font-size:11px;text-transform:uppercase;letter-spacing:1px}
   #detalle h2{font-size:17px;line-height:1.25;margin:3px 0 8px}
   #detalle .meta{color:var(--tenue);font-size:11.5px;margin-bottom:12px}
+  .votantes{margin-top:3px;font-size:11px}
+  .votantes b{color:var(--texto);font-weight:600}
+  .pesos{font-size:13px;letter-spacing:1px;white-space:nowrap}
+  .pesos b{color:var(--acento);font-weight:700}
+  .pesos span{color:#3a4659}
   #cerrar{position:absolute;top:10px;right:12px;width:auto;border:0;background:none;
     color:var(--tenue);font-size:18px;line-height:1;padding:2px 4px}
   #cerrar:hover{color:var(--texto)}
@@ -363,7 +369,8 @@ function construirGrilla(){
 }
 function nodoEn(sx, sy){
   const mx = aMundoX(sx), my = aMundoY(sy);
-  const r = 14/cam.z;                       // radio de busqueda en mundo
+  /* radio de busqueda en mundo: al menos 14 px, o el punto entero si ya es grande */
+  const r = Math.max(14, radioBase()*2.2)/cam.z;
   const c0 = Math.max(0, Math.floor((mx-r-gx0)/celda)), c1 = Math.min(gcols-1, Math.floor((mx+r-gx0)/celda));
   const f0 = Math.max(0, Math.floor((my-r-gy0)/celda)), f1 = Math.min(gfilas-1, Math.floor((my+r-gy0)/celda));
   let mejor = -1, mejorD = r*r;
@@ -561,6 +568,17 @@ function aristasDe(c, i){
   return cacheAristas.ks;
 }
 
+/* Tamano del punto en pixeles. Crece con el zoom, pero mas lento que la
+   distancia entre puntos (exponente 0,6 contra 1): al acercarse cada perfume
+   se agranda y a la vez se despega de sus vecinos. Con exponente 0,8 crecian
+   casi a la par y se seguian pisando. Tope para que no se vuelvan platos. */
+function radioBase(){
+  return Math.max(1.1, Math.min(12, 1.9*Math.pow(cam.z/0.35, 0.6)));
+}
+function radioDe(i, base){
+  return base * (1 + Math.min(1.5, Math.log10(Math.max(10, D.nodos.n_votos[i]))/2.2 - 0.6));
+}
+
 function dibujar(){
   pedido = null;
   const n = D.nodos;
@@ -614,7 +632,7 @@ function dibujar(){
   /* --- nodos ---
      Con foco puesto, el resto de la red baja a un alfa muy bajo: queda como
      telon de fondo y el perfume elegido con sus vecinos se lee solo. */
-  const base = Math.max(1.1, 1.9*Math.sqrt(cam.z/0.35));
+  const base = radioBase();
   const hayFoco = foco >= 0 && focoSet;
   const conBorde = base > 2.2;              // a ciertos tamanos el contorno ayuda
   for (let i=0;i<N;i++){
@@ -622,8 +640,7 @@ function dibujar(){
     const sx = aPantallaX(n.x[i]), sy = aPantallaY(n.y[i]);
     if (sx < -6 || sx > ancho+6 || sy < -6 || sy > alto+6) continue;
     const enFoco = hayFoco && focoSet.has(i);
-    const r = base * (1 + Math.min(1.5, Math.log10(Math.max(10, n.n_votos[i]))/2.2 - 0.6))
-            * (enFoco ? 2.1 : 1);
+    const r = radioDe(i, base) * (enFoco ? 2.1 : 1);
     ctx.beginPath();
     ctx.arc(sx, sy, r, 0, 6.2832);
     ctx.fillStyle = colorDe(i);
@@ -667,7 +684,8 @@ function dibujar(){
   if (seleccion >= 0 && vis[seleccion]){
     const sx = aPantallaX(n.x[seleccion]), sy = aPantallaY(n.y[seleccion]);
     ctx.lineWidth = 2; ctx.strokeStyle = "#64ffda";
-    ctx.beginPath(); ctx.arc(sx, sy, 9, 0, 6.2832); ctx.stroke();
+    ctx.beginPath(); ctx.arc(sx, sy, Math.max(9, radioDe(seleccion, base) + 4), 0, 6.2832);
+    ctx.stroke();
   }
 
   /* --- etiquetas de comunidad, sólo cuando hay lugar --- */
@@ -756,6 +774,16 @@ function vecinosEn(capa, i){
   }));
 }
 
+/* costo percibido (1 a 5, promedio de los votos) como cinco signos pesos,
+   redondeado al entero: 2,3 se ve $$ y 2,6 se ve $$$. El numero exacto queda
+   en el tooltip. */
+function signosPesos(p){
+  if (p == null) return "";
+  const k = Math.max(1, Math.min(5, Math.round(p)));
+  return ` · <span class="pesos" title="costo percibido ${fmt1(p)} de 5">`
+    + `<b>${"$".repeat(k)}</b><span>${"$".repeat(5-k)}</span></span>`;
+}
+
 function mostrarDetalle(i){
   const n = D.nodos, M = D.meta;
   seleccion = i;
@@ -770,8 +798,10 @@ function mostrarDetalle(i){
   if (n.descontinuado[i]) partes.push("descontinuado");
   document.getElementById("d_meta").innerHTML =
     escapar(partes.join(" · ")) +
-    `<br>rating <b>${fmt2(n.rating[i])}</b> sobre ${fmt(n.n_votos[i])} votos` +
-    ` · costo <b>${fmt2(n.precio[i])}</b>/5`;
+    `<br>rating <b>${fmt2(n.rating[i])}</b>` + signosPesos(n.precio[i]) +
+    `<div class="votantes">Votado por <b>${fmt(n.n_votos[i])}</b> personas` +
+    (n.n_resenas && n.n_resenas[i] ? ` · ${fmt(n.n_resenas[i])} reseñas escritas` : "") +
+    `</div>`;
 
   const acs = [n.ac1[i], n.ac2[i], n.ac3[i]].filter(a=>a>=0).map(a=>M.acordes[a]);
   document.getElementById("d_acordes").innerHTML =
@@ -802,13 +832,13 @@ function mostrarDetalle(i){
         ? `<span style="color:${escalaDivergente(bal)}">divisivo</span>`
         : (bal == null ? null : (bal > 0.6 ? "lo aman" : bal < -0.2 ? "no gusta" : "tibia")));
 
-  /* similares votados, con su score y su n */
+  /* similares votados con su score; el n sigue ordenando los empates */
   const sim = vecinosEn("similares", i)
     .sort((a,b)=> (b.s - a.s) || (b.n - a.n)).slice(0, VECINOS_MOSTRADOS);
   document.getElementById("d_similares").innerHTML = sim.length
     ? sim.map(v=>`<div class="vecino" data-i="${v.otro}">
         <span>${escapar(nombreCorto(v.otro))}</span>
-        <span class="pt">${(v.s>0?"+":"")+fmt2(v.s)} · n=${fmt(v.n)}</span></div>`).join("")
+        <span class="pt">${(v.s>0?"+":"")+fmt2(v.s)}</span></div>`).join("")
     : `<div style="color:var(--tenue)">sin pares votados por encima del mínimo</div>`;
 
   /* la capa de co-gusto es dirigida: lo que recomienda ESTA pagina va primero,
@@ -1257,13 +1287,45 @@ function conectar(){
   document.getElementById("btn_sin_foco").onclick = sacarFoco;
   document.getElementById("catalogo").onchange = refrescar;
 
-  /* --- pan, zoom, hover --- */
+  /* --- pan, zoom, hover ---
+     Pellizco con dos dedos: lo maneja el mapa. Antes no habia codigo para eso
+     y el telefono agrandaba la pagina entera: el texto y el panel se veian
+     enormes y los puntos seguian chiquitos, porque el lienzo no se enteraba. */
   let ultimo = null;
+  const dedos = new Map();
+  let pellizco = null;          // {d, mx, my}: distancia y punto medio previos
+  const datosPellizco = () => {
+    const [a, b] = [...dedos.values()];
+    return { d: Math.hypot(a[0]-b[0], a[1]-b[1]) || 1,
+             mx: (a[0]+b[0])/2, my: (a[1]+b[1])/2 };
+  };
+  const zoomEn = (sx, sy, factor) => {
+    const wx = aMundoX(sx), wy = aMundoY(sy);
+    cam.z = Math.max(0.08, Math.min(14, cam.z*factor));
+    cam.x = wx - (sx - ancho/2)/cam.z;
+    cam.y = wy - (sy - alto/2)/cam.z;
+  };
   lienzo.addEventListener("pointerdown", e => {
-    ultimo = [e.clientX, e.clientY]; arrastrando = false;
+    dedos.set(e.pointerId, [e.clientX, e.clientY]);
     lienzo.setPointerCapture(e.pointerId);
+    if (dedos.size === 2){
+      pellizco = datosPellizco(); ultimo = null; arrastrando = true;
+      document.getElementById("globo").style.display = "none";
+      return;
+    }
+    ultimo = [e.clientX, e.clientY]; arrastrando = false;
   });
   lienzo.addEventListener("pointermove", e => {
+    if (dedos.has(e.pointerId)) dedos.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pellizco && dedos.size >= 2){
+      const p = datosPellizco();
+      /* arrastra con el punto medio y escala con la distancia entre dedos */
+      cam.x -= (p.mx - pellizco.mx)/cam.z; cam.y -= (p.my - pellizco.my)/cam.z;
+      zoomEn(p.mx, p.my, p.d/pellizco.d);
+      pellizco = p;
+      pedirDibujo();
+      return;
+    }
     if (ultimo){
       const dx = e.clientX - ultimo[0], dy = e.clientY - ultimo[1];
       if (!arrastrando && Math.hypot(dx, dy) > 3){ arrastrando = true; lienzo.classList.add("arrastrando"); }
@@ -1294,7 +1356,28 @@ function conectar(){
                   + (sNom && sNom !== cNom ? ` › ${escapar(sNom)}` : "") + `</span>` : "");
     } else { sobre = -1; globo.style.display = "none"; }
   });
+  const soltar = e => {
+    dedos.delete(e.pointerId);
+    if (pellizco){
+      /* al levantar un dedo del pellizco no hay clic: se sigue arrastrando
+         con el que queda, desde donde esta */
+      if (dedos.size < 2) pellizco = null;
+      const resto = [...dedos.values()][0];
+      ultimo = resto ? [...resto] : null;
+      arrastrando = !!resto;
+      if (!resto) lienzo.classList.remove("arrastrando");
+      pedirDibujo();
+      return true;
+    }
+    return false;
+  };
+  lienzo.addEventListener("pointercancel", e => {
+    dedos.delete(e.pointerId);
+    if (dedos.size < 2) pellizco = null;
+    if (!dedos.size){ ultimo = null; arrastrando = false; pedirDibujo(); }
+  });
   lienzo.addEventListener("pointerup", e => {
+    if (soltar(e)) return;
     const fueArrastre = arrastrando;
     ultimo = null; arrastrando = false; lienzo.classList.remove("arrastrando");
     lienzo.classList.remove("arrastrando");
@@ -1306,11 +1389,7 @@ function conectar(){
   });
   lienzo.addEventListener("wheel", e => {
     e.preventDefault();
-    const mx = aMundoX(e.clientX), my = aMundoY(e.clientY);
-    cam.z *= Math.exp(-e.deltaY * 0.0014);
-    cam.z = Math.max(0.08, Math.min(14, cam.z));
-    cam.x = mx - (e.clientX - ancho/2)/cam.z;
-    cam.y = my - (e.clientY - alto/2)/cam.z;
+    zoomEn(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.0014));
     pedirDibujo();
   }, { passive:false });
 
