@@ -61,6 +61,8 @@
   #detalle .casa{color:var(--acento2);font-size:11px;text-transform:uppercase;letter-spacing:1px}
   #detalle h2{font-size:17px;line-height:1.25;margin:3px 0 8px}
   #detalle .meta{color:var(--tenue);font-size:11.5px;margin-bottom:12px}
+  .fila-chk{display:flex;flex-wrap:wrap;gap:4px 14px}
+  .fila-chk .chk{margin-top:4px}
   .nota-chica{color:var(--tenue);font-size:10.5px;line-height:1.4;margin-top:5px}
   .tit-chico{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--tenue);margin-bottom:2px}
   .leyenda-radar{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--tenue);margin-top:2px}
@@ -172,14 +174,14 @@
   </div>
 
   <div class="grupo">
-    <label class="tit" for="genero">Para quién</label>
-    <select id="genero">
-      <option value="">Todos</option>
-      <option value="0">Femeninos</option>
-      <option value="2">Masculinos</option>
-      <option value="1">Unisex</option>
-    </select>
-    <div class="nota-chica">Según lo que votó la gente, no lo que dice la marca.</div>
+    <label class="tit">Para quién</label>
+    <div class="fila-chk">
+      <label class="chk"><input type="checkbox" class="f_gen" value="0" checked> Femeninos</label>
+      <label class="chk"><input type="checkbox" class="f_gen" value="1" checked> Unisex</label>
+      <label class="chk"><input type="checkbox" class="f_gen" value="2" checked> Masculinos</label>
+    </div>
+    <div class="nota-chica">Según lo que votó la gente, no lo que dice la marca. Para verlos
+      separados por color, elegí "Género" en Colorear por.</div>
   </div>
 
   <div class="grupo">
@@ -214,7 +216,9 @@
       <option value="casa">Casa</option>
       <option value="com" selected>Comunidad olfativa</option>
       <option value="precio">Costo percibido</option>
+      <option value="aroma">Familia aromática</option>
       <option value="familia">Familia olfativa</option>
+      <option value="gen">Género</option>
       <option value="perfumista">Perfumista</option>
       <option value="extremos">Voto en los extremos</option>
     </select>
@@ -253,6 +257,13 @@
   <div class="grupo">
     <label class="tit" for="acorde">Acorde principal</label>
     <select id="acorde"><option value="">(todos)</option></select>
+  </div>
+
+  <div class="grupo">
+    <label class="tit" for="aroma">Familia aromática</label>
+    <select id="aroma"><option value="">(todas)</option></select>
+    <div class="nota-chica">La familia en la que cada perfume más se aparta del promedio:
+      las mismas once del radar de tu colección.</div>
   </div>
 
   <div class="grupo">
@@ -473,6 +484,21 @@ function armarColor(){
     arrCategoria = arr;
     categoriasVisibles = new Set(orden.map(([c]) => c));
   }
+  else if (modo === "gen"){
+    /* los tres primeros tonos de la paleta validada, en su version oscura */
+    const COL = ["#3987e5", "#d95926", "#199e70"], NOM = ["Femenino", "Unisex", "Masculino"];
+    const tam = [0, 0, 0];
+    for (let i=0;i<N;i++) if (n.gen3[i] >= 0) tam[n.gen3[i]]++;
+    leyendaActual = NOM.map((t, k) => ({ color: COL[k], texto: t, n: tam[k] }));
+    colorDe = i => n.gen3[i] >= 0 ? COL[n.gen3[i]] : "#3d4860";
+  }
+  else if (modo === "aroma"){
+    const fd = famDistintiva(), fams = D.meta.familias_aroma;
+    const tam = new Array(fams.length).fill(0);
+    for (let i=0;i<N;i++) if (fd[i] >= 0) tam[fd[i]]++;
+    leyendaActual = fams.map((t, k) => ({ color: PALETA[k], texto: t, n: tam[k] }));
+    colorDe = i => fd[i] >= 0 ? PALETA[fd[i]] : "#3d4860";
+  }
   else if (modo === "anio"){
     colorDe = i => n.anio[i]==null ? "#3d4860" : escalaSecuencial((n.anio[i]-1960)/66);
     leyendaActual = [1960,1980,2000,2020].map(a=>({color:escalaSecuencial((a-1960)/66), texto:String(a)}));
@@ -530,8 +556,12 @@ function aplicarFiltros(){
   const acIdx = ac === "" ? -1 : parseInt(ac, 10);
   const cat = document.getElementById("catalogo").value;
   const recortarPorColor = chk("f_solo_referencia");
-  const gen = document.getElementById("genero").value;
-  const genIdx = gen === "" ? -1 : parseInt(gen, 10);
+  /* generos tildados; con los tres no se filtra, asi entran tambien los 98 sin votos */
+  const gens = [...document.querySelectorAll(".f_gen")].filter(c => c.checked).map(c => +c.value);
+  const filtraGen = gens.length < 3;
+  const aroma = document.getElementById("aroma").value;
+  const aromaIdx = aroma === "" ? -1 : parseInt(aroma, 10);
+  const fd = aromaIdx >= 0 ? famDistintiva() : null;
 
   let cuenta = 0;
   for (let i=0;i<N;i++){
@@ -550,7 +580,8 @@ function aplicarFiltros(){
       if (e == null || b == null || e < 35 || Math.abs(b) > 0.35) ok = false;
     }
     if (ok && acIdx >= 0 && n.ac1[i] !== acIdx && n.ac2[i] !== acIdx && n.ac3[i] !== acIdx) ok = false;
-    if (ok && genIdx >= 0 && n.gen3[i] !== genIdx) ok = false;
+    if (ok && filtraGen && !gens.includes(n.gen3[i])) ok = false;
+    if (ok && aromaIdx >= 0 && fd[i] !== aromaIdx) ok = false;
     if (ok && cat !== "todos"){
       const esFarmacia = n.farmacia[i] === 1;
       if (cat === "farmacia" ? !esFarmacia : esFarmacia) ok = false;
@@ -851,14 +882,31 @@ function radarSVG(ejes, series, lado = 250){
   return s;
 }
 
+/* Familia distintiva de cada perfume: la que mas se aparta del promedio del
+   catalogo, no la que mas pesa (Floral agrupa ocho acordes y ganaria casi
+   siempre). -1 si no tiene acordes. Se calcula una vez. */
+let cacheFamDist = null;
+function famDistintiva(){
+  if (cacheFamDist) return cacheFamDist;
+  const glob = D.meta.perfil_global, k = glob.length;
+  cacheFamDist = new Int8Array(N).fill(-1);
+  for (let i=0;i<N;i++){
+    const f = D.nodos.fam[i];
+    let mejor = -1, mx = 0;
+    for (let j=0;j<k;j++){ const r = f[j] / (glob[j]*100); if (r > mx){ mx = r; mejor = j; } }
+    cacheFamDist[i] = mejor;
+  }
+  return cacheFamDist;
+}
+
 /* Perfil aromatico de un conjunto de perfumes: el promedio de sus familias */
 function perfilDe(indices){
-  const k = D.meta.familias.length, suma = new Array(k).fill(0);
+  const k = D.meta.familias_aroma.length, suma = new Array(k).fill(0);
   for (const i of indices) for (let f=0; f<k; f++) suma[f] += D.nodos.fam[i][f];
   return suma.map(v => v / Math.max(1, indices.length));
 }
 function textoPerfil(perfil){
-  const glob = D.meta.perfil_global.map(v => v*100), fams = D.meta.familias;
+  const glob = D.meta.perfil_global.map(v => v*100), fams = D.meta.familias_aroma;
   const r = perfil.map((v, f) => [fams[f], v / glob[f]]).sort((a,b) => b[1]-a[1]);
   const mas = r.filter(x => x[1] >= 1.2).slice(0, 3);
   const menos = r.filter(x => x[1] <= 0.75).slice(-2).reverse();
@@ -1248,7 +1296,7 @@ function marcarColeccion(){
   if (hallados.length){
     const tuyo = perfilDe(hallados);
     html += `<div style="margin-top:10px"><h3 class="tit-chico">Tu perfil aromático</h3>` +
-      radarSVG(D.meta.familias, [
+      radarSVG(D.meta.familias_aroma, [
         { nombre: "Tu colección", valores: tuyo, color: "#3987e5" },
         { nombre: "Todo el catálogo", valores: D.meta.perfil_global.map(v=>v*100),
           color: "#8a96a8", punteada: true },
@@ -1401,7 +1449,8 @@ function conectar(){
   };
   document.getElementById("btn_sin_foco").onclick = sacarFoco;
   document.getElementById("catalogo").onchange = refrescar;
-  document.getElementById("genero").onchange = refrescar;
+  for (const c of document.querySelectorAll(".f_gen")) c.onchange = refrescar;
+  document.getElementById("aroma").onchange = refrescar;
 
   /* --- pan, zoom, hover ---
      Pellizco con dos dedos: lo maneja el mapa. Antes no habia codigo para eso
@@ -1567,6 +1616,13 @@ async function traer(nombre, etiqueta){
     .forEach(({a, i}) => {
       const o = document.createElement("option");
       o.value = i; o.textContent = a; sel.appendChild(o);
+    });
+  const selAroma = document.getElementById("aroma");
+  D.meta.familias_aroma.map((a, i) => ({a, i}))
+    .sort((p, q) => p.a.localeCompare(q.a, "es"))
+    .forEach(({a, i}) => {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = a; selAroma.appendChild(o);
     });
   document.getElementById("f_votos").min = D.meta.piso_votos;
   document.getElementById("f_votos").value = D.meta.piso_votos;

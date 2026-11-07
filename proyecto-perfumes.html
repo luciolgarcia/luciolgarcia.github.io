@@ -143,7 +143,7 @@
         .leyenda-g { display: flex; flex-wrap: wrap; gap: 16px; font-size: .82rem; color: var(--tinta-2); margin: 4px 0 6px; }
         .leyenda-g i { display: inline-block; width: 16px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
         .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
-        .rasgo { display: grid; grid-template-columns: 9.5em 1fr 3.4em; gap: 8px; align-items: center; font-size: .86rem; margin: 5px 0; }
+        .rasgo { display: grid; grid-template-columns: 11em 1fr; gap: 8px; align-items: center; font-size: .86rem; margin: 5px 0; }
         .rasgo .barra-l { height: 8px; background: var(--serie-1); border-radius: 0 4px 4px 0; }
         .rasgo .tipo { font-size: .7rem; color: var(--tinta-2); text-transform: uppercase; letter-spacing: .5px; }
         .rasgo b { text-align: right; font-weight: 600; color: var(--text-color); }
@@ -195,11 +195,11 @@
     <main>
         <div data-lang="es">
             <h1>El mapa de los perfumes</h1>
-            <p class="bajada">Veintiún mil fragancias, puestas en el plano según a qué se parecen.</p>
+            <p class="bajada">Veintiún mil fragancias, ordenadas según a qué huelen.</p>
         </div>
         <div data-lang="en">
             <h1>The perfume map</h1>
-            <p class="bajada">Twenty-one thousand fragrances, placed on a plane by what they smell like.</p>
+            <p class="bajada">Twenty-one thousand fragrances, arranged by what they smell like.</p>
         </div>
 
         <div class="cifras">
@@ -210,41 +210,37 @@
         </div>
 
         <div data-lang="es">
-            <p>Los datos salen de Fragrantica: el catálogo completo, 33.210 fichas, y de cada una sus acordes, sus notas, su familia olfativa y las votaciones del público sobre duración, estela, estación, momento del día, género y precio percibido. En el mapa entran los 21.283 que tienen más de veinte votos, porque por debajo de eso los porcentajes son ruido.</p>
+            <h2>Introducción</h2>
+            <p>¿Se puede dibujar el olor? Elegir un perfume suele ser un salto al vacío: las descripciones hablan de "notas de salida" y "acordes ambarados", pero cuesta imaginar si algo que nunca olimos se parece a lo que ya nos gusta. Este proyecto intenta responder esa pregunta con datos. Tomé el catálogo completo de <strong>Fragrantica</strong>, la enciclopedia de perfumes más grande de la web, y lo convertí en un mapa donde cada punto es una fragancia y los que están cerca huelen parecido.</p>
 
-            <h2>Qué une a dos perfumes</h2>
-            <p>El mapa tiene cuatro capas y cada una los acerca por una razón distinta, así que cada una arma su propio dibujo:</p>
+            <h2>Metodología: de la ficha al mapa</h2>
+            <p>Cada ficha de Fragrantica describe un perfume con sus <strong>acordes</strong>, que son los grandes rasgos (amaderado, cítrico, dulce), y sus <strong>notas</strong>, que son los ingredientes puntuales (bergamota, vainilla, cuero). Además, la gente vota cuánto dura, en qué estación conviene usarlo, si le parece femenino o masculino y si se siente caro o barato. De las 33.210 fichas me quedé con las 21.283 que tienen al menos una veintena de votos, porque con menos las opiniones son demasiado pocas para tomarlas en serio.</p>
+            <p>Con esa información armé cuatro maneras de conectar los perfumes, y cada una dibuja un mapa distinto:</p>
             <ul>
-                <li><strong>Familias olfativas similares</strong>: vecinos en un espacio de 86 acordes y 573 notas. Es el espacio del olor propiamente dicho.</li>
-                <li><strong>Similitud votada</strong>: la gente responde si dos fragancias huelen parecido. El puntaje es <em>(sí − no) / total</em>, y cada enlace guarda cuántos votaron, porque la mitad de los pares tiene menos de seis.</li>
-                <li><strong>Recomendados por el público</strong>: a quienes les gusta esta, también les gusta aquella. No es lo mismo que oler parecido, y esa diferencia es buena parte de la gracia.</li>
-                <li><strong>Linajes</strong>: cada <em>flanker</em> colgando del original de su línea.</li>
+                <li><strong>Familias olfativas similares:</strong> dos perfumes quedan cerca si comparten acordes y notas. Es el parecido "en los papeles".</li>
+                <li><strong>Similitud votada:</strong> la gente responde si dos fragancias huelen parecido. Es el parecido según la nariz del público.</li>
+                <li><strong>Recomendados por el público:</strong> a quienes les gusta uno, también les gusta el otro. No siempre huelen igual, y ahí está lo interesante.</li>
+                <li><strong>Linajes:</strong> cada versión o <em>flanker</em> unida al perfume original de su línea.</li>
             </ul>
-
-            <h2>Las comunidades</h2>
-            <p>Salen de correr Leiden sobre la red olfativa. El nombre de cada una no es su acorde más frecuente sino el más <strong>sobre-representado</strong>: etiquetar por frecuencia llenaría el mapa de "amaderado", que aparece en veinte mil perfumes. Al pasar el mouse por encima, cada comunidad se abre en sus partes: dentro de <em>cuero</em> aparecen gamuza, vetiver, tomillo, osmanto.</p>
-
-            <h2>Una advertencia sobre el precio</h2>
-            <p>Fragrantica no publica precios. Lo que hay son votos sobre si una fragancia se siente cara o barata, y con eso armé un índice de 1 a 5. El filtro de costo recorta por <strong>costo percibido</strong>, que no es plata.</p>
+            <p>Sobre la red olfativa corrí un algoritmo de detección de comunidades (Leiden), que junta a los perfumes que están más conectados entre sí que con el resto. Cada grupo lleva el nombre de la nota que mejor lo distingue y no el de la más común: si no, medio mapa se llamaría "amaderado". Al pasar el mouse por encima, cada grupo se abre en sus partes. Dentro de <em>cuero</em>, por ejemplo, aparecen la gamuza, el vetiver, el tomillo y el osmanto.</p>
+            <p>Una aclaración sobre el precio: Fragrantica no publica precios. Lo que hay son votos sobre si un perfume se siente caro o barato, y con eso armé una escala de uno a cinco signos pesos. Es un <strong>costo percibido</strong>, no plata.</p>
         </div>
 
         <div data-lang="en">
-            <p>The data comes from Fragrantica: the full catalogue, 33,210 entries, each with its accords, notes, olfactory family and the public's votes on longevity, sillage, season, time of day, gender and perceived price. The map holds the 21,283 with more than twenty votes, because below that the percentages are noise.</p>
+            <h2>Introduction</h2>
+            <p>Can smell be drawn? Choosing a perfume is usually a leap in the dark: descriptions talk about "top notes" and "amber accords", but it is hard to tell whether something we have never smelled resembles what we already like. This project tries to answer that question with data. I took the full catalogue of <strong>Fragrantica</strong>, the largest perfume encyclopedia on the web, and turned it into a map where every dot is a fragrance and the ones close together smell alike.</p>
 
-            <h2>What joins two perfumes</h2>
-            <p>The map has four layers and each pulls them together for a different reason, so each one draws its own arrangement:</p>
+            <h2>Methodology: from the entry to the map</h2>
+            <p>Each Fragrantica entry describes a perfume through its <strong>accords</strong>, the broad traits (woody, citrus, sweet), and its <strong>notes</strong>, the specific ingredients (bergamot, vanilla, leather). On top of that, people vote on how long it lasts, which season it suits, whether it feels feminine or masculine, and whether it feels expensive or cheap. Of the 33,210 entries I kept the 21,283 with at least twenty or so votes, because with fewer the opinions are too few to take seriously.</p>
+            <p>With that information I built four ways of connecting the perfumes, and each one draws a different map:</p>
             <ul>
-                <li><strong>Similar olfactory families</strong>: neighbours in a space of 86 accords and 573 notes. The space of smell itself.</li>
-                <li><strong>Voted similarity</strong>: people answer whether two fragrances smell alike. The score is <em>(yes − no) / total</em>, and every link keeps how many voted, because half the pairs have fewer than six.</li>
-                <li><strong>Crowd recommendations</strong>: people who like this one also like that one. Not the same as smelling alike, and that gap is much of the interest.</li>
-                <li><strong>Lineages</strong>: each <em>flanker</em> hanging off the original of its line.</li>
+                <li><strong>Similar olfactory families:</strong> two perfumes sit close if they share accords and notes. Likeness "on paper".</li>
+                <li><strong>Voted similarity:</strong> people answer whether two fragrances smell alike. Likeness according to the public's nose.</li>
+                <li><strong>Crowd recommendations:</strong> people who like one also like the other. They do not always smell the same, and that is the interesting part.</li>
+                <li><strong>Lineages:</strong> each version or <em>flanker</em> joined to the original perfume of its line.</li>
             </ul>
-
-            <h2>The communities</h2>
-            <p>They come from running Leiden over the olfactory network. Each name is not its commonest accord but its most <strong>over-represented</strong> one: labelling by frequency would fill the map with "woody", which appears in twenty thousand perfumes. Hovering opens a community into its parts: inside <em>leather</em> you find suede, vetiver, thyme, osmanthus.</p>
-
-            <h2>A warning about price</h2>
-            <p>Fragrantica publishes no prices. What exists are votes on whether a fragrance feels expensive or cheap, and from those I built a 1-to-5 index. The cost filter cuts by <strong>perceived cost</strong>, which is not money.</p>
+            <p>On the olfactory network I ran a community detection algorithm (Leiden), which groups the perfumes that are more connected to each other than to the rest. Each group is named after the note that best sets it apart, not the most common one: otherwise half the map would be called "woody". Hovering over a group opens it into its parts. Inside <em>leather</em>, for instance, you find suede, vetiver, thyme and osmanthus.</p>
+            <p>A note on price: Fragrantica publishes no prices. What it has are votes on whether a perfume feels expensive or cheap, and from those I built a scale of one to five dollar signs. It is a <strong>perceived cost</strong>, not money.</p>
         </div>
 
         <div class="aviso">
@@ -261,12 +257,12 @@
         </p>
 
         <div data-lang="es">
-            <h2>Lo que dicen los datos</h2>
-            <p>Para comparar casas, géneros, décadas y perfumistas agrupé los 86 acordes en once familias: cítrico, floral, frutal, gourmand, amaderado, especiado, aromático, fresco y acuático, almizclado, ámbar y bálsamo, cuero y humo. El perfil de un perfume es qué parte de la fuerza de sus acordes cae en cada familia, así que todos los perfiles suman lo mismo y uno con tres acordes se compara de igual a igual con uno que tiene doce.</p>
+            <h2>Lo que cuentan los datos: casas, géneros, épocas y perfumistas</h2>
+            <p>Para comparar grupos de perfumes junté los acordes en once grandes familias: cítrico, floral, frutal, gourmand, amaderado, especiado, aromático, fresco y acuático, almizclado, ámbar y bálsamo, y cuero y humo. Así, cada casa, cada época o cada colección tiene un perfil que se puede dibujar como una telaraña y comparar con el del catálogo entero.</p>
         </div>
         <div data-lang="en">
-            <h2>What the data says</h2>
-            <p>To compare houses, genders, decades and perfumers I grouped the 86 accords into eleven families: citrus, floral, fruity, gourmand, woody, spicy, aromatic, fresh and aquatic, musky, amber and balsamic, leather and smoke. A perfume's profile is the share of its accord strength that falls in each family, so every profile adds up to the same total and one with three accords compares fairly with one that has twelve.</p>
+            <h2>What the data tells: houses, genders, eras and perfumers</h2>
+            <p>To compare groups of perfumes I gathered the accords into eleven broad families: citrus, floral, fruity, gourmand, woody, spicy, aromatic, fresh and aquatic, musky, amber and balsamic, and leather and smoke. That way every house, era or collection has a profile that can be drawn as a web and compared with the whole catalogue.</p>
         </div>
 
         <div class="pestanas" role="tablist">
@@ -279,22 +275,22 @@
         <!-- ============ casas ============ -->
         <section class="panel-analisis activo" id="panel-casas">
             <div data-lang="es">
-                <p>Lo que caracteriza a una casa no es lo que más usa, porque casi todas usan bergamota y almizcle, sino lo que usa <strong>mucho más que el resto</strong>. Por eso cada rasgo se mide como <em>lift</em>: la proporción de perfumes de la casa que lo tienen dividida por la proporción en todo el catálogo. Un lift de 3 quiere decir tres veces más frecuente que en el promedio. Sólo cuentan rasgos presentes en al menos el 20&nbsp;% de los perfumes de la casa y en 30 del catálogo, para que una nota rara en dos frascos no gane por azar.</p>
-                <p>Algunas firmas salen solas de los números. En <strong>Chanel</strong> los aldehídos aparecen 11,6 veces más que en el promedio, en el 26&nbsp;% de sus 151 perfumes: es la marca de Chanel N°5 que se volvió estilo de la casa. <strong>Acqua di Parma</strong> tiene el <em>petit grain</em> 10,5 veces sobre la media, y el 71&nbsp;% de sus perfumes llevan el acorde cítrico. <strong>Creed</strong> se reconoce por el ámbar gris (×8,0, en un tercio de su catálogo), <strong>Montale</strong> por el oud (×7,8) y <strong>Amouage</strong> por el ládano y el incienso (×5,1 y ×4,2). <strong>Guerlain</strong> por el iris (×3,5) y <strong>Natura</strong>, con 438 perfumes, por el muguete (×4,0). En el otro extremo, <strong>Zara</strong> no tiene ninguna nota por encima de ×1,5: con mil perfumes, su firma es justamente no tener una.</p>
+                <p>Casi todas las casas usan bergamota y almizcle, así que eso no dice mucho de ninguna. Lo que sirve para reconocerlas es aquello que usan bastante más que el resto. Mirado así, cada una tiene su firma. <strong>Chanel</strong> se identifica con los aldehídos, el rasgo de su N°5 que terminó siendo el estilo de la casa. <strong>Acqua di Parma</strong>, con el petit grain y los cítricos. <strong>Creed</strong>, con el ámbar gris. <strong>Montale</strong>, con el oud, y <strong>Amouage</strong>, con el ládano y el incienso. <strong>Guerlain</strong> se reconoce por el iris y <strong>Natura</strong> por el muguete.</p>
+                <p><strong>Zara</strong> es el caso contrario: tiene más de mil perfumes y ninguna nota que la distinga. Esa falta de firma es, justamente, su firma.</p>
             </div>
             <div data-lang="en">
-                <p>What characterises a house is not what it uses most, since almost all of them use bergamot and musk, but what it uses <strong>far more than everyone else</strong>. So each trait is measured as <em>lift</em>: the share of the house's perfumes that have it, divided by the share in the whole catalogue. A lift of 3 means three times as frequent as average. Only traits present in at least 20&nbsp;% of the house's perfumes and in 30 across the catalogue count, so a rare note in two bottles cannot win by chance.</p>
-                <p>Some signatures fall straight out of the numbers. At <strong>Chanel</strong> aldehydes appear 11.6 times more than average, in 26&nbsp;% of its 151 perfumes: the mark of Chanel N°5 turned house style. <strong>Acqua di Parma</strong> has <em>petit grain</em> 10.5 times above the mean, and 71&nbsp;% of its perfumes carry the citrus accord. <strong>Creed</strong> is recognisable by ambergris (×8.0, in a third of its catalogue), <strong>Montale</strong> by oud (×7.8) and <strong>Amouage</strong> by labdanum and incense (×5.1 and ×4.2). <strong>Guerlain</strong> by iris (×3.5) and <strong>Natura</strong>, with 438 perfumes, by lily of the valley (×4.0). At the other end, <strong>Zara</strong> has no note above ×1.5: with a thousand perfumes, its signature is precisely not having one.</p>
+                <p>Almost every house uses bergamot and musk, so that says little about any of them. What makes them recognisable is what they use noticeably more than everyone else. Seen that way, each one has a signature. <strong>Chanel</strong> is identified with aldehydes, the trait of its N°5 that became the house style. <strong>Acqua di Parma</strong>, with petit grain and citrus. <strong>Creed</strong>, with ambergris. <strong>Montale</strong>, with oud, and <strong>Amouage</strong>, with labdanum and incense. <strong>Guerlain</strong> is recognised by iris and <strong>Natura</strong> by lily of the valley.</p>
+                <p><strong>Zara</strong> is the opposite case: it has more than a thousand perfumes and no note that sets it apart. That lack of a signature is, precisely, its signature.</p>
             </div>
             <div class="grafico">
                 <h3><span data-lang="es">El perfil de una casa</span><span data-lang="en">A house's profile</span></h3>
-                <div class="sub"><span data-lang="es">Las 162 casas con al menos 25 perfumes en el mapa.</span><span data-lang="en">The 162 houses with at least 25 perfumes on the map.</span></div>
+                <div class="sub"><span data-lang="es">Elegí una casa para ver su perfil frente al catálogo y lo que más la distingue. Están todas las que tienen al menos 25 perfumes en el mapa.</span><span data-lang="en">Pick a house to see its profile against the catalogue and what sets it apart most. All houses with at least 25 perfumes on the map are listed.</span></div>
                 <select id="sel-casa" aria-label="Casa"></select>
                 <div class="ficha-casa" id="ficha-casa"></div>
                 <div class="dos-col">
                     <div id="g-casa-radar"></div>
                     <div>
-                        <div class="sub" style="margin-top:8px"><span data-lang="es">Rasgos más sobre-representados (lift)</span><span data-lang="en">Most over-represented traits (lift)</span></div>
+                        <div class="sub" style="margin-top:8px"><span data-lang="es">Lo que más la distingue</span><span data-lang="en">What sets it apart most</span></div>
                         <div id="g-casa-rasgos"></div>
                     </div>
                 </div>
@@ -304,16 +300,16 @@
         <!-- ============ genero ============ -->
         <section class="panel-analisis" id="panel-genero">
             <div data-lang="es">
-                <p>El género no sale de la marca sino de los votos: Fragrantica le pregunta a la gente si un perfume le parece femenino, más femenino, unisex, más masculino o masculino. Con esos cinco votos calculé una posición de 0 a 4 y la corté en tercios. Quedan 10.369 femeninos, 5.790 unisex y 5.026 masculinos, y 98 sin votos.</p>
-                <p>El gráfico toma las cinco comunidades olfativas más grandes de cada género y muestra qué parte de los perfumes de cada género cae en cada una. Lo masculino está mucho más concentrado: <strong>uno de cada cuatro</strong> perfumes masculinos (24,7&nbsp;%) cae en la comunidad <em>lavanda</em>, la de los fougère y aromáticos. Lo femenino está repartido: su comunidad más grande, <em>peonía</em>, junta apenas el 9,4&nbsp;%, seguida de <em>caramelo</em> y <em>coco</em>. Lo unisex se apoya en <em>madera de oud</em> (10,0&nbsp;%) e <em>incienso</em> (7,6&nbsp;%). Mirado por rasgos, lo masculino sobre-representa lavanda (×2,8), el acorde aromático (×2,4) y el fresco especiado (×2,3). Lo femenino, los acordes florales (×1,8), floral blanco (×1,7) y afrutado (×1,6).</p>
+                <p>Acá el género no lo pone la marca sino la gente. Fragrantica pregunta si un perfume parece femenino, masculino o unisex, y según cómo se repartieron esos votos cada fragancia quedó en uno de los tres grupos.</p>
+                <p>La diferencia más clara está en cuán concentrado es cada uno. Los masculinos se amontonan: uno de cada cuatro cae en la comunidad de la <em>lavanda</em>, la de los perfumes aromáticos y frescos de barbería. Los femeninos están mucho más repartidos entre la <em>peonía</em>, el <em>caramelo</em> y el <em>coco</em>, y lo que tienen en común son los acordes florales, frutales y dulces. Los unisex se apoyan en las maderas, el <em>oud</em> y el <em>incienso</em>.</p>
             </div>
             <div data-lang="en">
-                <p>Gender comes from votes, not from the brand: Fragrantica asks people whether a perfume feels feminine, more feminine, unisex, more masculine or masculine. From those five votes I computed a position from 0 to 4 and cut it into thirds. That leaves 10,369 feminine, 5,790 unisex and 5,026 masculine, plus 98 with no votes.</p>
-                <p>The chart takes the five largest olfactory communities of each gender and shows what share of each gender's perfumes falls in each one. Masculine is far more concentrated: <strong>one in four</strong> masculine perfumes (24.7&nbsp;%) falls in the <em>lavender</em> community, home of fougères and aromatics. Feminine is spread out: its largest community, <em>peony</em>, holds just 9.4&nbsp;%, followed by <em>caramel</em> and <em>coconut</em>. Unisex leans on <em>oud wood</em> (10.0&nbsp;%) and <em>incense</em> (7.6&nbsp;%). By traits, masculine over-represents lavender (×2.8), the aromatic accord (×2.4) and fresh spicy (×2.3). Feminine, the floral accords (×1.8), white floral (×1.7) and fruity (×1.6).</p>
+                <p>Here gender is set not by the brand but by people. Fragrantica asks whether a perfume feels feminine, masculine or unisex, and depending on how those votes split, each fragrance landed in one of the three groups.</p>
+                <p>The clearest difference is how concentrated each one is. Masculine perfumes crowd together: one in four falls in the <em>lavender</em> community, home of aromatic, fresh, barbershop-style scents. Feminine ones are spread much more widely across <em>peony</em>, <em>caramel</em> and <em>coconut</em>, and what they share are floral, fruity and sweet accords. Unisex ones lean on woods, <em>oud</em> and <em>incense</em>.</p>
             </div>
             <div class="grafico">
                 <h3><span data-lang="es">Dónde cae cada género</span><span data-lang="en">Where each gender falls</span></h3>
-                <div class="sub"><span data-lang="es">% de los perfumes de cada género en las cinco comunidades más grandes de cada uno.</span><span data-lang="en">% of each gender's perfumes in the five largest communities of each.</span></div>
+                <div class="sub"><span data-lang="es">Qué parte de los perfumes de cada género cae en las cinco comunidades más grandes de cada uno.</span><span data-lang="en">What share of each gender's perfumes falls in the five largest communities of each.</span></div>
                 <div id="g-genero"></div>
                 <details class="tabla"><summary><span data-lang="es">Ver como tabla</span><span data-lang="en">View as table</span></summary><div id="t-genero"></div></details>
             </div>
@@ -322,21 +318,21 @@
         <!-- ============ tiempo ============ -->
         <section class="panel-analisis" id="panel-tiempo">
             <div data-lang="es">
-                <p>Comparando los perfumes lanzados antes de 1980 con los de esta década, lo que más creció es lo <strong>gourmand</strong>: pasó del 4,5&nbsp;% al 16,8&nbsp;% del perfil promedio, casi cuatro veces más. Lo frutal también se multiplicó (de 1,4&nbsp;% a 6,9&nbsp;%). Lo que retrocedió es lo floral (−9,0 puntos), lo aromático (−6,5) y lo amaderado (−5,9). En paralelo, los perfumes que el público vota como unisex pasaron del 20&nbsp;% al 30&nbsp;%.</p>
-                <p>Hay que leerlo con cuidado. Antes de 1980 hay 257 perfumes y en los 2020 hay 8.778, porque lo que sobrevive en Fragrantica de otras décadas son los clásicos que se siguen vendiendo o recordando, no el catálogo de la época. La comparación dice cómo es el pasado que quedó, no cómo era el pasado.</p>
+                <p>Si comparamos los perfumes lanzados antes de 1980 con los de esta década, el cambio más fuerte es el avance de lo <strong>gourmand</strong>: los perfumes que huelen a postre, a vainilla o a caramelo hoy pesan casi cuatro veces más. Lo frutal también creció. Las que perdieron terreno son las flores, lo aromático y las maderas. Y, de a poco, cada vez más perfumes se votan como unisex.</p>
+                <p>Esta comparación tiene una trampa. De las décadas pasadas, en Fragrantica quedan sobre todo los clásicos que se siguen vendiendo o recordando, no todo lo que se lanzó en su momento. El gráfico muestra cómo es el pasado que sobrevivió, que no es lo mismo que cómo era el pasado.</p>
             </div>
             <div data-lang="en">
-                <p>Comparing perfumes launched before 1980 with this decade's, what grew most is <strong>gourmand</strong>: from 4.5&nbsp;% to 16.8&nbsp;% of the average profile, almost four times as much. Fruity multiplied too (1.4&nbsp;% to 6.9&nbsp;%). What receded is floral (−9.0 points), aromatic (−6.5) and woody (−5.9). Meanwhile, the perfumes the public votes unisex went from 20&nbsp;% to 30&nbsp;%.</p>
-                <p>Read it with care. Before 1980 there are 257 perfumes and in the 2020s there are 8,778, because what survives on Fragrantica from other decades is the classics still sold or remembered, not the catalogue of the time. The comparison describes the past that remained, not the past as it was.</p>
+                <p>Comparing perfumes launched before 1980 with this decade's, the biggest change is the rise of <strong>gourmand</strong>: perfumes that smell of dessert, vanilla or caramel now weigh almost four times as much. Fruity grew too. What lost ground is flowers, aromatics and woods. And, little by little, more and more perfumes are voted unisex.</p>
+                <p>This comparison has a catch. From past decades, what remains on Fragrantica is mostly the classics still sold or remembered, not everything launched at the time. The chart shows what the surviving past looks like, which is not the same as what the past was like.</p>
             </div>
             <div class="grafico">
                 <h3><span data-lang="es">Antes de 1980 contra los 2020</span><span data-lang="en">Before 1980 against the 2020s</span></h3>
-                <div class="sub"><span data-lang="es">% del perfil aromático promedio, por familia. Ordenado por cuánto cambió.</span><span data-lang="en">% of the average aromatic profile, by family. Sorted by change.</span></div>
+                <div class="sub"><span data-lang="es">Peso de cada familia en el perfil promedio de cada época, ordenado por cuánto cambió.</span><span data-lang="en">Weight of each family in each era's average profile, sorted by how much it changed.</span></div>
                 <div id="g-tiempo"></div>
             </div>
             <div class="grafico">
                 <h3><span data-lang="es">Para quién se hacen</span><span data-lang="en">Who they are made for</span></h3>
-                <div class="sub"><span data-lang="es">% de los perfumes de cada período según el género votado.</span><span data-lang="en">% of each period's perfumes by voted gender.</span></div>
+                <div class="sub"><span data-lang="es">Qué parte de los perfumes de cada época se votó femenina, masculina o unisex.</span><span data-lang="en">What share of each era's perfumes was voted feminine, masculine or unisex.</span></div>
                 <div id="g-tiempo-genero"></div>
             </div>
         </section>
@@ -344,16 +340,16 @@
         <!-- ============ perfumistas ============ -->
         <section class="panel-analisis" id="panel-perfumistas">
             <div data-lang="es">
-                <p>Cinco narices con catálogos grandes en el mapa: Alberto Morillas (324 perfumes), Olivier Cresp (286), Dominique Ropion (230), Francis Kurkdjian (184) y Jacques Cavallier Belletrud (168). Cada punto es un perfume, ubicado por año y por su <strong>familia distintiva</strong>: no la familia que más pesa, que casi siempre sería floral porque agrupa ocho acordes, sino la que más se aparta del promedio del catálogo. El tamaño es la cantidad de votos.</p>
-                <p>Cada uno tiene su terreno. En Morillas la familia distintiva más frecuente es <strong>fresco y acuático</strong> (55 de 323 con año). En Cresp, <strong>gourmand</strong> (42), con la peonía 3,3 veces sobre la media. Ropion reparte entre <strong>cuero y humo</strong> y floral (30 y 30), con flor de azahar ×2,9, iris ×2,3 y pachulí en casi la mitad de sus perfumes. Kurkdjian se mueve en lo floral (33) y aromático, con rosas y lavanda como firma. Cavallier, en lo <strong>cítrico</strong> (25), con el jengibre 2,5 veces sobre el promedio.</p>
+                <p>Elegí cinco perfumistas con mucha obra en el mapa: <strong>Alberto Morillas</strong> (324 perfumes), <strong>Olivier Cresp</strong> (286), <strong>Dominique Ropion</strong> (230), <strong>Francis Kurkdjian</strong> (184) y <strong>Jacques Cavallier Belletrud</strong> (168). En el gráfico, cada punto es un perfume, ubicado según el año en que salió y la familia en la que más se destaca. Cuanto más grande el punto, más votos tiene.</p>
+                <p>Cada uno tiene su terreno. Morillas vuelve una y otra vez a lo fresco y acuático, y trabaja mucho la mandarina. Cresp es el más gourmand de los cinco, y su nota más personal es la peonía. Ropion se mueve entre las flores y el cuero, con el azahar, el iris y el pachulí como firma. Kurkdjian combina lo floral con lo aromático, casi siempre cerca de la rosa y la lavanda. En Cavallier lo más frecuente es lo cítrico, con una debilidad marcada por el jengibre.</p>
             </div>
             <div data-lang="en">
-                <p>Five noses with large catalogues on the map: Alberto Morillas (324 perfumes), Olivier Cresp (286), Dominique Ropion (230), Francis Kurkdjian (184) and Jacques Cavallier Belletrud (168). Each dot is a perfume, placed by year and by its <strong>distinctive family</strong>: not the family that weighs most, which would almost always be floral because it groups eight accords, but the one furthest above the catalogue average. Size is the number of votes.</p>
-                <p>Each has their own ground. For Morillas the most frequent distinctive family is <strong>fresh and aquatic</strong> (55 of 323 dated). For Cresp, <strong>gourmand</strong> (42), with peony 3.3 times above the mean. Ropion splits between <strong>leather and smoke</strong> and floral (30 and 30), with orange blossom ×2.9, iris ×2.3 and patchouli in almost half his perfumes. Kurkdjian moves in floral (33) and aromatic, with rose and lavender as signature. Cavallier, in <strong>citrus</strong> (25), with ginger 2.5 times above average.</p>
+                <p>I chose five perfumers with a large body of work on the map: <strong>Alberto Morillas</strong> (324 perfumes), <strong>Olivier Cresp</strong> (286), <strong>Dominique Ropion</strong> (230), <strong>Francis Kurkdjian</strong> (184) and <strong>Jacques Cavallier Belletrud</strong> (168). In the chart, each dot is a perfume, placed by the year it came out and the family where it stands out most. The bigger the dot, the more votes it has.</p>
+                <p>Each has their own ground. Morillas returns again and again to fresh and aquatic scents, and works a lot with mandarin. Cresp is the most gourmand of the five, and his most personal note is peony. Ropion moves between flowers and leather, with orange blossom, iris and patchouli as his signature. Kurkdjian blends floral with aromatic, nearly always close to rose and lavender. With Cavallier the most frequent ground is citrus, with a marked fondness for ginger.</p>
             </div>
             <div class="grafico">
-                <h3><span data-lang="es">Qué ramas exploró cada uno, y cuándo</span><span data-lang="en">Which branches each explored, and when</span></h3>
-                <div class="sub"><span data-lang="es">Un punto por perfume. Pasá el mouse para ver cuál es.</span><span data-lang="en">One dot per perfume. Hover to see which.</span></div>
+                <h3><span data-lang="es">Qué caminos exploró cada uno, y cuándo</span><span data-lang="en">Which paths each explored, and when</span></h3>
+                <div class="sub"><span data-lang="es">Un punto por perfume. Pasá el mouse por encima para ver cuál es.</span><span data-lang="en">One dot per perfume. Hover over it to see which.</span></div>
                 <div id="g-perfumistas"></div>
             </div>
         </section>
@@ -474,9 +470,8 @@
             const sel = document.getElementById("sel-casa"), nom = sel.value, h = A.casas[nom];
             const glob = A.perfil_global.map(v => v * 100);
             document.getElementById("ficha-casa").innerHTML =
-                `${t("Perfumes en el mapa", "Perfumes on the map")}: <b>${h.n}</b> · ` +
-                `${t("costo percibido", "perceived cost")}: <b>${num(h.precio)}</b>/5 · ` +
-                `${t("rating medio", "mean rating")}: <b>${num(h.rating, 2)}</b>`;
+                `<b>${h.n}</b> ${t("perfumes en el mapa", "perfumes on the map")} · ` +
+                `${t("costo percibido", "perceived cost")} <b>${"$".repeat(Math.max(1, Math.round(h.precio)))}</b>`;
             document.getElementById("g-casa-radar").innerHTML =
                 leyenda([[nom, SERIES[0]], [t("Todo el catálogo", "Whole catalogue"), "var(--referencia)", true]]) +
                 radar(A.familias.map(fam), [
@@ -487,14 +482,14 @@
             const tope = Math.max(...ras.map(r => r[1]), 1);
             document.getElementById("g-casa-rasgos").innerHTML = ras.length ? ras.map(([term, lift, cob]) => {
                 const [tipo, nombre] = term.split(":");
-                return `<div class="rasgo" title="${esc(nombre)}: ${t("en el", "in")} ${num(cob * 100, 0)} % ${t("de sus perfumes", "of its perfumes")}">
+                return `<div class="rasgo">
                     <span>${esc(nombre)} <span class="tipo">${tipo === "n" ? t("nota", "note") : t("acorde", "accord")}</span></span>
-                    <span class="barra-l" style="width:${100 * lift / tope}%"></span><b>×${num(lift)}</b></div>`;
+                    <span class="barra-l" style="width:${100 * lift / tope}%"></span></div>`;
             }).join("") + `<div class="sub" style="margin-top:8px">${t(
-                "Veces más frecuente que en el catálogo. Pasá el mouse para ver en qué parte de la casa aparece.",
-                "Times more frequent than in the catalogue. Hover to see how much of the house has it.")}</div>`
-                : `<div class="sub">${t("Ningún rasgo pasa el umbral: la casa no se aparta del promedio.",
-                                        "No trait clears the threshold: the house sits at the average.")}</div>`;
+                "Cuanto más larga la barra, más la usa esta casa en comparación con las demás.",
+                "The longer the bar, the more this house uses it compared with the others.")}</div>`
+                : `<div class="sub">${t("Nada la distingue demasiado: sus perfumes se parecen al promedio.",
+                                        "Nothing sets it apart much: its perfumes look like the average.")}</div>`;
         }
 
         /* ---------------- genero ---------------- */
@@ -584,7 +579,7 @@
                 const cuenta = new Array(F.length).fill(0);
                 for (const o of p.obras) cuenta[o[1]]++;
                 const top = cuenta.map((c, f) => [c, f]).sort((x, y) => y[0] - x[0]).slice(0, 2);
-                const rasgos = p.rasgos.slice(0, 3).map(r => `${esc(r[0].split(":")[1])} ×${num(r[1])}`).join(", ");
+                const rasgos = p.rasgos.slice(0, 3).map(r => esc(r[0].split(":")[1])).join(", ");
                 let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(nom)}">`;
                 F.forEach((f, k) => {
                     s += `<line x1="${iz}" y1="${Y(k)}" x2="${W - de}" y2="${Y(k)}" stroke="var(--grilla)"/>
@@ -602,8 +597,8 @@
                             stroke="var(--card-bg)" stroke-width="1"><title>${esc(nombre)} · ${esc(casa)} · ${anio} · ${num(votos, 0)} ${t("votos", "votes")}</title></circle>`;
                 }
                 html += `<div class="perfumista"><h4>${esc(nom)}</h4>
-                    <div class="sub">${p.n} ${t("perfumes", "perfumes")} · ${t("más frecuente", "most frequent")}: ${esc(fam(F[top[0][1]]))} (${top[0][0]}), ${esc(fam(F[top[1][1]]))} (${top[1][0]})
-                    · ${t("rasgos", "traits")}: ${rasgos}</div>${s}</svg></div>`;
+                    <div class="sub">${p.n} ${t("perfumes", "perfumes")} · ${t("sobre todo", "mostly")} ${esc(fam(F[top[0][1]]).toLowerCase())} ${t("y", "and")} ${esc(fam(F[top[1][1]]).toLowerCase())}
+                    · ${t("su firma", "signature")}: ${rasgos}</div>${s}</svg></div>`;
             }
             document.getElementById("g-perfumistas").innerHTML = html;
         }
