@@ -940,33 +940,49 @@ function relajar(){
   }
 
   const m = idx.length, area = 2.2e6;
-  const k0 = Math.sqrt(area/m), celdaR = k0*2;
+  const k0 = Math.sqrt(area/m), celdaR = k0*2, R2 = celdaR*celdaR;
+  const exacta = m <= 2500;
+  /* todos contra todos es m^2: menos iteraciones por cuadro para que el
+     telefono no se trabe */
+  const porCuadro = exacta ? Math.max(1, Math.min(7, Math.floor(4e6/(m*m)))) : 7;
   let temp = 260, hechas = 0, total = 140;
   const tanda = () => {
-    for (let it=0; it<7 && hechas<total; it++, hechas++){
+    for (let it=0; it<porCuadro && hechas<total; it++, hechas++){
       const dx = new Float64Array(m), dy = new Float64Array(m);
-      /* repulsion: solo contra los vecinos de grilla, no contra todos */
-      const bal = new Map();
-      for (let i=0;i<m;i++){
-        const cx = Math.floor(X[i]/celdaR), cy = Math.floor(Y[i]/celdaR);
-        const key = cx + "," + cy;
-        let b = bal.get(key); if (!b){ b = []; bal.set(key, b); }
-        b.push(i);
-      }
-      for (const [key, grupo] of bal){
-        const [cx, cy] = key.split(",").map(Number);
-        const cerca = [];
-        for (let a=-1;a<=1;a++) for (let b=-1;b<=1;b++){
-          const o = bal.get((cx+a) + "," + (cy+b));
-          if (o) cerca.push(...o);
+      /* repulsion. Con pocos nodos, todos contra todos: es exacta y barata.
+         Con muchos, solo contra los que caen a menos de celdaR, con una caida
+         suave hasta cero en ese radio. Antes se usaban "los de las celdas
+         vecinas" sin mirar la distancia: el alcance cambiaba de golpe al cruzar
+         el borde de una celda y los nodos se apilaban sobre los bordes, que es
+         el cuadriculado que se veia al filtrar por cuero. */
+      const empujar = (i, j) => {
+        let ex = X[i]-X[j], ey = Y[i]-Y[j];
+        let d2 = ex*ex + ey*ey;
+        if (d2 < 1e-6){ ex = Math.random()-0.5; ey = Math.random()-0.5; d2 = 1e-6; }
+        let f = (k0*k0)/d2;
+        if (!exacta){
+          if (d2 >= R2) return;
+          const q = 1 - d2/R2; f *= q*q;
         }
-        for (const i of grupo) for (const j of cerca){
-          if (i === j) continue;
-          let ex = X[i]-X[j], ey = Y[i]-Y[j];
-          let d2 = ex*ex + ey*ey;
-          if (d2 < 1e-6){ ex = Math.random()-0.5; ey = Math.random()-0.5; d2 = 1e-6; }
-          const f = (k0*k0)/d2;
-          dx[i] += ex*f; dy[i] += ey*f;
+        dx[i] += ex*f; dy[i] += ey*f;
+      };
+      if (exacta){
+        for (let i=0;i<m;i++) for (let j=0;j<m;j++) if (i !== j) empujar(i, j);
+      } else {
+        const bal = new Map();
+        for (let i=0;i<m;i++){
+          const key = Math.floor(X[i]/celdaR) + "," + Math.floor(Y[i]/celdaR);
+          let b = bal.get(key); if (!b){ b = []; bal.set(key, b); }
+          b.push(i);
+        }
+        for (const [key, grupo] of bal){
+          const [cx, cy] = key.split(",").map(Number);
+          const cerca = [];
+          for (let a=-1;a<=1;a++) for (let b=-1;b<=1;b++){
+            const o = bal.get((cx+a) + "," + (cy+b));
+            if (o) for (const j of o) cerca.push(j);
+          }
+          for (const i of grupo) for (const j of cerca) if (i !== j) empujar(i, j);
         }
       }
       /* atraccion por arista */
